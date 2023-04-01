@@ -26,5 +26,28 @@ jobs:
         run: git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
       - name: Apply Patches
         run: ./gradlew applyPatches
-      - name: Build
-        run: ./gradlew build
+      - name: Build Bundler
+        run: ./gradlew createReobfBundlerJar
+      - name: capture build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Artifacts
+          path: build/libs/
+      - name: Create Release Tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: "Build-${{ env.Compile_Date }}"
+          message: "Build ${{ env.Compile_Date }}"
+      - name: Upload Build to Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/libs/*
+          file_glob: true
+          tag: "Build-${{ env.Compile_Date }}"
+          release_name: "Folia_Dev-${{ env.Compile_Date }}"
+          overwrite: true
+          prerelease: false
+          body: |
+            Folia Build
+            Build Time: ${{ env.Compile_Date }}
