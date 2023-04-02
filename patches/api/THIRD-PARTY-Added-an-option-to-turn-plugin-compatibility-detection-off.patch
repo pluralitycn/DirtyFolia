@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Sun, 2 Apr 2023 16:51:42 +0800
+Subject: [PATCH] Added an option to turn plugin compatibility detection off
+
+
+diff --git a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
+index 7bc31036a612df6088a7bb190ed16d0cdbfeaccc..d537d03055446fe4164726cfbb0bdcaf212d0eda 100644
+--- a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
++++ b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
+@@ -266,6 +266,9 @@ public final class PluginDescriptionFile implements io.papermc.paper.plugin.conf
+      */
+     @Override
+     public boolean isFoliaSupported() {
++        if (System.getProperty("folia.force-load-all-plugins", "false").equalsIgnoreCase("true")) {
++            return true;
++        }
+         return this.foliaSupported != null && this.foliaSupported.equalsIgnoreCase("true");
+     }
+     // Folia end - block plugins not marked as supported
