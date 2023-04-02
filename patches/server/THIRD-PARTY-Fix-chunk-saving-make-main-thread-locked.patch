@@ -1,0 +1,303 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Sun, 2 Apr 2023 21:16:57 +0800
+Subject: [PATCH] Fix chunk saving make main-thread locked
+
+
+diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
+index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..57a01681f3e17dbf51196d5bec437333d1b4ef0c 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
++++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
+@@ -26,7 +26,6 @@ import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
+ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+ import net.minecraft.nbt.CompoundTag;
+ import io.papermc.paper.chunk.system.ChunkSystem;
+-import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ChunkHolder;
+ import net.minecraft.server.level.ChunkMap;
+ import net.minecraft.server.level.ServerLevel;
+@@ -48,6 +47,7 @@ import java.util.List;
+ import java.util.Objects;
+ import java.util.concurrent.TimeUnit;
+ import java.util.concurrent.atomic.AtomicBoolean;
++import java.util.concurrent.atomic.AtomicInteger;
+ import java.util.concurrent.atomic.AtomicReference;
+ import java.util.concurrent.locks.LockSupport;
+ import java.util.concurrent.locks.ReentrantLock;
+@@ -393,16 +393,16 @@ public final class ChunkHolderManager {
+ 
+         final DecimalFormat format = new DecimalFormat("#0.00");
+ 
+-        int saved = 0;
++        AtomicInteger saved = new AtomicInteger();
+ 
+         final long start = System.nanoTime();
+         long lastLog = start;
+-        boolean needsFlush = false;
++        AtomicBoolean needsFlush = new AtomicBoolean(false);
+         final int flushInterval = 50;
+ 
+-        int savedChunk = 0;
+-        int savedEntity = 0;
+-        int savedPoi = 0;
++        AtomicInteger savedChunk = new AtomicInteger();
++        AtomicInteger savedEntity = new AtomicInteger();
++        AtomicInteger savedPoi = new AtomicInteger();
+ 
+         for (int i = 0, len = holders.size(); i < len; ++i) {
+             final NewChunkHolder holder = holders.get(i);
+@@ -413,34 +413,35 @@ public final class ChunkHolderManager {
+             }
+             // Folia end - region threading
+             try {
+-                final NewChunkHolder.SaveStat saveStat = holder.save(shutdown, false);
+-                if (saveStat != null) {
+-                    ++saved;
+-                    needsFlush = flush;
+-                    if (saveStat.savedChunk()) {
+-                        ++savedChunk;
+-                    }
+-                    if (saveStat.savedEntityChunk()) {
+-                        ++savedEntity;
+-                    }
+-                    if (saveStat.savedPoiChunk()) {
+-                        ++savedPoi;
++                holder.save(shutdown, false).addAsynchronousWaiter((saveStat, throwable) -> {
++                    if (saveStat != null) {
++                        saved.incrementAndGet();
++                        needsFlush.set(flush);
++                        if (saveStat.savedChunk()) {
++                            savedChunk.incrementAndGet();
++                        }
++                        if (saveStat.savedEntityChunk()) {
++                            savedEntity.incrementAndGet();
++                        }
++                        if (saveStat.savedPoiChunk()) {
++                            savedPoi.incrementAndGet();
++                        }
+                     }
+-                }
++                });
+             } catch (final ThreadDeath thr) {
+                 throw thr;
+             } catch (final Throwable thr) {
+                 LOGGER.error("Failed to save chunk (" + holder.chunkX + "," + holder.chunkZ + ") in world '" + this.world.getWorld().getName() + "'", thr);
+             }
+-            if (needsFlush && (saved % flushInterval) == 0) {
+-                needsFlush = false;
++            if (needsFlush.get() && (saved.get() % flushInterval) == 0) {
++                needsFlush.set(false);
+                 RegionFileIOThread.partialFlush(flushInterval / 2);
+             }
+             if (logProgress) {
+                 final long currTime = System.nanoTime();
+                 if ((currTime - lastLog) > TimeUnit.SECONDS.toNanos(10L)) {
+                     lastLog = currTime;
+-                    LOGGER.info("Saved " + saved + " chunks (" + format.format((double)(i+1)/(double)len * 100.0) + "%) in world '" + this.world.getWorld().getName() + "'");
++                    LOGGER.info("Saved " + saved.get() + " chunks (" + format.format((double)(i+1)/(double)len * 100.0) + "%) in world '" + this.world.getWorld().getName() + "'");
+                 }
+             }
+         }
+@@ -448,7 +449,7 @@ public final class ChunkHolderManager {
+             RegionFileIOThread.flush();
+         }
+         if (logProgress) {
+-            LOGGER.info("Saved " + savedChunk + " block chunks, " + savedEntity + " entity chunks, " + savedPoi + " poi chunks in world '" + this.world.getWorld().getName() + "' in " + format.format(1.0E-9 * (System.nanoTime() - start)) + "s");
++            LOGGER.info("Saved " + savedChunk.get() + " block chunks, " + savedEntity.get() + " entity chunks, " + savedPoi.get() + " poi chunks in world '" + this.world.getWorld().getName() + "' in " + format.format(1.0E-9 * (System.nanoTime() - start)) + "s");
+         }
+     }
+ 
+diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
+index 2a5c2ac38be8687f8166064394e0f676564efa01..dfddeccbeb35f4dd40519b55a7ed96163daae1c1 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
++++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
+@@ -12,6 +12,8 @@ import com.google.gson.JsonPrimitive;
+ import com.mojang.logging.LogUtils;
+ import io.papermc.paper.chunk.system.io.RegionFileIOThread;
+ import io.papermc.paper.chunk.system.poi.PoiChunk;
++import io.papermc.paper.plugin.configuration.PluginMeta;
++import io.papermc.paper.plugin.manager.DummyBukkitPluginLoader;
+ import io.papermc.paper.threadedregions.RegionizedServer;
+ import io.papermc.paper.threadedregions.TickRegionScheduler;
+ import io.papermc.paper.util.CoordinateUtils;
+@@ -37,15 +39,27 @@ import net.minecraft.world.level.chunk.LevelChunk;
+ import net.minecraft.world.level.chunk.storage.ChunkSerializer;
+ import net.minecraft.world.level.chunk.storage.EntityStorage;
+ import org.bukkit.Bukkit;
+-import org.bukkit.craftbukkit.CraftServer;
++import org.bukkit.Server;
++import org.bukkit.command.Command;
++import org.bukkit.command.CommandSender;
++import org.bukkit.configuration.file.FileConfiguration;
++import org.bukkit.generator.BiomeProvider;
++import org.bukkit.generator.ChunkGenerator;
++import org.bukkit.plugin.Plugin;
++import org.bukkit.plugin.PluginDescriptionFile;
++import org.bukkit.plugin.PluginLoader;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
+ import org.slf4j.Logger;
++
++import java.io.File;
++import java.io.InputStream;
+ import java.lang.invoke.VarHandle;
+ import java.util.ArrayList;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Objects;
+-import java.util.concurrent.CompletableFuture;
+ import java.util.concurrent.ExecutionException;
+ import java.util.concurrent.atomic.AtomicBoolean;
+ import java.util.function.Consumer;
+@@ -1735,12 +1749,12 @@ public final class NewChunkHolder {
+ 
+     public static final record SaveStat(boolean savedChunk, boolean savedEntityChunk, boolean savedPoiChunk) {}
+ 
+-    public SaveStat save(final boolean shutdown, final boolean unloading) {
++    public Completable<SaveStat> save(final boolean shutdown, final boolean unloading) {
+         //TickThread.ensureTickThread(this.world, this.chunkX, this.chunkZ, "Cannot save data off-main");
+ 
+         //Folia (Third Party) - Automatic using region task to save data
+-        CompletableFuture<SaveStat> future = new CompletableFuture<>();
+-        RegionizedServer.getInstance().taskQueue.queueTickTaskQueue(this.world, this.chunkX, this.chunkZ, () -> {
++        Completable<SaveStat> future = new Completable<>();
++        Runnable runnable = () -> {
+             ChunkAccess chunk = this.getCurrentChunk();
+             PoiChunk poi = this.getPoiChunk();
+             ChunkEntitySlices entities = this.getEntityChunk();
+@@ -1787,12 +1801,129 @@ public final class NewChunkHolder {
+ 
+             SaveStat saveStat = executedUnloadTask | canSaveChunk | canSaveEntities | canSavePOI ? new SaveStat(executedUnloadTask || canSaveChunk, canSaveEntities, canSavePOI): null;
+             future.complete(saveStat);
+-        }, PrioritisedExecutor.Priority.HIGHEST);
+-        try {
+-            return future.get();
+-        } catch (InterruptedException | ExecutionException e) {
+-            throw new RuntimeException(e);
++        };
++        if (TickThread.isTickThreadFor(this.world, this.chunkX, this.chunkZ)) {
++            runnable.run();
++        } else {
++            Bukkit.getRegionScheduler().run(new Plugin() {
++                @Override
++                public @NotNull File getDataFolder() {
++                    return null;
++                }
++
++                @Override
++                public @NotNull PluginDescriptionFile getDescription() {
++                    return null;
++                }
++
++                @NotNull
++                @Override
++                public PluginMeta getPluginMeta() {
++                    return null;
++                }
++
++                @Override
++                public @NotNull FileConfiguration getConfig() {
++                    return null;
++                }
++
++                @Override
++                public @Nullable InputStream getResource(@NotNull String filename) {
++                    return null;
++                }
++
++                @Override
++                public void saveConfig() {
++
++                }
++
++                @Override
++                public void saveDefaultConfig() {
++
++                }
++
++                @Override
++                public void saveResource(@NotNull String resourcePath, boolean replace) {
++
++                }
++
++                @Override
++                public void reloadConfig() {
++
++                }
++
++                @Override
++                public @NotNull PluginLoader getPluginLoader() {
++                    return new DummyBukkitPluginLoader();
++                }
++
++                @Override
++                public @NotNull Server getServer() {
++                    return Bukkit.getServer();
++                }
++
++                @Override
++                public boolean isEnabled() {
++                    return true;
++                }
++
++                @Override
++                public void onDisable() {
++
++                }
++
++                @Override
++                public void onLoad() {
++
++                }
++
++                @Override
++                public void onEnable() {
++
++                }
++
++                @Override
++                public boolean isNaggable() {
++                    return false;
++                }
++
++                @Override
++                public void setNaggable(boolean canNag) {
++
++                }
++
++                @Override
++                public @Nullable ChunkGenerator getDefaultWorldGenerator(@NotNull String worldName, @Nullable String id) {
++                    return null;
++                }
++
++                @Override
++                public @Nullable BiomeProvider getDefaultBiomeProvider(@NotNull String worldName, @Nullable String id) {
++                    return null;
++                }
++
++                @Override
++                public java.util.logging.@NotNull Logger getLogger() {
++                    return Bukkit.getLogger();
++                }
++
++                @Override
++                public @NotNull String getName() {
++                    return "Folia";
++                }
++
++                @Override
++                public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
++                    return false;
++                }
++
++                @Override
++                public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
++                    return null;
++                }
++            }, this.world.getWorld(), this.chunkX, this.chunkZ, scheduledTask -> runnable.run());
+         }
++        return future;
+     }
+ 
+     static final class AsyncChunkSerializeTask implements Runnable {
