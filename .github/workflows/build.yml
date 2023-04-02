@@ -29,8 +29,8 @@ jobs:
         run: git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
       - name: Apply Patches
         run: ./gradlew applyPatches
-      - name: Build Bundler
-        run: ./gradlew createReobfBundlerJar
+      - name: Build Bundler & Paperclip
+        run: ./gradlew createReobfBundlerJar createReobfPaperclipJar
       - name: capture build artifacts
         uses: actions/upload-artifact@v2
         with:
