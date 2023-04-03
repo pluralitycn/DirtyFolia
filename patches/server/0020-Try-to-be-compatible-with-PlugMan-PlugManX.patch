@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Mon, 3 Apr 2023 19:55:42 +0800
+Subject: [PATCH] Try to be compatible with PlugMan (PlugManX)
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/manager/DummyBukkitPluginLoader.java b/src/main/java/io/papermc/paper/plugin/manager/DummyBukkitPluginLoader.java
+index ea37ace14849ef4589a4f97287e6dcd64351370f..d298cf0acf41f18168aa1cf2f140c5e303cb45a2 100644
+--- a/src/main/java/io/papermc/paper/plugin/manager/DummyBukkitPluginLoader.java
++++ b/src/main/java/io/papermc/paper/plugin/manager/DummyBukkitPluginLoader.java
+@@ -1,5 +1,6 @@
+ package io.papermc.paper.plugin.manager;
+ 
++import com.google.common.base.Preconditions;
+ import org.bukkit.Bukkit;
+ import org.bukkit.event.Event;
+ import org.bukkit.event.Listener;
+@@ -12,10 +13,17 @@ import org.bukkit.plugin.RegisteredListener;
+ import org.bukkit.plugin.UnknownDependencyException;
+ import org.jetbrains.annotations.ApiStatus;
+ import org.jetbrains.annotations.NotNull;
++import org.yaml.snakeyaml.error.YAMLException;
+ 
+ import java.io.File;
++import java.io.FileNotFoundException;
++import java.io.IOException;
++import java.io.InputStream;
+ import java.util.Map;
++import java.util.Objects;
+ import java.util.Set;
++import java.util.jar.JarEntry;
++import java.util.jar.JarFile;
+ import java.util.regex.Pattern;
+ 
+ /**
+@@ -27,17 +35,55 @@ public class DummyBukkitPluginLoader implements PluginLoader {
+ 
+     @Override
+     public @NotNull Plugin loadPlugin(@NotNull File file) throws InvalidPluginException, UnknownDependencyException {
+-        throw new UnsupportedOperationException();
++        try {
++            return Objects.requireNonNull(PaperPluginManagerImpl.getInstance().loadPlugin(file));
++        } catch (InvalidDescriptionException e) {
++            throw new RuntimeException(e);
++        }
+     }
+ 
+     @Override
+     public @NotNull PluginDescriptionFile getPluginDescription(@NotNull File file) throws InvalidDescriptionException {
+-        throw new UnsupportedOperationException();
++        Preconditions.checkArgument(file != null, "File cannot be null");
++
++        JarFile jar = null;
++        InputStream stream = null;
++
++        try {
++            jar = new JarFile(file);
++            JarEntry entry = jar.getJarEntry("plugin.yml");
++
++            if (entry == null) {
++                throw new InvalidDescriptionException(new FileNotFoundException("Jar does not contain plugin.yml"));
++            }
++
++            stream = jar.getInputStream(entry);
++
++            return new PluginDescriptionFile(stream);
++
++        } catch (IOException ex) {
++            throw new InvalidDescriptionException(ex);
++        } catch (YAMLException ex) {
++            throw new InvalidDescriptionException(ex);
++        } finally {
++            if (jar != null) {
++                try {
++                    jar.close();
++                } catch (IOException e) {
++                }
++            }
++            if (stream != null) {
++                try {
++                    stream.close();
++                } catch (IOException e) {
++                }
++            }
++        }
+     }
+ 
+     @Override
+     public @NotNull Pattern[] getPluginFileFilters() {
+-        throw new UnsupportedOperationException();
++        return new Pattern[]{Pattern.compile("\\.jar$")};
+     }
+ 
+     @Override
