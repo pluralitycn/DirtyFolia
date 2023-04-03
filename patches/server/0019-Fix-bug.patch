@@ -1,0 +1,435 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Mon, 3 Apr 2023 15:35:04 +0800
+Subject: [PATCH] Fix bug
+
+
+diff --git a/src/main/java/dev/rgbmc/folia/FakePlugin.java b/src/main/java/dev/rgbmc/folia/FakePlugin.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..03d990f470b2852fb7b6f0b3b71ba13db86ea6ce
+--- /dev/null
++++ b/src/main/java/dev/rgbmc/folia/FakePlugin.java
+@@ -0,0 +1,184 @@
++package dev.rgbmc.folia;
++
++import io.papermc.paper.plugin.configuration.PluginMeta;
++import io.papermc.paper.plugin.provider.configuration.PaperPluginMeta;
++import net.minecraft.server.MinecraftServer;
++import org.bukkit.Bukkit;
++import org.bukkit.Server;
++import org.bukkit.command.Command;
++import org.bukkit.command.CommandSender;
++import org.bukkit.configuration.file.FileConfiguration;
++import org.bukkit.event.Event;
++import org.bukkit.event.Listener;
++import org.bukkit.generator.BiomeProvider;
++import org.bukkit.generator.ChunkGenerator;
++import org.bukkit.permissions.Permission;
++import org.bukkit.permissions.PermissionDefault;
++import org.bukkit.plugin.*;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
++
++import java.io.File;
++import java.io.InputStream;
++import java.util.*;
++import java.util.logging.Logger;
++import java.util.regex.Pattern;
++
++public class FakePlugin implements Plugin {
++    @Override
++    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
++        return false;
++    }
++
++    @Override
++    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
++        return new ArrayList<>();
++    }
++
++    @Override
++    public @NotNull File getDataFolder() {
++        return new File(System.getProperty("user.dir"));
++    }
++
++    @Override
++    public @NotNull PluginDescriptionFile getDescription() {
++        return new PluginDescriptionFile("Folia",
++            "Folia",new ArrayList<>(),
++            "folia.folia.Folia", "",
++            new ArrayList<>(), new ArrayList<>(),
++            new ArrayList<>(), "1.0.0",
++            new HashMap<>(), "Folia Fake Plugin",
++            List.of("PaperMC"), new ArrayList<>(),
++            "https://papermc.io", "Folia",
++            PluginLoadOrder.STARTUP, new ArrayList<>(),
++            PermissionDefault.FALSE, new HashSet<>(),
++            "1.19.4", new ArrayList<>());
++    }
++
++    @NotNull
++    @Override
++    public PluginMeta getPluginMeta() {
++        return getDescription();
++    }
++
++    @Override
++    public @NotNull FileConfiguration getConfig() {
++        return null;
++    }
++
++    @Override
++    public @Nullable InputStream getResource(@NotNull String filename) {
++        return null;
++    }
++
++    @Override
++    public void saveConfig() {
++
++    }
++
++    @Override
++    public void saveDefaultConfig() {
++
++    }
++
++    @Override
++    public void saveResource(@NotNull String resourcePath, boolean replace) {
++
++    }
++
++    @Override
++    public void reloadConfig() {
++
++    }
++
++    @Override
++    public @NotNull PluginLoader getPluginLoader() {
++        Plugin fakePlugin = this;
++        return new PluginLoader() {
++            @Override
++            public @NotNull Plugin loadPlugin(@NotNull File file) throws InvalidPluginException, UnknownDependencyException {
++                return fakePlugin;
++            }
++
++            @Override
++            public @NotNull PluginDescriptionFile getPluginDescription(@NotNull File file) throws InvalidDescriptionException {
++                return getDescription();
++            }
++
++            @Override
++            public @NotNull Pattern[] getPluginFileFilters() {
++                return new Pattern[0];
++            }
++
++            @Override
++            public @NotNull Map<Class<? extends Event>, Set<RegisteredListener>> createRegisteredListeners(@NotNull Listener listener, @NotNull Plugin plugin) {
++                return new HashMap<>();
++            }
++
++            @Override
++            public void enablePlugin(@NotNull Plugin plugin) {
++
++            }
++
++            @Override
++            public void disablePlugin(@NotNull Plugin plugin) {
++
++            }
++        };
++    }
++
++    @Override
++    public @NotNull Server getServer() {
++        return Bukkit.getServer();
++    }
++
++    @Override
++    public boolean isEnabled() {
++        return true;
++    }
++
++    @Override
++    public void onDisable() {
++
++    }
++
++    @Override
++    public void onLoad() {
++
++    }
++
++    @Override
++    public void onEnable() {
++
++    }
++
++    @Override
++    public boolean isNaggable() {
++        return false;
++    }
++
++    @Override
++    public void setNaggable(boolean canNag) {
++
++    }
++
++    @Override
++    public @Nullable ChunkGenerator getDefaultWorldGenerator(@NotNull String worldName, @Nullable String id) {
++        return MinecraftServer.getServer().server.getGenerator(worldName);
++    }
++
++    @Override
++    public @Nullable BiomeProvider getDefaultBiomeProvider(@NotNull String worldName, @Nullable String id) {
++        return MinecraftServer.getServer().server.getBiomeProvider(worldName);
++    }
++
++    @Override
++    public @NotNull Logger getLogger() {
++        return Bukkit.getLogger();
++    }
++
++    @Override
++    public @NotNull String getName() {
++        return "Folia";
++    }
++}
+diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
+index dfddeccbeb35f4dd40519b55a7ed96163daae1c1..a4c0e0440a288a8eed51c1cc87d7d7e3391a0337 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
++++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
+@@ -10,12 +10,9 @@ import com.google.gson.JsonElement;
+ import com.google.gson.JsonObject;
+ import com.google.gson.JsonPrimitive;
+ import com.mojang.logging.LogUtils;
++import dev.rgbmc.folia.FakePlugin;
+ import io.papermc.paper.chunk.system.io.RegionFileIOThread;
+ import io.papermc.paper.chunk.system.poi.PoiChunk;
+-import io.papermc.paper.plugin.configuration.PluginMeta;
+-import io.papermc.paper.plugin.manager.DummyBukkitPluginLoader;
+-import io.papermc.paper.threadedregions.RegionizedServer;
+-import io.papermc.paper.threadedregions.TickRegionScheduler;
+ import io.papermc.paper.util.CoordinateUtils;
+ import io.papermc.paper.util.TickThread;
+ import io.papermc.paper.util.WorldUtil;
+@@ -25,7 +22,6 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
+ import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
+ import net.minecraft.nbt.CompoundTag;
+-import net.minecraft.server.Main;
+ import net.minecraft.server.level.ChunkHolder;
+ import net.minecraft.server.level.ChunkMap;
+ import net.minecraft.server.level.ServerLevel;
+@@ -39,28 +35,14 @@ import net.minecraft.world.level.chunk.LevelChunk;
+ import net.minecraft.world.level.chunk.storage.ChunkSerializer;
+ import net.minecraft.world.level.chunk.storage.EntityStorage;
+ import org.bukkit.Bukkit;
+-import org.bukkit.Server;
+-import org.bukkit.command.Command;
+-import org.bukkit.command.CommandSender;
+-import org.bukkit.configuration.file.FileConfiguration;
+-import org.bukkit.generator.BiomeProvider;
+-import org.bukkit.generator.ChunkGenerator;
+-import org.bukkit.plugin.Plugin;
+-import org.bukkit.plugin.PluginDescriptionFile;
+-import org.bukkit.plugin.PluginLoader;
+-import org.jetbrains.annotations.NotNull;
+-import org.jetbrains.annotations.Nullable;
+ import org.slf4j.Logger;
+ 
+-import java.io.File;
+-import java.io.InputStream;
+ import java.lang.invoke.VarHandle;
+ import java.util.ArrayList;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Objects;
+-import java.util.concurrent.ExecutionException;
+ import java.util.concurrent.atomic.AtomicBoolean;
+ import java.util.function.Consumer;
+ 
+@@ -1805,123 +1787,7 @@ public final class NewChunkHolder {
+         if (TickThread.isTickThreadFor(this.world, this.chunkX, this.chunkZ)) {
+             runnable.run();
+         } else {
+-            Bukkit.getRegionScheduler().run(new Plugin() {
+-                @Override
+-                public @NotNull File getDataFolder() {
+-                    return null;
+-                }
+-
+-                @Override
+-                public @NotNull PluginDescriptionFile getDescription() {
+-                    return null;
+-                }
+-
+-                @NotNull
+-                @Override
+-                public PluginMeta getPluginMeta() {
+-                    return null;
+-                }
+-
+-                @Override
+-                public @NotNull FileConfiguration getConfig() {
+-                    return null;
+-                }
+-
+-                @Override
+-                public @Nullable InputStream getResource(@NotNull String filename) {
+-                    return null;
+-                }
+-
+-                @Override
+-                public void saveConfig() {
+-
+-                }
+-
+-                @Override
+-                public void saveDefaultConfig() {
+-
+-                }
+-
+-                @Override
+-                public void saveResource(@NotNull String resourcePath, boolean replace) {
+-
+-                }
+-
+-                @Override
+-                public void reloadConfig() {
+-
+-                }
+-
+-                @Override
+-                public @NotNull PluginLoader getPluginLoader() {
+-                    return new DummyBukkitPluginLoader();
+-                }
+-
+-                @Override
+-                public @NotNull Server getServer() {
+-                    return Bukkit.getServer();
+-                }
+-
+-                @Override
+-                public boolean isEnabled() {
+-                    return true;
+-                }
+-
+-                @Override
+-                public void onDisable() {
+-
+-                }
+-
+-                @Override
+-                public void onLoad() {
+-
+-                }
+-
+-                @Override
+-                public void onEnable() {
+-
+-                }
+-
+-                @Override
+-                public boolean isNaggable() {
+-                    return false;
+-                }
+-
+-                @Override
+-                public void setNaggable(boolean canNag) {
+-
+-                }
+-
+-                @Override
+-                public @Nullable ChunkGenerator getDefaultWorldGenerator(@NotNull String worldName, @Nullable String id) {
+-                    return null;
+-                }
+-
+-                @Override
+-                public @Nullable BiomeProvider getDefaultBiomeProvider(@NotNull String worldName, @Nullable String id) {
+-                    return null;
+-                }
+-
+-                @Override
+-                public java.util.logging.@NotNull Logger getLogger() {
+-                    return Bukkit.getLogger();
+-                }
+-
+-                @Override
+-                public @NotNull String getName() {
+-                    return "Folia";
+-                }
+-
+-                @Override
+-                public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+-                    return false;
+-                }
+-
+-                @Override
+-                public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+-                    return null;
+-                }
+-            }, this.world.getWorld(), this.chunkX, this.chunkZ, scheduledTask -> runnable.run());
++            Bukkit.getRegionScheduler().run(new FakePlugin(), this.world.getWorld(), this.chunkX, this.chunkZ, scheduledTask -> runnable.run());
+         }
+         return future;
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+index 293a3d934074005a7e8e224718e178bc1a3d1d09..c14c20da092bb3957515477fe4aeac3d102022c3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+@@ -1,7 +1,6 @@
+ package org.bukkit.craftbukkit.scheduler;
+ 
+ import co.aikar.timings.MinecraftTimings; // Paper
+-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+ import java.util.ArrayList;
+ import java.util.Comparator;
+ import java.util.Iterator;
+@@ -13,9 +12,9 @@ import java.util.concurrent.atomic.AtomicReference;
+ import java.util.function.Consumer;
+ import java.util.function.IntUnaryOperator;
+ import java.util.logging.Level;
+-import com.destroystokyo.paper.ServerSchedulerReportingWrapper;
+ import com.destroystokyo.paper.event.server.ServerExceptionEvent;
+ import com.destroystokyo.paper.exception.ServerSchedulerException;
++import dev.rgbmc.folia.FakePlugin;
+ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+ import org.apache.commons.lang.Validate;
+ import org.bukkit.Bukkit;
+@@ -534,15 +533,19 @@ public class CraftScheduler implements BukkitScheduler {
+         //Folia (Third Party) - support more plugins
+         //if (true) throw new UnsupportedOperationException(); // Folia - region threading
+         // Paper start
++        Plugin plugin = task.getOwner();
++        if (plugin == null) {
++            plugin = new FakePlugin();
++        }
+         if (!this.isAsyncScheduler && !task.isSync()) {
+             long mdelay = (long) (delay / 20.0 * 1000.0);
+             ScheduledTask scheduledTask;
+             if (mdelay <= 0) {
+-                scheduledTask = Bukkit.getAsyncScheduler().runNow(task.getOwner(), stask -> {
++                scheduledTask = Bukkit.getAsyncScheduler().runNow(plugin, stask -> {
+                     task.run();
+                 });
+             } else {
+-                scheduledTask = Bukkit.getAsyncScheduler().runDelayed(task.getOwner(), stask -> {
++                scheduledTask = Bukkit.getAsyncScheduler().runDelayed(plugin, stask -> {
+                     task.run();
+                 }, mdelay, TimeUnit.MILLISECONDS);
+             }
+@@ -555,11 +558,11 @@ public class CraftScheduler implements BukkitScheduler {
+         //this.addTask(task);
+         ScheduledTask scheduledTask;
+         if (delay <= 0) {
+-            scheduledTask = Bukkit.getGlobalRegionScheduler().run(task.getOwner(), stask -> {
++            scheduledTask = Bukkit.getGlobalRegionScheduler().run(plugin, stask -> {
+                 task.run();
+             });
+         } else {
+-            scheduledTask = Bukkit.getGlobalRegionScheduler().runDelayed(task.getOwner(), stask -> {
++            scheduledTask = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, stask -> {
+                 task.run();
+             }, delay);
+         }
