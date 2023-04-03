@@ -1,0 +1,145 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Mon, 3 Apr 2023 21:41:42 +0800
+Subject: [PATCH] Add removePlugin API in PaperPluginManagerImpl
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/manager/DummyBukkitPluginLoader.java b/src/main/java/io/papermc/paper/plugin/manager/DummyBukkitPluginLoader.java
+index d298cf0acf41f18168aa1cf2f140c5e303cb45a2..a8eaa49a01a913c0d2c7f47e8cf297b56955a8f4 100644
+--- a/src/main/java/io/papermc/paper/plugin/manager/DummyBukkitPluginLoader.java
++++ b/src/main/java/io/papermc/paper/plugin/manager/DummyBukkitPluginLoader.java
+@@ -11,6 +11,8 @@ import org.bukkit.plugin.PluginDescriptionFile;
+ import org.bukkit.plugin.PluginLoader;
+ import org.bukkit.plugin.RegisteredListener;
+ import org.bukkit.plugin.UnknownDependencyException;
++import org.bukkit.plugin.java.LibraryLoader;
++import org.bukkit.plugin.java.PluginClassLoader;
+ import org.jetbrains.annotations.ApiStatus;
+ import org.jetbrains.annotations.NotNull;
+ import org.yaml.snakeyaml.error.YAMLException;
+@@ -20,10 +22,11 @@ import java.io.FileNotFoundException;
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.util.Map;
+-import java.util.Objects;
+ import java.util.Set;
+ import java.util.jar.JarEntry;
+ import java.util.jar.JarFile;
++import java.util.logging.Level;
++import java.util.logging.Logger;
+ import java.util.regex.Pattern;
+ 
+ /**
+@@ -33,13 +36,81 @@ import java.util.regex.Pattern;
+ @ApiStatus.Internal
+ public class DummyBukkitPluginLoader implements PluginLoader {
+ 
++    private static LibraryLoader libraryLoader = new LibraryLoader(Logger.getLogger("FoliaLibraryLoader"));
++
+     @Override
+     public @NotNull Plugin loadPlugin(@NotNull File file) throws InvalidPluginException, UnknownDependencyException {
++        Preconditions.checkArgument(file != null, "File cannot be null");
++
++        if (!file.exists()) {
++            throw new InvalidPluginException(new FileNotFoundException(file.getPath() + " does not exist"));
++        }
++
++        final PluginDescriptionFile description;
++        try {
++            description = getPluginDescription(file);
++        } catch (InvalidDescriptionException ex) {
++            throw new InvalidPluginException(ex);
++        }
++
++        final File parentFile = Bukkit.getServer().getPluginsFolder(); // Paper
++        final File dataFolder = new File(parentFile, description.getName());
++        @SuppressWarnings("deprecation")
++        final File oldDataFolder = new File(parentFile, description.getRawName());
++
++        // Found old data folder
++        if (dataFolder.equals(oldDataFolder)) {
++            // They are equal -- nothing needs to be done!
++        } else if (dataFolder.isDirectory() && oldDataFolder.isDirectory()) {
++            Bukkit.getServer().getLogger().warning(String.format(
++                "While loading %s (%s) found old-data folder: `%s' next to the new one `%s'",
++                description.getFullName(),
++                file,
++                oldDataFolder,
++                dataFolder
++            ));
++        } else if (oldDataFolder.isDirectory() && !dataFolder.exists()) {
++            if (!oldDataFolder.renameTo(dataFolder)) {
++                throw new InvalidPluginException("Unable to rename old data folder: `" + oldDataFolder + "' to: `" + dataFolder + "'");
++            }
++            Bukkit.getServer().getLogger().log(Level.INFO, String.format(
++                "While loading %s (%s) renamed data folder: `%s' to `%s'",
++                description.getFullName(),
++                file,
++                oldDataFolder,
++                dataFolder
++            ));
++        }
++
++        if (dataFolder.exists() && !dataFolder.isDirectory()) {
++            throw new InvalidPluginException(String.format(
++                "Projected datafolder: `%s' for %s (%s) exists and is not a directory",
++                dataFolder,
++                description.getFullName(),
++                file
++            ));
++        }
++
++        for (final String pluginName : description.getDepend()) {
++            Plugin current = Bukkit.getPluginManager().getPlugin(pluginName);
++
++            if (current == null) {
++                throw new UnknownDependencyException("Unknown dependency " + pluginName + ". Please download and install " + pluginName + " to run this plugin.");
++            }
++        }
++
++        Bukkit.getServer().getUnsafe().checkSupported(description);
++
++        final PluginClassLoader loader;
+         try {
+-            return Objects.requireNonNull(PaperPluginManagerImpl.getInstance().loadPlugin(file));
+-        } catch (InvalidDescriptionException e) {
+-            throw new RuntimeException(e);
++            loader = new PluginClassLoader(getClass().getClassLoader(), description, dataFolder, file, (libraryLoader != null) ? libraryLoader.createLoader(description) : null, null, null); // Paper
++        } catch (InvalidPluginException ex) {
++            throw ex;
++        } catch (Throwable ex) {
++            throw new InvalidPluginException(ex);
+         }
++
++        return loader.getPlugin();
+     }
+ 
+     @Override
+diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
+index 1bca4a629fe986e5afa47d8884dc44b2be800f32..feb73c49a21fece01501df415443bf126c8a768f 100644
+--- a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
++++ b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
+@@ -70,6 +70,10 @@ class PaperPluginInstanceManager {
+         return this.lookupNames.get(name.replace(' ', '_').toLowerCase(java.util.Locale.ENGLISH)); // Paper
+     }
+ 
++    public void removePlugin(String name) { //Folia (Third-Party)
++        this.lookupNames.remove(name.replace(' ', '_').toLowerCase(java.util.Locale.ENGLISH));
++    }
++
+     public @NotNull Plugin[] getPlugins() {
+         return this.plugins.toArray(new Plugin[0]);
+     }
+diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginManagerImpl.java b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginManagerImpl.java
+index dab211c458311869c61779305580a1c7da830f71..bfa09578b3cb51a2797be3de6cc0e8248666f9b5 100644
+--- a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginManagerImpl.java
++++ b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginManagerImpl.java
+@@ -238,4 +238,8 @@ public class PaperPluginManagerImpl implements PluginManager, DependencyContext
+     public MutableGraph<String> getInstanceManagerGraph() {
+         return instanceManager.getDependencyGraph();
+     }
++
++    public void removePlugin(String name) { //Folia (Third-Party)
++        instanceManager.removePlugin(name);
++    }
+ }
