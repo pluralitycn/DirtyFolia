@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Tue, 4 Apr 2023 18:59:24 +0800
+Subject: [PATCH] Added an option to turn Paper plugin compatibility check
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java b/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java
+index bf4da696710026febea85ffcc559621d1ea33e45..bca105bfd95a0c0d0165cd181f03a2946d96a7d1 100644
+--- a/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java
++++ b/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java
+@@ -208,6 +208,9 @@ public class PaperPluginMeta implements PluginMeta {
+     // Folia start
+     @Override
+     public boolean isFoliaSupported() {
++        if (System.getProperty("folia.force-load-all-plugins", "false").equalsIgnoreCase("true")) { // Folia (Third-Party)
++            return true;
++        }
+         return this.foliaSupported;
+     }
+     // Folia end
