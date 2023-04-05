@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Wed, 5 Apr 2023 19:28:46 +0800
+Subject: [PATCH] Add special markers in bStats
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+index 58dc84b7b3b04c2d0b00fc5fac5303d3378b3467..e4b140c3409d1347a87da65f21b1ca03354cfe15 100644
+--- a/src/main/java/com/destroystokyo/paper/Metrics.java
++++ b/src/main/java/com/destroystokyo/paper/Metrics.java
+@@ -140,6 +140,7 @@ public class Metrics {
+     private JSONObject getServerData() {
+         // OS specific data
+         String osName = System.getProperty("os.name");
++        osName += " (Using DirtyFolia)";
+         String osArch = System.getProperty("os.arch");
+         String osVersion = System.getProperty("os.version");
+         int coreCount = Runtime.getRuntime().availableProcessors();
