@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Thu, 6 Apr 2023 20:26:09 +0800
+Subject: [PATCH] Removed Entity getHandle thread check
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+index 67789134b4f42822f04ed327222c953ecb59b3ee..1f0cb52ce68f573bc3c737def3d9adc5a7d2e595 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -845,7 +845,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+     // Folia end - region threading
+ 
+     public Entity getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return this.entity;
+     }
+ 
