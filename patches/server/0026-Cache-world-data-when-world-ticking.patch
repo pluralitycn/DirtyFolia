@@ -1,0 +1,299 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Thu, 6 Apr 2023 17:59:16 +0800
+Subject: [PATCH] Cache world data when world ticking
+
+
+diff --git a/src/main/java/dev/rgbmc/folia/CachedWorldData.java b/src/main/java/dev/rgbmc/folia/CachedWorldData.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..9533fb470a4d42d4de644f2837ee2243bfedabfc
+--- /dev/null
++++ b/src/main/java/dev/rgbmc/folia/CachedWorldData.java
+@@ -0,0 +1,23 @@
++package dev.rgbmc.folia;
++
++import io.papermc.paper.threadedregions.RegionizedWorldData;
++
++import java.util.HashMap;
++import java.util.Map;
++import java.util.concurrent.CompletableFuture;
++
++public class CachedWorldData {
++    private static Map<String, RegionizedWorldData> cachedData = new HashMap<>();
++
++    public static void update(String world, RegionizedWorldData data) {
++        CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
++            cachedData.put(world, data);
++            return null;
++        });
++        future.thenAcceptAsync(v -> {});
++    }
++
++    public static RegionizedWorldData get(String world) {
++        return cachedData.get(world);
++    }
++}
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 3cc7a686151461730710003aef0be37b844b2f34..77de5772c71fb6a1f943462727a8c3670ae853a4 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1,11 +1,9 @@
+ package net.minecraft.server;
+ 
++import co.aikar.timings.MinecraftTimings;
+ import com.google.common.base.Preconditions;
+ import com.google.common.base.Splitter;
+ import com.google.common.collect.ImmutableList;
+-import co.aikar.timings.Timings;
+-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+-import com.google.common.base.Stopwatch;
+ import com.google.common.collect.Lists;
+ import com.google.common.collect.Maps;
+ import com.google.common.collect.Sets;
+@@ -13,60 +11,21 @@ import com.mojang.authlib.GameProfile;
+ import com.mojang.authlib.GameProfileRepository;
+ import com.mojang.authlib.minecraft.MinecraftSessionService;
+ import com.mojang.datafixers.DataFixer;
++import com.mojang.datafixers.util.Pair;
+ import com.mojang.logging.LogUtils;
++import com.mojang.serialization.DynamicOps;
++import com.mojang.serialization.Lifecycle;
++import dev.rgbmc.folia.CachedWorldData;
++import dev.rgbmc.folia.FakePlugin;
+ import io.papermc.paper.configuration.GlobalConfiguration;
+ import it.unimi.dsi.fastutil.longs.LongIterator;
+ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+-import java.awt.image.BufferedImage;
+-import java.io.BufferedWriter;
+-import java.io.ByteArrayOutputStream;
+-import java.io.File;
+-import java.io.IOException;
+-import java.lang.management.ManagementFactory;
+-import java.lang.management.ThreadInfo;
+-import java.lang.management.ThreadMXBean;
+-import java.net.Proxy;
+-import java.nio.file.Files;
+-import java.nio.file.LinkOption;
+-import java.nio.file.Path;
+-import java.security.KeyPair;
+-import java.util.ArrayList;
+-import java.util.Arrays;
+-import java.util.Collection;
+-import java.util.Collections;
+-import java.util.Comparator;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Locale;
+-import java.util.Map;
+-import java.util.Map.Entry;
+-import java.util.Objects;
+-import java.util.Optional;
+-import java.util.Set;
+-import java.util.concurrent.CompletableFuture;
+-import java.util.concurrent.Executor;
+-import java.util.concurrent.RejectedExecutionException;
+-import java.util.concurrent.atomic.AtomicReference;
+-import java.util.function.BooleanSupplier;
+-import java.util.function.Consumer;
+-import java.util.function.Function;
+-import java.util.stream.Collectors;
+-import java.util.stream.Stream;
+-import javax.annotation.Nullable;
+-import javax.imageio.ImageIO;
+-import net.minecraft.CrashReport;
+-import net.minecraft.ReportedException;
+-import net.minecraft.SharedConstants;
+-import net.minecraft.SystemReport;
+-import net.minecraft.Util;
++import joptsimple.OptionSet;
++import net.minecraft.*;
+ import net.minecraft.commands.CommandSource;
+ import net.minecraft.commands.CommandSourceStack;
+ import net.minecraft.commands.Commands;
+-import net.minecraft.core.BlockPos;
+-import net.minecraft.core.HolderGetter;
+-import net.minecraft.core.LayeredRegistryAccess;
+-import net.minecraft.core.Registry;
+-import net.minecraft.core.RegistryAccess;
++import net.minecraft.core.*;
+ import net.minecraft.core.registries.Registries;
+ import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
+ import net.minecraft.gametest.framework.GameTestTicker;
+@@ -79,15 +38,13 @@ import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
+ import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
+ import net.minecraft.network.protocol.status.ServerStatus;
+ import net.minecraft.obfuscate.DontObfuscate;
++import net.minecraft.resources.RegistryOps;
+ import net.minecraft.resources.ResourceKey;
+ import net.minecraft.resources.ResourceLocation;
+-import net.minecraft.server.level.DemoMode;
+-import net.minecraft.server.level.PlayerRespawnLogic;
+-import net.minecraft.server.level.ServerChunkCache;
+-import net.minecraft.server.level.ServerLevel;
+-import net.minecraft.server.level.ServerPlayer;
+-import net.minecraft.server.level.ServerPlayerGameMode;
+-import net.minecraft.server.level.TicketType;
++import net.minecraft.server.bossevents.CustomBossEvents;
++import net.minecraft.server.dedicated.DedicatedServer;
++import net.minecraft.server.dedicated.DedicatedServerProperties;
++import net.minecraft.server.level.*;
+ import net.minecraft.server.level.progress.ChunkProgressListener;
+ import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
+ import net.minecraft.server.network.ServerConnectionListener;
+@@ -102,22 +59,9 @@ import net.minecraft.server.players.GameProfileCache;
+ import net.minecraft.server.players.PlayerList;
+ import net.minecraft.server.players.ServerOpListEntry;
+ import net.minecraft.server.players.UserWhiteList;
+-import net.minecraft.util.Crypt;
+-import net.minecraft.util.CryptException;
+-import net.minecraft.util.FrameTimer;
+-import net.minecraft.util.ModCheck;
+-import net.minecraft.util.Mth;
+-import net.minecraft.util.NativeModuleLister;
+-import net.minecraft.util.ProgressListener;
+-import net.minecraft.util.RandomSource;
+-import net.minecraft.util.SignatureValidator;
+-import net.minecraft.util.Unit;
++import net.minecraft.util.*;
+ import net.minecraft.util.datafix.DataFixers;
+-import net.minecraft.util.profiling.EmptyProfileResults;
+-import net.minecraft.util.profiling.ProfileResults;
+-import net.minecraft.util.profiling.ProfilerFiller;
+-import net.minecraft.util.profiling.ResultField;
+-import net.minecraft.util.profiling.SingleTickProfiler;
++import net.minecraft.util.profiling.*;
+ import net.minecraft.util.profiling.jfr.JvmProfiler;
+ import net.minecraft.util.profiling.jfr.callback.ProfiledDuration;
+ import net.minecraft.util.profiling.metrics.profiling.ActiveMetricsRecorder;
+@@ -135,65 +79,51 @@ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.flag.FeatureFlagSet;
+ import net.minecraft.world.flag.FeatureFlags;
+ import net.minecraft.world.item.crafting.RecipeManager;
+-import net.minecraft.world.level.ChunkPos;
+-import net.minecraft.world.level.CustomSpawner;
+-import net.minecraft.world.level.DataPackConfig;
+-import net.minecraft.world.level.ForcedChunksSavedData;
+-import net.minecraft.world.level.GameRules;
+-import net.minecraft.world.level.GameType;
+-import net.minecraft.world.level.Level;
+-import net.minecraft.world.level.LevelSettings;
+-import net.minecraft.world.level.WorldDataConfiguration;
++import net.minecraft.world.level.*;
+ import net.minecraft.world.level.biome.BiomeManager;
+ import net.minecraft.world.level.block.Block;
+ import net.minecraft.world.level.border.WorldBorder;
+ import net.minecraft.world.level.dimension.LevelStem;
+-import net.minecraft.world.level.levelgen.WorldOptions;
++import net.minecraft.world.level.levelgen.*;
+ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
++import net.minecraft.world.level.levelgen.presets.WorldPresets;
+ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+-import net.minecraft.world.level.storage.CommandStorage;
+-import net.minecraft.world.level.storage.DimensionDataStorage;
+-import net.minecraft.world.level.storage.LevelData;
+-import net.minecraft.world.level.storage.LevelResource;
+-import net.minecraft.world.level.storage.LevelStorageSource;
+-import net.minecraft.world.level.storage.PlayerDataStorage;
+-import net.minecraft.world.level.storage.PrimaryLevelData;
+-import net.minecraft.world.level.storage.ServerLevelData;
+-import net.minecraft.world.level.storage.WorldData;
++import net.minecraft.world.level.storage.*;
+ import net.minecraft.world.level.storage.loot.ItemModifierManager;
+ import net.minecraft.world.level.storage.loot.LootTables;
+ import net.minecraft.world.level.storage.loot.PredicateManager;
+ import net.minecraft.world.phys.Vec2;
+ import net.minecraft.world.phys.Vec3;
+-import org.slf4j.Logger;
+-
+-// CraftBukkit start
+-import com.mojang.datafixers.util.Pair;
+-import com.mojang.serialization.DynamicOps;
+-import com.mojang.serialization.Lifecycle;
+-import java.util.Random;
+-// import jline.console.ConsoleReader; // Paper
+-import joptsimple.OptionSet;
+-import net.minecraft.core.HolderLookup;
+-import net.minecraft.resources.RegistryOps;
+-import net.minecraft.server.bossevents.CustomBossEvents;
+-import net.minecraft.server.dedicated.DedicatedServer;
+-import net.minecraft.server.dedicated.DedicatedServerProperties;
+-import net.minecraft.world.level.levelgen.Heightmap;
+-import net.minecraft.world.level.levelgen.PatrolSpawner;
+-import net.minecraft.world.level.levelgen.PhantomSpawner;
+-import net.minecraft.world.level.levelgen.WorldDimensions;
+-import net.minecraft.world.level.levelgen.presets.WorldPresets;
+ import org.bukkit.Bukkit;
+-import org.bukkit.craftbukkit.CraftServer;
+-import org.bukkit.craftbukkit.Main;
+-import org.bukkit.craftbukkit.util.CraftChatMessage;
+-import org.bukkit.craftbukkit.util.LazyPlayerSet;
+-import org.bukkit.event.player.AsyncPlayerChatPreviewEvent;
+ import org.bukkit.event.server.ServerLoadEvent;
+-// CraftBukkit end
++import org.slf4j.Logger;
+ 
+-import co.aikar.timings.MinecraftTimings; // Paper
++import javax.annotation.Nullable;
++import javax.imageio.ImageIO;
++import java.awt.image.BufferedImage;
++import java.io.BufferedWriter;
++import java.io.ByteArrayOutputStream;
++import java.io.File;
++import java.io.IOException;
++import java.lang.management.ManagementFactory;
++import java.lang.management.ThreadInfo;
++import java.lang.management.ThreadMXBean;
++import java.net.Proxy;
++import java.nio.file.Files;
++import java.nio.file.LinkOption;
++import java.nio.file.Path;
++import java.security.KeyPair;
++import java.util.*;
++import java.util.Map.Entry;
++import java.util.concurrent.CompletableFuture;
++import java.util.concurrent.Executor;
++import java.util.concurrent.RejectedExecutionException;
++import java.util.concurrent.atomic.AtomicReference;
++import java.util.function.BooleanSupplier;
++import java.util.function.Consumer;
++import java.util.function.Function;
++import java.util.stream.Collectors;
++import java.util.stream.Stream;
+ 
+ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, AutoCloseable {
+ 
+@@ -1700,6 +1630,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                 for (final io.papermc.paper.chunk.SingleThreadChunkRegionManager regionManager : worldserver.getChunkSource().chunkMap.regionManagers) {
+                     regionManager.recalculateRegions();
+                 }
++                Bukkit.getRegionScheduler().run(new FakePlugin(), worldserver.getWorld(), 0, 0, scheduledTask -> { // Folia (Third Party)
++                    CachedWorldData.update(worldserver.getWorld().getName(), worldserver.getCurrentWorldData());
++                });
+                 // Paper end
+                 worldserver.timings.doTick.stopTiming(); // Spigot
+             } catch (Throwable throwable) {
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index 32b9358bacabedf4513bb17c68200ef84a95a91b..aacc344732e5b015c466ac739e379818c579f798 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -15,6 +15,10 @@ import java.util.function.Consumer;
+ import java.util.function.Predicate;
+ import java.util.function.Supplier;
+ import javax.annotation.Nullable;
++
++import dev.rgbmc.folia.CachedWorldData;
++import io.papermc.paper.threadedregions.RegionizedWorldData;
++import io.papermc.paper.threadedregions.TickRegionScheduler;
+ import net.minecraft.CrashReport;
+ import net.minecraft.CrashReportCategory;
+ import net.minecraft.ReportedException;
+@@ -276,7 +280,8 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+     public io.papermc.paper.threadedregions.RegionizedWorldData getCurrentWorldData() {
+         final io.papermc.paper.threadedregions.RegionizedWorldData ret = io.papermc.paper.threadedregions.TickRegionScheduler.getCurrentRegionizedWorldData();
+         if (ret == null) {
+-            return ret;
++            //return ret;
++            return CachedWorldData.get(world.getName()); //Folia (Third Party)
+         }
+         Level world = ret.world;
+         if (world != this) {
