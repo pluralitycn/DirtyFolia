@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AnswerForMystery <jim20071128@163.com>
-Date: Thu, 6 Apr 2023 19:58:22 +0800
+Date: Thu, 6 Apr 2023 20:10:40 +0800
 Subject: [PATCH] Cache world data when world ticking
 
 
@@ -334,7 +334,7 @@ index 32b9358bacabedf4513bb17c68200ef84a95a91b..aacc344732e5b015c466ac739e379818
          Level world = ret.world;
          if (world != this) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
-index 2f0ee1fa2a250e1edc2a33e0bb91009a5bb945f1..35dba28689d526ecd0b1d2642aba468cf9502a1d 100644
+index 2f0ee1fa2a250e1edc2a33e0bb91009a5bb945f1..907ac0862cc7cc8cad14ec90af9793399c8f3284 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 @@ -6,7 +6,10 @@ import java.util.Collection;
@@ -348,17 +348,14 @@ index 2f0ee1fa2a250e1edc2a33e0bb91009a5bb945f1..35dba28689d526ecd0b1d2642aba468c
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Direction;
  import net.minecraft.core.Holder;
-@@ -83,7 +86,12 @@ public class CraftBlock implements Block {
+@@ -82,9 +85,7 @@ public class CraftBlock implements Block {
+ 
      public net.minecraft.world.level.block.state.BlockState getNMS() {
          // Folia start - region threading
-         if (world instanceof ServerLevel serverWorld) {
+-        if (world instanceof ServerLevel serverWorld) {
 -            io.papermc.paper.util.TickThread.ensureTickThread(serverWorld, position, "Cannot read world asynchronously");
-+            //io.papermc.paper.util.TickThread.ensureTickThread(serverWorld, position, "Cannot read world asynchronously");
-+            CompletableFuture<net.minecraft.world.level.block.state.BlockState> future = new CompletableFuture<>(); // Folia (Third Party)
-+            Bukkit.getRegionScheduler().run(new FakePlugin(), getWorld(), getChunk().getX(), getChunk().getZ(), scheduledTask -> {
-+                future.complete(getNMS());
-+            });
-+            return future.join();
-         }
+-        }
++        // Removed in DirtyFolia
          // Folia end - region threading
          return this.world.getBlockState(position);
+     }
