@@ -1,9 +1,516 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AnswerForMystery <jim20071128@163.com>
-Date: Thu, 6 Apr 2023 20:26:09 +0800
+Date: Thu, 6 Apr 2023 20:46:50 +0800
 Subject: [PATCH] Removed Entity getHandle thread check
 
 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/AbstractProjectile.java b/src/main/java/org/bukkit/craftbukkit/entity/AbstractProjectile.java
+index 116341b777f898a8080cc348499159c0f01b7329..2061576d7977d41a00d1b760c946de6ab7931298 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/AbstractProjectile.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/AbstractProjectile.java
+@@ -67,7 +67,7 @@ public abstract class AbstractProjectile extends CraftEntity implements Projecti
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.Projectile getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.Projectile) entity;
+     }
+     // Paper end
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractHorse.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractHorse.java
+index e0f2104154f1499ef7cd388d24ffc3983aef7f42..01f736afbd59cc794cb978db516ef6109ce07121 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractHorse.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractHorse.java
+@@ -26,7 +26,7 @@ public abstract class CraftAbstractHorse extends CraftAnimals implements Abstrac
+ 
+     @Override
+     public net.minecraft.world.entity.animal.horse.AbstractHorse getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.horse.AbstractHorse) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractSkeleton.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractSkeleton.java
+index fa1bc80ae320c6d04acc20d6dec7df52a39d9920..3790ee2d44b3f34a0547db673c6414732c960ead 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractSkeleton.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractSkeleton.java
+@@ -25,7 +25,7 @@ public abstract class CraftAbstractSkeleton extends CraftMonster implements Abst
+ 
+     @Override
+     public net.minecraft.world.entity.monster.AbstractSkeleton getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.AbstractSkeleton) super.getHandle();
+     }
+     // Paper end
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractVillager.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractVillager.java
+index e3d57d4f65d1f3c03f407d497ff360dcd40a0fb1..bb6f1839d7f690a161d82b37ca5c8d7ecd2cedee 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractVillager.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractVillager.java
+@@ -26,7 +26,7 @@ public class CraftAbstractVillager extends CraftAgeable implements AbstractVilla
+ 
+     @Override
+     public net.minecraft.world.entity.npc.AbstractVillager getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (Villager) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAgeable.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAgeable.java
+index 69118f8ff00755ba1c31845a2704dd95fa2aee6e..034defcac0834ef6c11eed5fa4b69dc356bf8e81 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAgeable.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAgeable.java
+@@ -72,7 +72,7 @@ public class CraftAgeable extends CraftCreature implements Ageable {
+ 
+     @Override
+     public AgeableMob getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (AgeableMob) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAllay.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAllay.java
+index e7bd0ab46da08facea06ae86e8d21b288fe2e117..502db13cc5b2fe4557a51411c08501f484d5cb00 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAllay.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAllay.java
+@@ -25,7 +25,7 @@ public class CraftAllay extends CraftCreature implements org.bukkit.entity.Allay
+ 
+     @Override
+     public Allay getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (Allay) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAmbient.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAmbient.java
+index 93d9b4c40aa545d57650a411316210d193a6d3d7..4983b0f7b4c5bf0119880129deff2fc1ded9310d 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAmbient.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAmbient.java
+@@ -19,7 +19,7 @@ public class CraftAmbient extends CraftMob implements Ambient {
+ 
+     @Override
+     public AmbientCreature getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (AmbientCreature) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAnimals.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAnimals.java
+index 5cf8ea3a7dd4e8ea96ca6061aa1aaefc7ac8fcce..d360dfcd71168aabcbeb377fbea13ca692114b0a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAnimals.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAnimals.java
+@@ -24,7 +24,7 @@ public class CraftAnimals extends CraftAgeable implements Animals {
+ 
+     @Override
+     public Animal getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (Animal) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java
+index 9ef569fad87838171198ff444538a401d664a710..f4cbf1ed814c3e9e80429e8e99454ce0dfcb30b1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java
+@@ -33,7 +33,7 @@ public class CraftAreaEffectCloud extends CraftEntity implements AreaEffectCloud
+ 
+     @Override
+     public net.minecraft.world.entity.AreaEffectCloud getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.AreaEffectCloud) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftArmorStand.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftArmorStand.java
+index f678c151938ddd3e5277a05d6d8884c12b114336..7d0afe46fb8db54c29e8ea1434adf95bb753b8b3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftArmorStand.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftArmorStand.java
+@@ -35,7 +35,7 @@ public class CraftArmorStand extends CraftLivingEntity implements ArmorStand {
+ 
+     @Override
+     public net.minecraft.world.entity.decoration.ArmorStand getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.decoration.ArmorStand) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftArrow.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftArrow.java
+index bd473c255e13420f8d31b417ee53ff357424ce6d..ab1606c623d92e5aa76df7e8c63f25feba892463 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftArrow.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftArrow.java
+@@ -167,7 +167,7 @@ public class CraftArrow extends AbstractProjectile implements AbstractArrow {
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.AbstractArrow getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.AbstractArrow) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAxolotl.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAxolotl.java
+index dec03f00091ca781f0eaa4063649883f47040b07..b51e328bac76a4b900265aa736986963da7fd98a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAxolotl.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAxolotl.java
+@@ -20,7 +20,7 @@ public class CraftAxolotl extends CraftAnimals implements Axolotl, io.papermc.pa
+ 
+     @Override
+     public net.minecraft.world.entity.animal.axolotl.Axolotl getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.axolotl.Axolotl) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftBat.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftBat.java
+index ebadeb928d405564d3b029246ac4f2c66958ad9c..ca8309750d8117d0f4ee0a2fd82a0c73400556ee 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftBat.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftBat.java
+@@ -18,7 +18,7 @@ public class CraftBat extends CraftAmbient implements Bat {
+ 
+     @Override
+     public net.minecraft.world.entity.ambient.Bat getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.ambient.Bat) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftBee.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftBee.java
+index eb0d022f50b31ae54aed72153b29b94f92f14174..10665f036b85d31632a74247da6133a5f9f2329d 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftBee.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftBee.java
+@@ -22,7 +22,7 @@ public class CraftBee extends CraftAnimals implements Bee {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Bee getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Bee) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftBlaze.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftBlaze.java
+index 7dfbf7f7a94eae0c62d6830d459c34784a7e518c..e60335da17f023ffa31872b4ce3cd6aa2f9f2636 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftBlaze.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftBlaze.java
+@@ -18,7 +18,7 @@ public class CraftBlaze extends CraftMonster implements Blaze {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Blaze getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Blaze) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftBlockDisplay.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftBlockDisplay.java
+index 29ac4ef7d2ed35e10df539b055db087f741fe4b6..ce83b79bc58fbd848b1604aec3cb2a9390af91b6 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftBlockDisplay.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftBlockDisplay.java
+@@ -22,7 +22,7 @@ public class CraftBlockDisplay extends CraftDisplay implements BlockDisplay {
+ 
+     @Override
+     public net.minecraft.world.entity.Display.BlockDisplay getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.Display.BlockDisplay) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftBoat.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftBoat.java
+index 6671a86496394a786034cab7defa8126b55e8d5e..b8fc4e03cdc3268b40d5b6e976d1b0832053e15e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftBoat.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftBoat.java
+@@ -101,7 +101,7 @@ public class CraftBoat extends CraftVehicle implements Boat {
+ 
+     @Override
+     public net.minecraft.world.entity.vehicle.Boat getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.vehicle.Boat) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftCamel.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftCamel.java
+index 17dc189187e343db0e91f642a2edc782c6419ab9..ecc761ef878cb7bcc050be9f7336983b2dbb9f46 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftCamel.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftCamel.java
+@@ -21,7 +21,7 @@ public class CraftCamel extends CraftAbstractHorse implements Camel {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.camel.Camel getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.camel.Camel) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftCat.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftCat.java
+index d2d54ba55b65108c7fdff6e6850982351f6127a6..a25f4d145d15c38d1670ad7ee80dbb2d92794349 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftCat.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftCat.java
+@@ -23,7 +23,7 @@ public class CraftCat extends CraftTameableAnimal implements Cat {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Cat getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Cat) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftCaveSpider.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftCaveSpider.java
+index 86fee0d40a9dc6a18ec19dc3d85978f38b8d1cd0..e77188aa40deeb9ad6b99ce1b241749f942c982c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftCaveSpider.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftCaveSpider.java
+@@ -18,7 +18,7 @@ public class CraftCaveSpider extends CraftSpider implements CaveSpider {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.CaveSpider getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.CaveSpider) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftChestBoat.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftChestBoat.java
+index 0c9400446c2c69e4bd95d167c61ffe22442b4d35..d288c930b6e2af240df82df6548cce8ebb2fe74b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftChestBoat.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftChestBoat.java
+@@ -28,7 +28,7 @@ public class CraftChestBoat extends CraftBoat implements org.bukkit.entity.Chest
+ 
+     @Override
+     public ChestBoat getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (ChestBoat) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftChestedHorse.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftChestedHorse.java
+index 1a9986acde12881e32db67b9e7263072871331cb..c769d8ff967883e3f31163618c02d295e452eb5d 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftChestedHorse.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftChestedHorse.java
+@@ -19,7 +19,7 @@ public abstract class CraftChestedHorse extends CraftAbstractHorse implements Ch
+ 
+     @Override
+     public AbstractChestedHorse getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (AbstractChestedHorse) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftChicken.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftChicken.java
+index 7066741a251d24c754058aa2553b9430de5b42d3..5790f2f3f175b905ad15f3a7f0fbe119f7888d40 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftChicken.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftChicken.java
+@@ -19,7 +19,7 @@ public class CraftChicken extends CraftAnimals implements Chicken {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Chicken getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Chicken) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftCod.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftCod.java
+index f3b587295e90f58b0885bc3c7070b62f3cf7805d..826adab2cf5f9a01daf26ab500f75e54ca7890a0 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftCod.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftCod.java
+@@ -19,7 +19,7 @@ public class CraftCod extends io.papermc.paper.entity.PaperSchoolableFish implem
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Cod getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Cod) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftComplexPart.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftComplexPart.java
+index 54aaee0d0d72c76a02e1ab5d51c47b26b6d08b93..0d4655da99eb7db8150cbb3d119a5021220a791c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftComplexPart.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftComplexPart.java
+@@ -42,7 +42,7 @@ public class CraftComplexPart extends CraftEntity implements ComplexEntityPart {
+ 
+     @Override
+     public EnderDragonPart getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (EnderDragonPart) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftCow.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftCow.java
+index a8514a688a6fe4f19000f8f127b0a1277e4f754d..f22b5bd7926119916d8e488af0b111c5e6fbd5e5 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftCow.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftCow.java
+@@ -19,7 +19,7 @@ public class CraftCow extends CraftAnimals implements Cow {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Cow getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Cow) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftCreature.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftCreature.java
+index 062a625e178ac9bbbb26f3d6548fb663b01d889b..6aa0fc3bcb9622c1c1d83ae1ba4cf08cf1fcac8b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftCreature.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftCreature.java
+@@ -18,7 +18,7 @@ public class CraftCreature extends CraftMob implements Creature {
+ 
+     @Override
+     public PathfinderMob getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (PathfinderMob) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftCreeper.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftCreeper.java
+index 24c6c26f0930940f88bdd0353d660ff31a0d7c33..cf5d7e1cffce32634485383d6dafa3495d5317a3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftCreeper.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftCreeper.java
+@@ -89,7 +89,7 @@ public class CraftCreeper extends CraftMonster implements Creeper {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Creeper getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Creeper) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftDisplay.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftDisplay.java
+index d1e7f24344ebc21fc9050e726ccf7657090451f8..a634ed27dbe9e8aa4f77e4b44df3d8e64b1c70fe 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftDisplay.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftDisplay.java
+@@ -22,7 +22,7 @@ public class CraftDisplay extends CraftEntity implements Display {
+ 
+     @Override
+     public net.minecraft.world.entity.Display getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.Display) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftDolphin.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftDolphin.java
+index 108e0bbe345075a92e133c58df0d1009fc06009d..4427895aa820a1c2e6ec911b26b1cf2c4f14ef15 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftDolphin.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftDolphin.java
+@@ -19,7 +19,7 @@ public class CraftDolphin extends CraftWaterMob implements Dolphin {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Dolphin getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Dolphin) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftDrowned.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftDrowned.java
+index 921a36e31f531ab43e9040463f66d8c081469ef4..4fa6e32f8aedf5cb2e731cefea9dd6d22df7805f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftDrowned.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftDrowned.java
+@@ -19,7 +19,7 @@ public class CraftDrowned extends CraftZombie implements Drowned, com.destroysto
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Drowned getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Drowned) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEgg.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEgg.java
+index c439ab4e1db346d01c5de4ad9f2ce48e8830a081..2db4324bce437f1df6a3778122c87fef1f76bdb2 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEgg.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEgg.java
+@@ -19,7 +19,7 @@ public class CraftEgg extends CraftThrowableProjectile implements Egg {
+ 
+     @Override
+     public ThrownEgg getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (ThrownEgg) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderCrystal.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderCrystal.java
+index 1c5a2168c150d6d819e238db3d7986f2bbd5a820..c513281e261531b7456fb6fc1f4c17f1bc35a0c1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderCrystal.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderCrystal.java
+@@ -48,7 +48,7 @@ public class CraftEnderCrystal extends CraftEntity implements EnderCrystal {
+ 
+     @Override
+     public EndCrystal getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (EndCrystal) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderDragon.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderDragon.java
+index 10b827cb126d937548cc29a1b052d5acfa244f67..387f016bd75e47cb9dd97105777ced0712fa0ac2 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderDragon.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderDragon.java
+@@ -40,7 +40,7 @@ public class CraftEnderDragon extends CraftMob implements EnderDragon, CraftEnem
+ 
+     @Override
+     public net.minecraft.world.entity.boss.enderdragon.EnderDragon getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.boss.enderdragon.EnderDragon) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderDragonPart.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderDragonPart.java
+index c1f73d89805eca8e13bdee80bcd89ef23cc4b332..194ab51afc95ac7c467028efad7928234556d657 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderDragonPart.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderDragonPart.java
+@@ -24,7 +24,7 @@ public class CraftEnderDragonPart extends CraftComplexPart implements EnderDrago
+ 
+     @Override
+     public net.minecraft.world.entity.boss.EnderDragonPart getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.boss.EnderDragonPart) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderPearl.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderPearl.java
+index 0cc66673866bd20ef74437866765134b0be503d3..436ee7b64266366f3826b7087c7bf128fa41c553 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderPearl.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderPearl.java
+@@ -19,7 +19,7 @@ public class CraftEnderPearl extends CraftThrowableProjectile implements EnderPe
+ 
+     @Override
+     public ThrownEnderpearl getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (ThrownEnderpearl) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderSignal.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderSignal.java
+index 26ba9f73504fc652f76b5a19baf19e3d42c4d0ac..8c88b81dcd753e8d78f63aeeae2eff290503e2fc 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderSignal.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderSignal.java
+@@ -25,7 +25,7 @@ public class CraftEnderSignal extends CraftEntity implements EnderSignal {
+ 
+     @Override
+     public EyeOfEnder getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (EyeOfEnder) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderman.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderman.java
+index a36326164d22d21a4483e9499435f7c450751683..67c932514faec69ccff6641dac834644a425749d 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderman.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderman.java
+@@ -70,7 +70,7 @@ public class CraftEnderman extends CraftMonster implements Enderman {
+ 
+     @Override
+     public EnderMan getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (EnderMan) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEndermite.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEndermite.java
+index 6d3325436a77153438bc40aa86819562e65e6a9e..4c638ef7b93eefa3d5c4dc0de3177bf9a441c609 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEndermite.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEndermite.java
+@@ -19,7 +19,7 @@ public class CraftEndermite extends CraftMonster implements Endermite {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Endermite getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Endermite) super.getHandle();
+     }
+ 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 index 67789134b4f42822f04ed327222c953ecb59b3ee..1f0cb52ce68f573bc3c737def3d9adc5a7d2e595 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
@@ -15,5 +522,1370 @@ index 67789134b4f42822f04ed327222c953ecb59b3ee..1f0cb52ce68f573bc3c737def3d9adc5
 -        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
 +        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
          return this.entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEvoker.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEvoker.java
+index 6d7f99943ae6453edeecaea06f4a906b7b20daaf..fa58fb58279be62d145c754818cf97bbea80e5ea 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEvoker.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEvoker.java
+@@ -21,7 +21,7 @@ public class CraftEvoker extends CraftSpellcaster implements Evoker {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Evoker getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Evoker) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEvokerFangs.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEvokerFangs.java
+index 9fe7028cde18e4936cd2fc62a359feb6386596b3..c4b8bdf8f85d8257577e4fb1a2bff5af68080166 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEvokerFangs.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEvokerFangs.java
+@@ -20,7 +20,7 @@ public class CraftEvokerFangs extends CraftEntity implements EvokerFangs {
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.EvokerFangs getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.EvokerFangs) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftExperienceOrb.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftExperienceOrb.java
+index 5b8333e342c639f33acf62e5f8eb72d0ba4a68c7..b8ba2c328c073051bd66df3013711f56f030c3d3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftExperienceOrb.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftExperienceOrb.java
+@@ -40,7 +40,7 @@ public class CraftExperienceOrb extends CraftEntity implements ExperienceOrb {
+ 
+     @Override
+     public net.minecraft.world.entity.ExperienceOrb getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.ExperienceOrb) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFallingBlock.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFallingBlock.java
+index a1f7daf932a26add3fb0881223205d6574185955..af839f1832625c8014d0ce5df5cf6b220eb57b19 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFallingBlock.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFallingBlock.java
+@@ -23,7 +23,7 @@ public class CraftFallingBlock extends CraftEntity implements FallingBlock {
+ 
+     @Override
+     public FallingBlockEntity getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (FallingBlockEntity) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFireball.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFireball.java
+index 00ba49ef13709d7216dcfab898356342e2f3b9d4..9cf97f2649344a90389a5ba53ae4ac43068a0b80 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFireball.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFireball.java
+@@ -69,7 +69,7 @@ public class CraftFireball extends AbstractProjectile implements Fireball {
+ 
+     @Override
+     public AbstractHurtingProjectile getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (AbstractHurtingProjectile) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFirework.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFirework.java
+index 851cb3216184180667b068f36984bff4a7765c49..4b6af240a1615fcb3c69cd0212bcc9e1454e37e9 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFirework.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFirework.java
+@@ -47,7 +47,7 @@ public class CraftFirework extends CraftProjectile implements Firework {
+ 
+     @Override
+     public FireworkRocketEntity getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (FireworkRocketEntity) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFish.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFish.java
+index d702e34f65de28df677a9d3616f38b2cf9abfa23..2e511a49967b4befa86c676d4da7448591e25434 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFish.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFish.java
+@@ -19,7 +19,7 @@ public class CraftFish extends CraftWaterMob implements Fish, io.papermc.paper.e
+ 
+     @Override
+     public AbstractFish getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (AbstractFish) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFishHook.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFishHook.java
+index 307cb2b812cef199f36ee14cf7419d48ecc693c4..818ed5e9fdeee71ded3ed7b6d7d0546bb3cef14f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFishHook.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFishHook.java
+@@ -26,7 +26,7 @@ public class CraftFishHook extends CraftProjectile implements FishHook {
+ 
+     @Override
+     public FishingHook getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (FishingHook) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFlying.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFlying.java
+index e1e51f050959aa23bd85bb794a7098a549c819c8..2f99493178646ef8e96b6ecaccd8764491e395f7 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFlying.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFlying.java
+@@ -19,7 +19,7 @@ public class CraftFlying extends CraftMob implements Flying {
+ 
+     @Override
+     public FlyingMob getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (FlyingMob) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFox.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFox.java
+index 17f94426754557082348375ec9a33ac82d2d13e8..683c5eabc6c7f0cb6959bec97afcb2e34c2f0215 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFox.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFox.java
+@@ -24,7 +24,7 @@ public class CraftFox extends CraftAnimals implements Fox {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Fox getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Fox) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFrog.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFrog.java
+index 67e24a4c1daf6c986e34c4a41fb45285809b348f..630159cc949acb4476ad7da67300be2d7960b628 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFrog.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFrog.java
+@@ -24,7 +24,7 @@ public class CraftFrog extends CraftAnimals implements org.bukkit.entity.Frog {
+ 
+     @Override
+     public Frog getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (Frog) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftGhast.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftGhast.java
+index 308c39b5721dbf70ad256e5ccacc04831af398d5..7b3675257fb88d7447267eee73bc24be584a1136 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftGhast.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftGhast.java
+@@ -19,7 +19,7 @@ public class CraftGhast extends CraftFlying implements Ghast, CraftEnemy {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Ghast getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Ghast) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftGiant.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftGiant.java
+index f0a04ca56bd58844b40101190772786457239151..9eb218507f3ef74340fa2306cd3c2af45d289428 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftGiant.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftGiant.java
+@@ -19,7 +19,7 @@ public class CraftGiant extends CraftMonster implements Giant {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Giant getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Giant) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftGlowItemFrame.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftGlowItemFrame.java
+index 2450dc8a0f1fc526eb0b2ed917a5bbbebeadb7bc..ab5e22c71dc065d0a097fc2d7cf66e2538bca774 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftGlowItemFrame.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftGlowItemFrame.java
+@@ -19,7 +19,7 @@ public class CraftGlowItemFrame extends CraftItemFrame implements GlowItemFrame
+ 
+     @Override
+     public net.minecraft.world.entity.decoration.GlowItemFrame getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.decoration.GlowItemFrame) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftGlowSquid.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftGlowSquid.java
+index b5bac66ad28c0ed2bc41fa3ffe765c61817d6b8a..fd060ad4854b371b013502005f8465c67939a84e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftGlowSquid.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftGlowSquid.java
+@@ -20,7 +20,7 @@ public class CraftGlowSquid extends CraftSquid implements GlowSquid {
+ 
+     @Override
+     public net.minecraft.world.entity.GlowSquid getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.GlowSquid) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftGoat.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftGoat.java
+index 8081d8ef5c2e773f7a716ef33cd842cc4a5458cc..aabcdb705e7483480ffb42e36c3d9a3749c03b3a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftGoat.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftGoat.java
+@@ -19,7 +19,7 @@ public class CraftGoat extends CraftAnimals implements Goat {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.goat.Goat getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.goat.Goat) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftGolem.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftGolem.java
+index 1ab70f244ed31eea22cc2614788072dbf3b4bbb5..560b8b73602a8eb40af28844a65840a83ae2ddd3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftGolem.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftGolem.java
+@@ -18,7 +18,7 @@ public class CraftGolem extends CraftCreature implements Golem {
+ 
+     @Override
+     public AbstractGolem getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (AbstractGolem) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftGuardian.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftGuardian.java
+index c038772fe58bc54e0bb0d028e29c48b1626c6d2b..a3f48b2986625c8276457a74bd2a18ffd2f353c4 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftGuardian.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftGuardian.java
+@@ -20,7 +20,7 @@ public class CraftGuardian extends CraftMonster implements Guardian {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Guardian getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Guardian) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHanging.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHanging.java
+index 1797199729d018d103ccae1773fc0206b8381b8d..3d017c62944fdb44e141c519e597f6a293425e6d 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHanging.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHanging.java
+@@ -67,7 +67,7 @@ public class CraftHanging extends CraftEntity implements Hanging {
+ 
+     @Override
+     public HangingEntity getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (HangingEntity) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHoglin.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHoglin.java
+index 1e312733b266e8350bc1a59113b195881c5a9e17..9782b1be92671f02aa4732595ddad0c796286bb2 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHoglin.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHoglin.java
+@@ -61,7 +61,7 @@ public class CraftHoglin extends CraftAnimals implements Hoglin, CraftEnemy {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.hoglin.Hoglin getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.hoglin.Hoglin) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHorse.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHorse.java
+index 4dd82aef0d4e37336c076f74fe01cbd43ebaab2a..5604bde36db45aebeae3a4376629f7281e9e3e16 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHorse.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHorse.java
+@@ -26,7 +26,7 @@ public class CraftHorse extends CraftAbstractHorse implements Horse {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.horse.Horse getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.horse.Horse) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+index 1fe7d7eb632adfb050e11138b2e775f6d9c1a970..d841492cf319fb5cf265b2be92fc13ddb3588517 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+@@ -301,7 +301,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+ 
+     @Override
+     public Player getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (Player) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftIllager.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftIllager.java
+index 7becaa4d26df7309984b7aa271a0ae6f778acc0a..3c27e4e311072a72d2a9995d7fdfa2085bb6cdb5 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftIllager.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftIllager.java
+@@ -19,7 +19,7 @@ public class CraftIllager extends CraftRaider implements Illager {
+ 
+     @Override
+     public AbstractIllager getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (AbstractIllager) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftIllusioner.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftIllusioner.java
+index 3ab7929aa11584ec0f86ff8ad441f2b9660cf9c6..9e2ff3658b5748ed58150d1796310a0753733541 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftIllusioner.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftIllusioner.java
+@@ -19,7 +19,7 @@ public class CraftIllusioner extends CraftSpellcaster implements Illusioner, com
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Illusioner getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Illusioner) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftInteraction.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftInteraction.java
+index 7b7074a9418bbcd87c18217ea78efdbc7d01528a..1d99187c670e84ef78c1ff6a139174ba5670fcae 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftInteraction.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftInteraction.java
+@@ -22,7 +22,7 @@ public class CraftInteraction extends CraftEntity implements Interaction {
+ 
+     @Override
+     public net.minecraft.world.entity.Interaction getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.Interaction) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftIronGolem.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftIronGolem.java
+index 8c3818e8024ee25c29929368750dc346261db5d6..65b2436b2c7709942e9ceda9a4f76db80dbc5848 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftIronGolem.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftIronGolem.java
+@@ -18,7 +18,7 @@ public class CraftIronGolem extends CraftGolem implements IronGolem {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.IronGolem getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.IronGolem) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftItemDisplay.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftItemDisplay.java
+index 06e2580653db00110b0f0a05cfda9d0e9baecdfa..4806ffbcd7178555bdc44845abf191a7e6616269 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftItemDisplay.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftItemDisplay.java
+@@ -23,7 +23,7 @@ public class CraftItemDisplay extends CraftDisplay implements ItemDisplay {
+ 
+     @Override
+     public net.minecraft.world.entity.Display.ItemDisplay getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.Display.ItemDisplay) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftItemFrame.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftItemFrame.java
+index 7352909a3f2b2f1dc0f96e452869014fa328fc1c..cce5d4fb9dd26ff3876e31c889c73377f11a559d 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftItemFrame.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftItemFrame.java
+@@ -166,7 +166,7 @@ public class CraftItemFrame extends CraftHanging implements ItemFrame {
+ 
+     @Override
+     public net.minecraft.world.entity.decoration.ItemFrame getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.decoration.ItemFrame) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLargeFireball.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLargeFireball.java
+index bbc439dab077bed605179129ae715f9989f2a181..695d74bc5d2f661a0584e8c83bca88ad0e00976c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLargeFireball.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLargeFireball.java
+@@ -24,7 +24,7 @@ public class CraftLargeFireball extends CraftSizedFireball implements LargeFireb
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.LargeFireball getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.LargeFireball) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLeash.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLeash.java
+index ffccc8f021cdef6ed00241189aefd8217bc82d1c..7896a300106075baf2ff174e28012b5382260b78 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLeash.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLeash.java
+@@ -34,7 +34,7 @@ public class CraftLeash extends CraftHanging implements LeashHitch {
+ 
+     @Override
+     public LeashFenceKnotEntity getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (LeashFenceKnotEntity) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLightningStrike.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLightningStrike.java
+index 80cac5d7362577e53ef5ca215ab3261898127b2f..9e25223afdb14554635a18d6c7f21d83fa78046f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLightningStrike.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLightningStrike.java
+@@ -24,7 +24,7 @@ public class CraftLightningStrike extends CraftEntity implements LightningStrike
+ 
+     @Override
+     public LightningBolt getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (LightningBolt) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+index bd115a08512e6f4c13bc30ce2b05c7378754754f..455b1073e16d4f97a7b3d68eafa60c5bd5ac77e4 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+@@ -428,7 +428,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+ 
+     @Override
+     public net.minecraft.world.entity.LivingEntity getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.LivingEntity) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLlama.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLlama.java
+index bcb06f550033e346923026141dc96b032e9ff765..b0c87a2b765e26f9fccf2ad94293524bfbfe5bfb 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLlama.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLlama.java
+@@ -24,7 +24,7 @@ public class CraftLlama extends CraftChestedHorse implements Llama, com.destroys
+ 
+     @Override
+     public net.minecraft.world.entity.animal.horse.Llama getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.horse.Llama) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLlamaSpit.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLlamaSpit.java
+index 69d67f0fea885aa1708c0c0e27482fefe5ad8f78..e43f6ab9b99acc3fcd9cc77f7524a8627e3a0a5b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLlamaSpit.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLlamaSpit.java
+@@ -20,7 +20,7 @@ public class CraftLlamaSpit extends AbstractProjectile implements LlamaSpit {
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.LlamaSpit getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.LlamaSpit) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMagmaCube.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMagmaCube.java
+index e9fa1f544b7350d7537729768c1a0c3f846c18ac..4bd43befe2f562a921b7386a869c9edead416a9f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMagmaCube.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMagmaCube.java
+@@ -19,7 +19,7 @@ public class CraftMagmaCube extends CraftSlime implements MagmaCube {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.MagmaCube getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.MagmaCube) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMarker.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMarker.java
+index 8f28ad0cc3feb4a1a034d916da1ccd892b2149de..4d66e5c80aecc752a00a1c66987a0285178532bf 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMarker.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMarker.java
+@@ -19,7 +19,7 @@ public class CraftMarker extends CraftEntity implements Marker {
+ 
+     @Override
+     public net.minecraft.world.entity.Marker getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.Marker) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecart.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecart.java
+index 6cce3d64a4f506fcebbe34eae58163c57d43137c..ad72deb7869a135a437789f023fe30780e6d5736 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecart.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecart.java
+@@ -95,7 +95,7 @@ public abstract class CraftMinecart extends CraftVehicle implements Minecart {
+ 
+     @Override
+     public AbstractMinecart getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (AbstractMinecart) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
+index fd3eedcfa056c05761c53bccc62fb4dcd00fcb9b..94eed1b1fab4ae2c02c5add5109de73a25d6e4a1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
+@@ -30,7 +30,7 @@ public class CraftMinecartCommand extends CraftMinecart implements CommandMineca
+ 
+     @Override
+     public MinecartCommandBlock getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (MinecartCommandBlock) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartContainer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartContainer.java
+index b7d0892953f357e58665e87fbcf794a75f1c0980..36f7af95711b3079e66101e1e0a197cb0220b25c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartContainer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartContainer.java
+@@ -25,7 +25,7 @@ public abstract class CraftMinecartContainer extends CraftMinecart implements Lo
+ 
+     @Override
+     public AbstractMinecartContainer getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (AbstractMinecartContainer) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartFurnace.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartFurnace.java
+index e7c303a0f8b4e2ca26cf28b4661b7bdf56f2498f..8a9c480466b173194d1c6263e0d68a0adc78a5d2 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartFurnace.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartFurnace.java
+@@ -21,7 +21,7 @@ public class CraftMinecartFurnace extends CraftMinecart implements PoweredMineca
+ 
+     @Override
+     public MinecartFurnace getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (MinecartFurnace) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartHopper.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartHopper.java
+index 31665297fc24f6d2e86e206ef1ddf46ded51782f..9ecda44ec1443209b1c7a7b1dc1b908181a62495 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartHopper.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartHopper.java
+@@ -50,7 +50,7 @@ public final class CraftMinecartHopper extends CraftMinecartContainer implements
+ 
+     @Override
+     public net.minecraft.world.entity.vehicle.MinecartHopper getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.vehicle.MinecartHopper) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartTNT.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartTNT.java
+index 1ad6c76dd5c45b2865dfe752891906a545e920b2..ec47c761a37842c18a192109eb4b7e2671e680df 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartTNT.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartTNT.java
+@@ -30,7 +30,7 @@ public final class CraftMinecartTNT extends CraftMinecart implements ExplosiveMi
+ 
+     @Override
+     public net.minecraft.world.entity.vehicle.MinecartTNT getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.vehicle.MinecartTNT) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
+index 0d65567fd7f862eb9d89a90b8bbd87c3ce57c793..51cbbb171df8c3525441eeeda8ac066f3f4d78bf 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
+@@ -64,7 +64,7 @@ public abstract class CraftMob extends CraftLivingEntity implements Mob {
+ 
+     @Override
+     public net.minecraft.world.entity.Mob getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.Mob) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMonster.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMonster.java
+index d3b655ab5adacd60f04f912187662c5717a72962..2adcdc6b6f133bbbeee8f78095a66962d985b495 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMonster.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMonster.java
+@@ -18,7 +18,7 @@ public class CraftMonster extends CraftCreature implements Monster, CraftEnemy {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Monster getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Monster) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMushroomCow.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMushroomCow.java
+index f3016d316c1dcee3f5d7c7221668280c7bd9a76e..8cab4e37e48b88939ea591900b32fd6350a4b6f9 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMushroomCow.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMushroomCow.java
+@@ -20,7 +20,7 @@ public class CraftMushroomCow extends CraftCow implements MushroomCow, io.paperm
+ 
+     @Override
+     public net.minecraft.world.entity.animal.MushroomCow getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.MushroomCow) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftOcelot.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftOcelot.java
+index e6ba1a905a14ae7113decc72b121175eb85d2b36..10333cf7247d37584b764b3f920c1a2029aafe1e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftOcelot.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftOcelot.java
+@@ -19,7 +19,7 @@ public class CraftOcelot extends CraftAnimals implements Ocelot {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Ocelot getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Ocelot) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPainting.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPainting.java
+index 2fb654411b042159da97c79e69e8845e2b73c4bb..94da539cb9874fe7050aa3873b80b7e8db2c3ef9 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPainting.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPainting.java
+@@ -61,7 +61,7 @@ public class CraftPainting extends CraftHanging implements Painting {
+ 
+     @Override
+     public net.minecraft.world.entity.decoration.Painting getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.decoration.Painting) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPanda.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPanda.java
+index 71b307cd7029b8aeb511bfa6eb3f73736f2d0c91..a5b21d24f2294344e173256e17e5184c14ec71e2 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPanda.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPanda.java
+@@ -21,7 +21,7 @@ public class CraftPanda extends CraftAnimals implements Panda {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Panda getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Panda) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftParrot.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftParrot.java
+index caee1abf4c057afa08be8495bf742f871b2d1eae..9714af1ad4cef2e8cdceb7f9ffef5ad185f3747c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftParrot.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftParrot.java
+@@ -21,7 +21,7 @@ public class CraftParrot extends CraftTameableAnimal implements Parrot {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Parrot getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Parrot) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java
+index e1ae90699fdc13f6f2bb9ebf227b3803e13e2b88..6b31d2569626ce59d882813fe9c99876b521eb94 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java
+@@ -19,7 +19,7 @@ public class CraftPhantom extends CraftFlying implements Phantom, CraftEnemy {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Phantom getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Phantom) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPig.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPig.java
+index f94b45ba171fcbae718b50ab2ff60d38248e622c..6426fc65a55617ec9916425eef45fe08076e1c1a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPig.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPig.java
+@@ -65,7 +65,7 @@ public class CraftPig extends CraftAnimals implements Pig {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Pig getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Pig) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPigZombie.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPigZombie.java
+index 8e4874f1bf3511e3947c48987caa098712271977..5b198db87328d02cd047eb692275d1333c23de2e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPigZombie.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPigZombie.java
+@@ -40,7 +40,7 @@ public class CraftPigZombie extends CraftZombie implements PigZombie {
+ 
+     @Override
+     public ZombifiedPiglin getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (ZombifiedPiglin) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglin.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglin.java
+index 3da995c2aa9fe947d059e76bb6e6410827f6888d..dfa0d992d227d1a1da64da47a8fc2165b282b721 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglin.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglin.java
+@@ -85,7 +85,7 @@ public class CraftPiglin extends CraftPiglinAbstract implements Piglin, com.dest
+ 
+     @Override
+     public net.minecraft.world.entity.monster.piglin.Piglin getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.piglin.Piglin) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglinAbstract.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglinAbstract.java
+index ce763867f9c6c2d4773d76387afc0ecb479b6259..4b2f1e39bf96f0f1bcdead0fd40e0000df18b3a5 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglinAbstract.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglinAbstract.java
+@@ -104,7 +104,7 @@ public class CraftPiglinAbstract extends CraftMonster implements PiglinAbstract
+ 
+     @Override
+     public AbstractPiglin getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (AbstractPiglin) super.getHandle();
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglinBrute.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglinBrute.java
+index 18416b48a05a8d564b7715ad00f947e4f4c70d9d..f8d6cce964b3de1f0e9311e72ff6892ed37a801c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglinBrute.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPiglinBrute.java
+@@ -19,7 +19,7 @@ public class CraftPiglinBrute extends CraftPiglinAbstract implements PiglinBrute
+ 
+     @Override
+     public net.minecraft.world.entity.monster.piglin.PiglinBrute getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.piglin.PiglinBrute) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPillager.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPillager.java
+index e1b7922ed298b6b3068c3f5fbe3b4030cff13484..71987eaa8c01e32a54909852fe126985ab81dd18 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPillager.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPillager.java
+@@ -21,7 +21,7 @@ public class CraftPillager extends CraftIllager implements Pillager, com.destroy
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Pillager getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Pillager) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPolarBear.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPolarBear.java
+index 23364bbd534a147954d72986a96aee836e0aa210..41be3c65b7a1678990ac2b926d478b33b51b9bfd 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPolarBear.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPolarBear.java
+@@ -19,7 +19,7 @@ public class CraftPolarBear extends CraftAnimals implements PolarBear {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.PolarBear getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.PolarBear) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftProjectile.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftProjectile.java
+index e651bc940b0c92d3c3f5194e8642d74274dce343..5c0adb27bd5422fc118ef6ead9800106edbea853 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftProjectile.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftProjectile.java
+@@ -34,7 +34,7 @@ public abstract class CraftProjectile extends AbstractProjectile implements Proj
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.Projectile getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.Projectile) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPufferFish.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPufferFish.java
+index ed0e5d32a187dd41952b923e4a1734afa7d092b1..516f9bd9aa760aaf305459ed41910a45c9c003ed 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPufferFish.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPufferFish.java
+@@ -20,7 +20,7 @@ public class CraftPufferFish extends CraftFish implements PufferFish {
+ 
+     @Override
+     public Pufferfish getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (Pufferfish) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftRabbit.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftRabbit.java
+index 5d852e0a34004b877555157dd45020e5a5d30fd1..eedd31bd7b9b4aaee8d19b58db41f5daaca633a9 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftRabbit.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftRabbit.java
+@@ -23,7 +23,7 @@ public class CraftRabbit extends CraftAnimals implements Rabbit {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Rabbit getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Rabbit) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftRaider.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftRaider.java
+index f1730c569e0810688f4f5b5aabed8978177d923c..1d415a4f40ed3146b76afb92f4c25e3506962549 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftRaider.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftRaider.java
+@@ -24,7 +24,7 @@ public abstract class CraftRaider extends CraftMonster implements Raider {
+ 
+     @Override
+     public net.minecraft.world.entity.raid.Raider getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.raid.Raider) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftRavager.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftRavager.java
+index 0e08b2f7a21a09f61ff4800439346260ef96e2d9..030f0a41b094015564633616e4aeb638e78fda6a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftRavager.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftRavager.java
+@@ -19,7 +19,7 @@ public class CraftRavager extends CraftRaider implements Ravager {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Ravager getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Ravager) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSalmon.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSalmon.java
+index 3951fa2f21932dc1b4948fab08998afaf928b27d..41751830cdfc2963ef1a93bcdd2707e21f7adfdb 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSalmon.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSalmon.java
+@@ -19,7 +19,7 @@ public class CraftSalmon extends io.papermc.paper.entity.PaperSchoolableFish imp
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Salmon getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Salmon) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSheep.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSheep.java
+index e3c6a74d267ea0a10be375fc83428415ad575fc2..c3ba966f04298ed5fdc8a1ce0648454031df4ddf 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSheep.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSheep.java
+@@ -39,7 +39,7 @@ public class CraftSheep extends CraftAnimals implements Sheep, io.papermc.paper.
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Sheep getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Sheep) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftShulker.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftShulker.java
+index ccf7fd9be8baeda0b47b7abf090f255842bc639c..dbb0f6a2b80908b32f568a28e555a765e02798f2 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftShulker.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftShulker.java
+@@ -33,7 +33,7 @@ public class CraftShulker extends CraftGolem implements Shulker, CraftEnemy {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Shulker getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Shulker) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftShulkerBullet.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftShulkerBullet.java
+index d869091a0c38a53004a7742a9b8e245b5c35b7b4..71d369a39be2fbc1e74b597a490f7c647ff2d123 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftShulkerBullet.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftShulkerBullet.java
+@@ -93,7 +93,7 @@ public class CraftShulkerBullet extends AbstractProjectile implements ShulkerBul
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.ShulkerBullet getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.ShulkerBullet) entity;
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSilverfish.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSilverfish.java
+index a5a9d0daa0fd5641cbe10b5b269b26a0d589a5d5..482769df52a344c2f065bd4f4035567cd5499432 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSilverfish.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSilverfish.java
+@@ -18,7 +18,7 @@ public class CraftSilverfish extends CraftMonster implements Silverfish {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Silverfish getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Silverfish) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSizedFireball.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSizedFireball.java
+index c9bfe84cbd2c5835e070251ace2ef06ccb7004cf..ae4ac783c7324c27fabb308e459381976ee89385 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSizedFireball.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSizedFireball.java
+@@ -36,7 +36,7 @@ public class CraftSizedFireball extends CraftFireball implements SizedFireball {
+ 
+     @Override
+     public Fireball getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (Fireball) entity;
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSkeleton.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSkeleton.java
+index 4aed90c5ed149cc84d91c417b57edec71042d7cc..41a0db88ae2bdeb0d48f9f793dccfabec1f957d2 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSkeleton.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSkeleton.java
+@@ -41,7 +41,7 @@ public class CraftSkeleton extends CraftAbstractSkeleton implements Skeleton {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Skeleton getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Skeleton) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSkeletonHorse.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSkeletonHorse.java
+index 2744d69cc268c809457d730e0061ebfb6c6aee11..49c6c6687fff89675ae04c5dc3b79a293b267ff4 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSkeletonHorse.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSkeletonHorse.java
+@@ -35,7 +35,7 @@ public class CraftSkeletonHorse extends CraftAbstractHorse implements SkeletonHo
+ 
+     @Override
+     public net.minecraft.world.entity.animal.horse.SkeletonHorse getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.horse.SkeletonHorse) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSlime.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSlime.java
+index 307a2b8015c9598083bedccb0c516ea64c4fc514..60e27efaecc450cde21cb5daf15ed170420f5f66 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSlime.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSlime.java
+@@ -29,7 +29,7 @@ public class CraftSlime extends CraftMob implements Slime, CraftEnemy {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Slime getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Slime) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSmallFireball.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSmallFireball.java
+index 17b83eb8563586f1ddf252f438d52d554e946def..d4f99fa9ca17aeef43725d70a2ce7d9b5d8fe0ac 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSmallFireball.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSmallFireball.java
+@@ -18,7 +18,7 @@ public class CraftSmallFireball extends CraftSizedFireball implements SmallFireb
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.SmallFireball getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.SmallFireball) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSniffer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSniffer.java
+index a1dfa6c6368311e78b76c8c30227461ccb3eea9e..1fad80467df3726cd0f16fcfb6990c99ca0c2425 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSniffer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSniffer.java
+@@ -25,7 +25,7 @@ public class CraftSniffer extends CraftAnimals implements Sniffer {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.sniffer.Sniffer getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.sniffer.Sniffer) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSnowball.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSnowball.java
+index 117cdf4b1315f2de32aa13844f0f4c46f21cc96d..737e99ddd136cb835b38e68779b535a5f06a927c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSnowball.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSnowball.java
+@@ -18,7 +18,7 @@ public class CraftSnowball extends CraftThrowableProjectile implements Snowball
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.Snowball getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.Snowball) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSnowman.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSnowman.java
+index 00907c925fdb0d709ff421cdc8a1742282ad372f..8fae3ac6db9ee1c7d18cd16ed62e3caee5879c70 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSnowman.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSnowman.java
+@@ -29,7 +29,7 @@ public class CraftSnowman extends CraftGolem implements Snowman, com.destroystok
+ 
+     @Override
+     public SnowGolem getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (SnowGolem) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSpectralArrow.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSpectralArrow.java
+index f4bd0872dc725dc9040a89cbc627d86b786290df..4961039e9900e3f7a0b158f6b9507519865459c2 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSpectralArrow.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSpectralArrow.java
+@@ -19,7 +19,7 @@ public class CraftSpectralArrow extends CraftArrow implements SpectralArrow {
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.SpectralArrow getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.SpectralArrow) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSpellcaster.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSpellcaster.java
+index 3dbb5f7f88979d616e185980d96cc2c377977000..2eef1f7d81c45a3ed9f1fefe25b551597b295573 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSpellcaster.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSpellcaster.java
+@@ -21,7 +21,7 @@ public class CraftSpellcaster extends CraftIllager implements Spellcaster {
+ 
+     @Override
+     public SpellcasterIllager getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (SpellcasterIllager) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSpider.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSpider.java
+index 496fb0ac11cdf32701b0d5fb4761a0ada60a78ac..eee99e0138cf4a11675a997987cfb69f8c79ae30 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSpider.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSpider.java
+@@ -19,7 +19,7 @@ public class CraftSpider extends CraftMonster implements Spider {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Spider getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Spider) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSquid.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSquid.java
+index 10875cdf36b426de512c52ae60ac7e2c8312114b..61e7ad834886d597ed6dfb22317095eafe6ac283 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSquid.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSquid.java
+@@ -19,7 +19,7 @@ public class CraftSquid extends CraftWaterMob implements Squid {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Squid getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Squid) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftStrider.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftStrider.java
+index 89cd22b73c38773961d6955d429564e816b8183a..7e4e47ae542cb96d921933c15cb17aec38b73721 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftStrider.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftStrider.java
+@@ -75,7 +75,7 @@ public class CraftStrider extends CraftAnimals implements Strider {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Strider getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Strider) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTNTPrimed.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTNTPrimed.java
+index 3be27209a4429c6ab618798418451bd527a2115b..322f8d8a3bc72bee785b61b4e7815ff4b68e61e9 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTNTPrimed.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTNTPrimed.java
+@@ -52,7 +52,7 @@ public class CraftTNTPrimed extends CraftEntity implements TNTPrimed {
+ 
+     @Override
+     public PrimedTnt getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (PrimedTnt) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTadpole.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTadpole.java
+index 1fab7a34e4fe624d901c0264cda980fd91dbd8e0..8c13a612e9e834c145bd1758c0be6ba6d31f1cc8 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTadpole.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTadpole.java
+@@ -19,7 +19,7 @@ public class CraftTadpole extends CraftFish implements org.bukkit.entity.Tadpole
+ 
+     @Override
+     public Tadpole getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (Tadpole) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTameableAnimal.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTameableAnimal.java
+index dc09e141ba2b12f1955bec521f2170d2fe4ba113..e4f4f51c429fbb95b990439d0b17150b4ee93129 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTameableAnimal.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTameableAnimal.java
+@@ -21,7 +21,7 @@ public class CraftTameableAnimal extends CraftAnimals implements Tameable, Creat
+ 
+     @Override
+     public TamableAnimal getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (TamableAnimal) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTextDisplay.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTextDisplay.java
+index 47ba133c7a4100892e95d8c9c1a1773088c48e55..c82dad19dfca363b1885b123f6122132b9306f80 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTextDisplay.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTextDisplay.java
+@@ -23,7 +23,7 @@ public class CraftTextDisplay extends CraftDisplay implements TextDisplay {
+ 
+     @Override
+     public net.minecraft.world.entity.Display.TextDisplay getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.Display.TextDisplay) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftThrowableProjectile.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftThrowableProjectile.java
+index 8e66e9ac17a8a06130d6b039f27868d42554f337..5f667f30b0e5cb2c655a2cec511f53a59d836703 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftThrowableProjectile.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftThrowableProjectile.java
+@@ -35,7 +35,7 @@ public abstract class CraftThrowableProjectile extends CraftProjectile implement
+ 
+     @Override
+     public ThrowableItemProjectile getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (ThrowableItemProjectile) entity;
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownExpBottle.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownExpBottle.java
+index 34de9dcd6fa0e978c65bf48ae78923784bf575fd..6403df229831de3c1efe9a067d7281b0637b727e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownExpBottle.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownExpBottle.java
+@@ -19,7 +19,7 @@ public class CraftThrownExpBottle extends CraftThrowableProjectile implements Th
+ 
+     @Override
+     public ThrownExperienceBottle getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (ThrownExperienceBottle) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownPotion.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownPotion.java
+index f06d08fa5d693047a3bbf92428dc56bcae5cb66e..4f33026dc3d72a8e4aadfcd62c16fe33147782ed 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownPotion.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownPotion.java
+@@ -74,7 +74,7 @@ public class CraftThrownPotion extends CraftThrowableProjectile implements Throw
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.ThrownPotion getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.ThrownPotion) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTippedArrow.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTippedArrow.java
+index f59a777987284b733ad8e8dd7e4d3e18baacd2af..75ba42c6b2038516ed6ad82774545955100d2e6e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTippedArrow.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTippedArrow.java
+@@ -29,7 +29,7 @@ public class CraftTippedArrow extends CraftArrow implements Arrow {
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.Arrow getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.Arrow) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTraderLlama.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTraderLlama.java
+index 124c78fcb7b59d6cb3d4de53609fb64f652c17e4..f74ccadb0de57c3236b868930829ae7512874b76 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTraderLlama.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTraderLlama.java
+@@ -19,7 +19,7 @@ public class CraftTraderLlama extends CraftLlama implements TraderLlama {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.horse.TraderLlama getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.horse.TraderLlama) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTrident.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTrident.java
+index 4c69a367dfdf7c3b8e82dd44f005ed613e1fe0bf..807c3b0e65ba42b57325b169175b0ce0c9d73ac4 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTrident.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTrident.java
+@@ -22,7 +22,7 @@ public class CraftTrident extends CraftArrow implements Trident {
+ 
+     @Override
+     public ThrownTrident getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (ThrownTrident) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTropicalFish.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTropicalFish.java
+index f8aa5bc3d846d2fd785c612dd3906b84686e0792..d38a31ff3a6819c7404004914d10d596208ac9c9 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTropicalFish.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTropicalFish.java
+@@ -23,7 +23,7 @@ public class CraftTropicalFish extends io.papermc.paper.entity.PaperSchoolableFi
+ 
+     @Override
+     public net.minecraft.world.entity.animal.TropicalFish getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.TropicalFish) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTurtle.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTurtle.java
+index dd5b95c809e2bbdac17981af0010f55403713c87..12f4857947fffc7c8d49224602e7f46eacd29504 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTurtle.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTurtle.java
+@@ -19,7 +19,7 @@ public class CraftTurtle extends CraftAnimals implements Turtle {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Turtle getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Turtle) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftVex.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftVex.java
+index 84c3c5e0bc55e92f136e3ca3ac2aa8b973e1793d..b299b013c193a90dd9ff1bcbc42ae0674c3d07fd 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftVex.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftVex.java
+@@ -22,7 +22,7 @@ public class CraftVex extends CraftMonster implements Vex {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Vex getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Vex) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftVillager.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftVillager.java
+index 7a542e8353ebc2167c8235cd0ae85807a65f54d2..4aa596910b97fe3fed7f78936c592533d0306002 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftVillager.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftVillager.java
+@@ -39,7 +39,7 @@ public class CraftVillager extends CraftAbstractVillager implements Villager {
+ 
+     @Override
+     public net.minecraft.world.entity.npc.Villager getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.npc.Villager) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftVillagerZombie.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftVillagerZombie.java
+index c0e268b470dfa1c2f74c9cd8d21e49fdb50ae7ec..90c08633d2c80bfd2f80f88e3b4dc8e0b7b08f48 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftVillagerZombie.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftVillagerZombie.java
+@@ -30,7 +30,7 @@ public class CraftVillagerZombie extends CraftZombie implements ZombieVillager {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.ZombieVillager getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.ZombieVillager) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftVindicator.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftVindicator.java
+index fc7a87ed98801914d5cf3e6784f0025db30cf663..7974e12932a7c86f6849b6cbd4540ebfafe0cb7a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftVindicator.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftVindicator.java
+@@ -19,7 +19,7 @@ public class CraftVindicator extends CraftIllager implements Vindicator {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Vindicator getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Vindicator) super.getHandle();
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftWanderingTrader.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftWanderingTrader.java
+index fadc797d3c298c6ad4b2e6abc70b59e5ffc58e92..b45456c55b3cc05817e79c9de9074cc7398fb052 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftWanderingTrader.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftWanderingTrader.java
+@@ -19,7 +19,7 @@ public class CraftWanderingTrader extends CraftAbstractVillager implements Wande
+ 
+     @Override
+     public net.minecraft.world.entity.npc.WanderingTrader getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.npc.WanderingTrader) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftWarden.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftWarden.java
+index a4ede0f5973d18ed6b8ae3ee425c4445f39e86c4..ae57fe6dc79e7b64b1882674019ad73d9765ec0b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftWarden.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftWarden.java
+@@ -25,7 +25,7 @@ public class CraftWarden extends CraftMonster implements org.bukkit.entity.Warde
+ 
+     @Override
+     public Warden getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (Warden) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftWaterMob.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftWaterMob.java
+index c03b8291bac77696daf24caaff3512d6a0ba10db..7e92b72a8ef2c0dff33b41704d56cb3634f7a96c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftWaterMob.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftWaterMob.java
+@@ -19,7 +19,7 @@ public class CraftWaterMob extends CraftCreature implements WaterMob {
+ 
+     @Override
+     public WaterAnimal getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (WaterAnimal) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftWitch.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftWitch.java
+index c2bceaeabf13d37506eea540cb153d10ba18d817..35e5ba3f2bf8bb4dc6a3e46c103acd0ee1fca337 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftWitch.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftWitch.java
+@@ -25,7 +25,7 @@ public class CraftWitch extends CraftRaider implements Witch, com.destroystokyo.
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Witch getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Witch) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftWither.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftWither.java
+index e6d5b392ca9e13c2c61c2711892eaea806d525f4..8e8dfa04ab3cec13a2ece6d78f06a131d8a22f5b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftWither.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftWither.java
+@@ -31,7 +31,7 @@ public class CraftWither extends CraftMonster implements Wither, com.destroystok
+ 
+     @Override
+     public WitherBoss getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (WitherBoss) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftWitherSkull.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftWitherSkull.java
+index d7b5dc3632e22003f80843882652a35d7306b9d9..2b553b4aa82a0d2a3f4b68303b8d17f56b767e75 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftWitherSkull.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftWitherSkull.java
+@@ -28,7 +28,7 @@ public class CraftWitherSkull extends CraftFireball implements WitherSkull {
+ 
+     @Override
+     public net.minecraft.world.entity.projectile.WitherSkull getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.projectile.WitherSkull) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftWolf.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftWolf.java
+index 05372166c2cc7b48184c18a4fdd788a242ec4682..312a19a0c4299e02086da9c453388d65a28a5c02 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftWolf.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftWolf.java
+@@ -33,7 +33,7 @@ public class CraftWolf extends CraftTameableAnimal implements Wolf {
+ 
+     @Override
+     public net.minecraft.world.entity.animal.Wolf getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.animal.Wolf) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftZoglin.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftZoglin.java
+index 8195313de7a047e694c718609505a60b592f3565..6b30a0f3e6a71a9fe7c634dccecd7cd877f7571e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftZoglin.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftZoglin.java
+@@ -29,7 +29,7 @@ public class CraftZoglin extends CraftMonster implements Zoglin {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Zoglin getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Zoglin) entity;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftZombie.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftZombie.java
+index 631132549f454ffd6dc97e1bce2e994e7ce310d6..78f79f927e6ed7451bf9628019872da65a386a43 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftZombie.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftZombie.java
+@@ -22,7 +22,7 @@ public class CraftZombie extends CraftMonster implements Zombie {
+ 
+     @Override
+     public net.minecraft.world.entity.monster.Zombie getHandle() {
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.entity, "Accessing entity state off owning region's thread"); // Folia - region threading // DirtyFolia - removed check
+         return (net.minecraft.world.entity.monster.Zombie) entity;
      }
  
