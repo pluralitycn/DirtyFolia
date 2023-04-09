@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Sun, 9 Apr 2023 11:24:14 +0800
+Subject: [PATCH] Add custom data submission url to Metrics
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+index e4b140c3409d1347a87da65f21b1ca03354cfe15..e965acc80ea109c9f37c4c75dda6d426fef6d359 100644
+--- a/src/main/java/com/destroystokyo/paper/Metrics.java
++++ b/src/main/java/com/destroystokyo/paper/Metrics.java
+@@ -41,7 +41,7 @@ public class Metrics {
+     public static final int B_STATS_VERSION = 1;
+ 
+     // The url to which the data is sent
+-    private static final String URL = "https://bStats.org/submitData/server-implementation";
++    private static String URL = "https://bStats.org/submitData/server-implementation";
+ 
+     // Should failed requests be logged?
+     private static boolean logFailedRequests = false;
+@@ -572,6 +572,8 @@ public class Metrics {
+ 
+                 // Add default values
+                 config.addDefault("enabled", true);
++                // Add default submit url (Only DirtyFolia)
++                config.addDefault("url", "https://bStats.org/submitData/server-implementation");
+                 // Every server gets it's unique random id.
+                 config.addDefault("serverUuid", UUID.randomUUID().toString());
+                 // Should failed request be logged?
+@@ -584,6 +586,7 @@ public class Metrics {
+                                 "This has nearly no effect on the server performance!\n" +
+                                 "Check out https://bStats.org/ to learn more :)"
+                 ).copyDefaults(true);
++                config.setComments("url", Arrays.asList("This option is only available in DirtyFolia", "Other plugins or software cannot use the url set by this option"));
+                 try {
+                     config.save(configFile);
+                 } catch (IOException ignored) {
+@@ -592,6 +595,12 @@ public class Metrics {
+             // Load the data
+             String serverUUID = config.getString("serverUuid");
+             boolean logFailedRequests = config.getBoolean("logFailedRequests", false);
++            // Load data submit url from config
++            final String oldUrl = URL;
++            URL = config.getString("url");
++            if (!Objects.equals(URL, oldUrl)) {
++                logger.info("Metrics Specified URL (Only available in server implementations): " + URL);
++            }
+             // Only start Metrics, if it's enabled in the config
+             if (config.getBoolean("enabled", true)) {
+                 Metrics metrics = new Metrics("Folia", serverUUID, logFailedRequests, Bukkit.getLogger()); // Folia - we have our own bstats page
