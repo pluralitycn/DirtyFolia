@@ -273,7 +273,7 @@ index 3cc7a686151461730710003aef0be37b844b2f34..77de5772c71fb6a1f943462727a8c367
                  worldserver.timings.doTick.stopTiming(); // Spigot
              } catch (Throwable throwable) {
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-index a493d8f2677c776951fbc20ebf1e61c91b9864ee..91b77eaf30173f067b6049f8844b96d0dd2fb4e7 100644
+index e664c568aba954e04878c06f3671ae74673dd342..f435cc45ac46be588045a8ba7141a62b217aeff6 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 +++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 @@ -18,6 +18,8 @@ import java.util.function.BooleanSupplier;
