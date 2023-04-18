@@ -309,7 +309,7 @@ index e664c568aba954e04878c06f3671ae74673dd342..f435cc45ac46be588045a8ba7141a62b
              // Paper start - optimise for loaded chunks
              LevelChunk ifLoaded = this.getChunkAtIfLoadedMainThread(x, z);
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 32b9358bacabedf4513bb17c68200ef84a95a91b..aacc344732e5b015c466ac739e379818c579f798 100644
+index afb3d0fa48b7fd6d273361c6dc32764b5d35c356..7fef099dc85ca1aae55644fbbaef6242ccc09370 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -15,6 +15,10 @@ import java.util.function.Consumer;
