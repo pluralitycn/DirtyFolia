@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AnswerForMystery <jim20071128@163.com>
+Date: Thu, 27 Apr 2023 21:59:46 +0800
+Subject: [PATCH] Remove EntityLookup#addEntity thread check
+
+
+diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
+index 515cc130a411f218ed20628eb918be9d770b9939..2ae7b6ee3f99bd5653330c3d2b5f714ffe218756 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
++++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
+@@ -348,7 +348,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+         final int sectionX = pos.getX() >> 4;
+         final int sectionY = Mth.clamp(pos.getY() >> 4, this.minSection, this.maxSection);
+         final int sectionZ = pos.getZ() >> 4;
+-        TickThread.ensureTickThread(this.world, sectionX, sectionZ, "Cannot add entity off-main thread");
++        //TickThread.ensureTickThread(this.world, sectionX, sectionZ, "Cannot add entity off-main thread");
+ 
+         if (entity.isRemoved()) {
+             LOGGER.warn("Refusing to add removed entity: " + entity);
