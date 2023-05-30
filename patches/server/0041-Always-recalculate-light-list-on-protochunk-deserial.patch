@@ -24,7 +24,7 @@ palette for possible block sources.
 Now my stress tests do not have issues with GC at all.
 
 diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
-index 3c9ae42290c2e0cb70bb08e97f3ea2c3fb594c7d..200915f5accdb26c634cc77300a7d3275a8b1e0a 100644
+index 1f670d603adea5e9c0e8a7d6e5e8a9d2c4ac06c7..9ffa3f00cd141470517b93f2b25282d521d1a71d 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 @@ -321,7 +321,7 @@ public class ChunkSerializer {
