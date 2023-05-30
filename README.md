@@ -2,7 +2,7 @@
     <img src="./folia.png">
     <br /><br />
     <p><b><font size="+3">DirtyFolia</font></b></p>
-    <p>A Fork of <a href="https://github.com/PaperMC/Folia">Folia</a> working to support more bukkit plugins.</p>
+    <p>Fork of <a href="https://github.com/PaperMC/Folia">Folia</a> working to support more bukkit plugins.</p>
 </div>
 
 - **DirtyFolia** is a project to make **Original Folia** support more **Only Bukkit-API** plugins
@@ -17,7 +17,7 @@ See [the PaperMC documentation](https://docs.papermc.io/folia/reference/region-l
 will group nearby chunks.
 Each independent region has its own tick loop, which is ticked at the
 regular Minecraft tickrate (20TPS). The tick loops are executed
-on a thread pool in parallel. There is no main thread anymore, 
+on a thread pool in parallel. There is no main thread anymore,
 as each region effectively has its own "main thread" that executes
 the entire tick loop.
 
@@ -26,14 +26,14 @@ spread out regions and tick them all in parallel on a configurable sized
 threadpool. Thus, Folia should scale well for servers like this.
 
 Folia is also its own project, this will not be merged into Paper
-for the foreseeable future. 
+for the foreseeable future.
 
 A more detailed but abstract overview: [Project overview](https://docs.papermc.io/folia/reference/overview).
 
 ## FAQ
 
 ### What server types can benefit from Folia?
-Server types that naturally spread players out, 
+Server types that naturally spread players out,
 like skyblock or SMP, will benefit the most from Folia. The server
 should have a sizeable player count, too.
 
@@ -46,11 +46,11 @@ of chunk system worker threads required is reduced greatly.
 
 The following is a _very rough_ estimation based off of the testing
 done before Folia was released on the test server we ran that
-had ~330 players peak. So, it is not exact and will require further tuning - 
+had ~330 players peak. So, it is not exact and will require further tuning -
 just take it as a starting point.
 
-The total number of cores on the machine available should be 
-taken into account. Then, allocate threads for: 
+The total number of cores on the machine available should be
+taken into account. Then, allocate threads for:
 - netty IO :~4 per 200-300 players
 - chunk system io threads: ~3 per 200-300 players
 - chunk system workers if pre-generated, ~2 per 200-300 players
@@ -64,14 +64,14 @@ taken into account. Then, allocate threads for:
 
 After all of that allocation, the remaining cores on the system until 80%
 allocation (total threads allocated < 80% of cpus available) can be
-allocated to tickthreads (under global config, threaded-regions.threads). 
+allocated to tickthreads (under global config, threaded-regions.threads).
 
 The reason you should not allocate more than 80% of the cores is due to the
-fact that plugins or even the server may make use of additional threads 
+fact that plugins or even the server may make use of additional threads
 that you cannot configure or even predict.
 
 Additionally, the above is all a rough guess based on player count, but
-it is very likely that the thread allocation will not be ideal, and you 
+it is very likely that the thread allocation will not be ideal, and you
 will need to tune it based on usage of the threads that you end up seeing.
 
 ## Plugin compatibility
@@ -86,9 +86,9 @@ So, have your expectations for compatibility at 0.
 
 ## API plans
 
-Currently, there is a lot of API that relies on the main thread. 
-I expect basically zero plugins that are compatible with Paper to 
-be compatible with Folia. However, there are plans to add API that 
+Currently, there is a lot of API that relies on the main thread.
+I expect basically zero plugins that are compatible with Paper to
+be compatible with Folia. However, there are plans to add API that
 would allow Folia plugins to be compatible with Paper.
 
 For example, the Bukkit Scheduler. The Bukkit Scheduler inherently
@@ -99,7 +99,7 @@ on regular Paper, except they schedule to the main thread - in both cases,
 the execution of the task will occur on the thread that "owns" the
 location or entity. This concept applies in general, as the current Paper
 (single threaded) can be viewed as one giant "region" that encompasses
-all chunks in all worlds. 
+all chunks in all worlds.
 
 It is not yet decided whether to add this API to Paper itself directly
 or to Paperlib.
@@ -112,22 +112,22 @@ author(s) to work with Folia will be loaded. By placing
 "folia-supported: true" into the plugin's plugin.yml, plugin authors
 can mark their plugin as compatible with regionised multithreading.
 
-The other important rule is that the regions tick in _parallel_, and not 
+The other important rule is that the regions tick in _parallel_, and not
 _concurrently_. They do not share data, they do not expect to share data,
-and sharing of data _will_ cause data corruption. 
-Code that is running in one region under no circumstance can 
-be accessing or modifying data that is in another region. Just 
-because multithreading is in the name, it doesn't mean that everything 
-is now thread-safe. In fact, there are only a _few_ things that were 
-made thread-safe to make this happen. As time goes on, the number 
-of thread context checks will only grow, even _if_ it comes at a 
-performance penalty - _nobody_ is going to use or develop for a 
-server platform that is buggy as hell, and the only way to 
-prevent and find these bugs is to make bad accesses fail _hard_ at the 
+and sharing of data _will_ cause data corruption.
+Code that is running in one region under no circumstance can
+be accessing or modifying data that is in another region. Just
+because multithreading is in the name, it doesn't mean that everything
+is now thread-safe. In fact, there are only a _few_ things that were
+made thread-safe to make this happen. As time goes on, the number
+of thread context checks will only grow, even _if_ it comes at a
+performance penalty - _nobody_ is going to use or develop for a
+server platform that is buggy as hell, and the only way to
+prevent and find these bugs is to make bad accesses fail _hard_ at the
 source of the bad access.
 
-This means that Folia compatible plugins need to take advantage of 
-API like the RegionScheduler and the EntityScheduler to ensure 
+This means that Folia compatible plugins need to take advantage of
+API like the RegionScheduler and the EntityScheduler to ensure
 their code is running on the correct thread context.
 
 In general, it is safe to assume that a region owns chunk data
@@ -138,18 +138,18 @@ thread-check API to ensure correct behavior.
 
 The only guarantee of thread-safety comes from the fact that a
 single region owns data in certain chunks - and if that region is
-ticking, then it has full access to that data. This data is 
+ticking, then it has full access to that data. This data is
 specifically entity/chunk/poi data, and is entirely unrelated
 to **ANY** plugin data.
 
 Normal multithreading rules apply to data that plugins store/access
-their own data or another plugin's - events/commands/etc. are called 
-in _parallel_ because regions are ticking in _parallel_ (we CANNOT 
-call them in a synchronous fashion, as this opens up deadlock issues 
-and would handicap performance). There are no easy ways out of this, 
-it depends solely on what data is being accessed. Sometimes a 
-concurrent collection (like ConcurrentHashMap) is enough, and often a 
-concurrent collection used carelessly will only _hide_ threading 
+their own data or another plugin's - events/commands/etc. are called
+in _parallel_ because regions are ticking in _parallel_ (we CANNOT
+call them in a synchronous fashion, as this opens up deadlock issues
+and would handicap performance). There are no easy ways out of this,
+it depends solely on what data is being accessed. Sometimes a
+concurrent collection (like ConcurrentHashMap) is enough, and often a
+concurrent collection used carelessly will only _hide_ threading
 issues, which then become near impossible to debug.
 
 ### Current API additions
@@ -157,7 +157,7 @@ issues, which then become near impossible to debug.
 To properly understand API additions, please read
 [Project overview](https://docs.papermc.io/folia/reference/overview).
 
-- RegionScheduler, AsyncScheduler, GlobalRegionScheduler, and EntityScheduler 
+- RegionScheduler, AsyncScheduler, GlobalRegionScheduler, and EntityScheduler
   acting as a replacement for  the BukkitScheduler.
   The entity scheduler is retrieved via Entity#getScheduler, and the
   rest of the schedulers can be retrieved from the Bukkit/Server classes.
@@ -172,15 +172,15 @@ To properly understand API additions, please read
 General rules of thumb:
 
 1. Commands for entities/players are called on the region which owns
-the entity/player. Console commands are executed on the global region.
+   the entity/player. Console commands are executed on the global region.
 
 2. Events involving a single entity (i.e player breaks/places block) are
-called on the region owning entity. Events involving actions on an entity
-(such as entity damage) are invoked on the region owning the target entity.
+   called on the region owning entity. Events involving actions on an entity
+   (such as entity damage) are invoked on the region owning the target entity.
 
 3. The async modifier for events is deprecated - all events
-fired from regions or the global region are considered _synchronous_, 
-even though there is no main thread anymore. 
+   fired from regions or the global region are considered _synchronous_,
+   even though there is no main thread anymore.
 
 ### Current broken API
 
@@ -189,7 +189,7 @@ even though there is no main thread anymore.
 - ALL scoreboard API is considered broken (this is global state that
   I've not figured out how to properly implement yet)
 - World loading/unloading
-- Entity#teleport. This will NEVER UNDER ANY CIRCUMSTANCE come back, 
+- Entity#teleport. This will NEVER UNDER ANY CIRCUMSTANCE come back,
   use teleportAsync
 - Could be more
 

@@ -195,7 +195,7 @@ index 0000000000000000000000000000000000000000..03d990f470b2852fb7b6f0b3b71ba13d
 +    }
 +}
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
-index dfddeccbeb35f4dd40519b55a7ed96163daae1c1..a4c0e0440a288a8eed51c1cc87d7d7e3391a0337 100644
+index 1d9e9d00afea577f2b64cf36d536353a2e935397..b570619b1b65de0558838015a10758d4e22fc0bf 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 @@ -10,12 +10,9 @@ import com.google.gson.JsonElement;
@@ -249,7 +249,7 @@ index dfddeccbeb35f4dd40519b55a7ed96163daae1c1..a4c0e0440a288a8eed51c1cc87d7d7e3
  import java.util.concurrent.atomic.AtomicBoolean;
  import java.util.function.Consumer;
  
-@@ -1805,123 +1787,7 @@ public final class NewChunkHolder {
+@@ -1815,123 +1797,7 @@ public final class NewChunkHolder {
          if (TickThread.isTickThreadFor(this.world, this.chunkX, this.chunkZ)) {
              runnable.run();
          } else {
