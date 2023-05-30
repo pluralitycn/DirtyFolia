@@ -2591,10 +2591,10 @@ index 1f7c146ff0b2a835c818f49da6c1f1411f26aa39..7b8362625b48f1829ed4fd3c7fde6a4b
  
          /*
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkTaskScheduler.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkTaskScheduler.java
-index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d96084c0c 100644
+index bb078caad05aa2aeb1e79e5cc0cfd2608f82e239..ca721844700c2527c0e3bfde0bc5ddd0203b187d 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkTaskScheduler.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkTaskScheduler.java
-@@ -117,7 +117,7 @@ public final class ChunkTaskScheduler {
+@@ -118,7 +118,7 @@ public final class ChunkTaskScheduler {
  
      // Folia - regionised ticking
  
@@ -2603,7 +2603,7 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
      public final ChunkHolderManager chunkHolderManager;
  
      static {
-@@ -193,6 +193,73 @@ public final class ChunkTaskScheduler {
+@@ -194,6 +194,73 @@ public final class ChunkTaskScheduler {
          }
      }
  
@@ -2677,7 +2677,7 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
      public ChunkTaskScheduler(final ServerLevel world, final PrioritisedThreadPool workers) {
          this.world = world;
          this.workers = workers;
-@@ -273,10 +340,11 @@ public final class ChunkTaskScheduler {
+@@ -274,10 +341,11 @@ public final class ChunkTaskScheduler {
              }, priority);
              return;
          }
@@ -2691,7 +2691,7 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
              throw new IllegalStateException("Cannot schedule chunk loading recursively");
          }
  
-@@ -310,9 +378,9 @@ public final class ChunkTaskScheduler {
+@@ -311,9 +379,9 @@ public final class ChunkTaskScheduler {
  
          final boolean scheduled;
          final LevelChunk chunk;
@@ -2703,7 +2703,7 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
              try {
                  final NewChunkHolder chunkHolder = this.chunkHolderManager.getChunkHolder(chunkKey);
                  if (chunkHolder == null || chunkHolder.getTicketLevel() > minLevel) {
-@@ -343,10 +411,10 @@ public final class ChunkTaskScheduler {
+@@ -344,10 +412,10 @@ public final class ChunkTaskScheduler {
                      }
                  }
              } finally {
@@ -2716,7 +2716,7 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
          }
  
          if (!scheduled) {
-@@ -384,12 +452,13 @@ public final class ChunkTaskScheduler {
+@@ -385,12 +453,13 @@ public final class ChunkTaskScheduler {
      // only appropriate to use with ServerLevel#syncLoadNonFull
      public boolean beginChunkLoadForNonFullSync(final int chunkX, final int chunkZ, final ChunkStatus toStatus,
                                                  final PrioritisedExecutor.Priority priority) {
@@ -2732,7 +2732,7 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
              try {
                  final NewChunkHolder chunkHolder = this.chunkHolderManager.getChunkHolder(chunkKey);
                  if (chunkHolder == null || chunkHolder.getTicketLevel() > minLevel) {
-@@ -407,10 +476,10 @@ public final class ChunkTaskScheduler {
+@@ -408,10 +477,10 @@ public final class ChunkTaskScheduler {
                      }
                  }
              } finally {
@@ -2745,7 +2745,7 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
          }
  
          for (int i = 0, len = tasks.size(); i < len; ++i) {
-@@ -429,10 +498,11 @@ public final class ChunkTaskScheduler {
+@@ -430,10 +499,11 @@ public final class ChunkTaskScheduler {
              }, priority);
              return;
          }
@@ -2759,7 +2759,7 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
              throw new IllegalStateException("Cannot schedule chunk loading recursively");
          }
  
-@@ -469,9 +539,9 @@ public final class ChunkTaskScheduler {
+@@ -470,9 +540,9 @@ public final class ChunkTaskScheduler {
  
          final boolean scheduled;
          final ChunkAccess chunk;
@@ -2771,7 +2771,7 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
              try {
                  final NewChunkHolder chunkHolder = this.chunkHolderManager.getChunkHolder(chunkKey);
                  if (chunkHolder == null || chunkHolder.getTicketLevel() > minLevel) {
-@@ -496,10 +566,10 @@ public final class ChunkTaskScheduler {
+@@ -497,10 +567,10 @@ public final class ChunkTaskScheduler {
                      }
                  }
              } finally {
@@ -2784,7 +2784,7 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
          }
  
          for (int i = 0, len = tasks.size(); i < len; ++i) {
-@@ -546,7 +616,7 @@ public final class ChunkTaskScheduler {
+@@ -547,7 +617,7 @@ public final class ChunkTaskScheduler {
      private ChunkProgressionTask schedule(final int chunkX, final int chunkZ, final ChunkStatus targetStatus,
                                            final NewChunkHolder chunkHolder, final List<ChunkProgressionTask> allTasks,
                                            final PrioritisedExecutor.Priority minPriority) {
@@ -3245,10 +3245,10 @@ index 0000000000000000000000000000000000000000..50417ac73d7695e8e4eb463a906034bb
 +    }
 +}
 diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
-index 6c1d55144f044f39926ddf998104950b9efe3ee1..8e31c6ee9ee16aff699e124a9b0554eaafa5c1ac 100644
+index dca81f7b3cfce853dbd80c04caf06d67bdd25ba4..628f04fd322050fc97ca02ea31b0ad95e3a45e8b 100644
 --- a/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
 +++ b/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
-@@ -185,7 +185,96 @@ public final class RegionizedServer {
+@@ -191,7 +191,96 @@ public final class RegionizedServer {
      private long lastServerStatus;
      private long tickCount;
  
@@ -3345,7 +3345,7 @@ index 6c1d55144f044f39926ddf998104950b9efe3ee1..8e31c6ee9ee16aff699e124a9b0554ea
          ++this.tickCount;
          // expire invalid click command callbacks
          io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.CALLBACK_MANAGER.handleQueue((int)this.tickCount);
-@@ -311,6 +400,8 @@ public final class RegionizedServer {
+@@ -317,6 +406,8 @@ public final class RegionizedServer {
          this.tickTime(world, tickCount);
  
          world.updateTickData();
@@ -3486,7 +3486,7 @@ index 4a095e69584d7dbbefafe6e0a4a1a1090172ac9e..2e4514e5a45db6e625ef7799b63a9285
      }
  
 diff --git a/src/main/java/io/papermc/paper/threadedregions/ThreadedRegionizer.java b/src/main/java/io/papermc/paper/threadedregions/ThreadedRegionizer.java
-index 5170b43743ea27a5c2aaee37d76f4e7e730fd808..1a4d820535f7b04671525c4f0e8691c9e82e075f 100644
+index aed8bf39b82c69a71cbe7ba195625edfdbc25004..d1642ffb6a4502856cd540885085ac8baf172a16 100644
 --- a/src/main/java/io/papermc/paper/threadedregions/ThreadedRegionizer.java
 +++ b/src/main/java/io/papermc/paper/threadedregions/ThreadedRegionizer.java
 @@ -674,6 +674,14 @@ public final class ThreadedRegionizer<R extends ThreadedRegionizer.ThreadedRegio

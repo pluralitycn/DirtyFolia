@@ -118,7 +118,7 @@ index 61bac6fda2d2f4b3db8a3f7e3003f47c84d5c4cd..e5952820e4d3318a5b13939f2c5803d2
  
      public SystemReport fillSystemReport(SystemReport details) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 32c9b38036052649b7b5fb25d7c4a49fdd1ca972..852b3faa734fb6b50650660729f19c34a5eebc84 100644
+index c4d19eccd3e6480382101052a4095e7e31b9d3ca..c0a448b4caf9dfdf770b671858cd69e6b45ab89a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -15,6 +15,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
