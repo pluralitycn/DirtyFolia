@@ -24,10 +24,10 @@ blocked, and allow the current thread to complete the callback
 without any issues.
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
-index 1ff6b138ccf4a1cefa719cd0b2b3af02d18a26fb..dc60f4af918c2bd73873cadfb69e5572173b8e46 100644
+index b570619b1b65de0558838015a10758d4e22fc0bf..5e3d0e79ccc544c51a0df3b9d3ff3cd7dc7c9ecf 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
-@@ -156,6 +156,12 @@ public final class NewChunkHolder {
+@@ -159,6 +159,12 @@ public final class NewChunkHolder {
                      LOGGER.error("Unhandled entity data load exception, data data will be lost: ", result.right());
                  }
  
@@ -40,7 +40,7 @@ index 1ff6b138ccf4a1cefa719cd0b2b3af02d18a26fb..dc60f4af918c2bd73873cadfb69e5572
                  completeWaiters = waiters;
              } else {
                  // cancelled
-@@ -187,7 +193,7 @@ public final class NewChunkHolder {
+@@ -190,7 +196,7 @@ public final class NewChunkHolder {
          // avoid holding the scheduling lock while completing
          if (completeWaiters != null) {
              for (final GenericDataLoadTaskCallback callback : completeWaiters) {
@@ -49,7 +49,7 @@ index 1ff6b138ccf4a1cefa719cd0b2b3af02d18a26fb..dc60f4af918c2bd73873cadfb69e5572
              }
          }
  
-@@ -273,6 +279,12 @@ public final class NewChunkHolder {
+@@ -276,6 +282,12 @@ public final class NewChunkHolder {
                      LOGGER.error("Unhandled poi load exception, poi data will be lost: ", result.right());
                  }
  
@@ -62,7 +62,7 @@ index 1ff6b138ccf4a1cefa719cd0b2b3af02d18a26fb..dc60f4af918c2bd73873cadfb69e5572
                  completeWaiters = waiters;
              } else {
                  // cancelled
-@@ -304,7 +316,7 @@ public final class NewChunkHolder {
+@@ -307,7 +319,7 @@ public final class NewChunkHolder {
          // avoid holding the scheduling lock while completing
          if (completeWaiters != null) {
              for (final GenericDataLoadTaskCallback callback : completeWaiters) {
@@ -71,7 +71,7 @@ index 1ff6b138ccf4a1cefa719cd0b2b3af02d18a26fb..dc60f4af918c2bd73873cadfb69e5572
              }
          }
          schedulingLock = this.scheduler.schedulingLockArea.lock(this.chunkX, this.chunkZ); // Folia - use area based lock to reduce contention
-@@ -357,7 +369,7 @@ public final class NewChunkHolder {
+@@ -360,7 +372,7 @@ public final class NewChunkHolder {
          }
      }
  
@@ -80,7 +80,7 @@ index 1ff6b138ccf4a1cefa719cd0b2b3af02d18a26fb..dc60f4af918c2bd73873cadfb69e5572
  
          protected final Consumer<GenericDataLoadTask.TaskResult<?, Throwable>> consumer;
          protected final NewChunkHolder chunkHolder;
-@@ -393,13 +405,23 @@ public final class NewChunkHolder {
+@@ -396,13 +408,23 @@ public final class NewChunkHolder {
              return this.completed = true;
          }
  

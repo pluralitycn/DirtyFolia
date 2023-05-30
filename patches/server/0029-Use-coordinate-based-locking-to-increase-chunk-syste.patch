@@ -851,7 +851,7 @@ index 0000000000000000000000000000000000000000..64b5803d002b2968841a5ddee987f98b
 +    }
 +}
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
-index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09f3403a04 100644
+index 57a01681f3e17dbf51196d5bec437333d1b4ef0c..326d2a81ad43e8ccc12ae21c940683f4a94c1ca3 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
 @@ -76,10 +76,50 @@ public final class ChunkHolderManager {
@@ -1039,7 +1039,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
      }
  
      public List<ChunkHolder> getOldChunkHolders() {
-@@ -452,22 +415,65 @@ public final class ChunkHolderManager {
+@@ -453,22 +416,65 @@ public final class ChunkHolderManager {
          }
      }
  
@@ -1116,7 +1116,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
      // function for converting between ticket levels and propagator levels and vice versa
      // the problem is the ticket level propagator will propagate from a set source down to zero, whereas mojang expects
      // levels to propagate from a set value up to a maximum value. so we need to convert the levels we put into the propagator
-@@ -482,46 +488,72 @@ public final class ChunkHolderManager {
+@@ -483,46 +489,72 @@ public final class ChunkHolderManager {
      }
  
      public String getTicketDebugString(final long coordinate) {
@@ -1211,7 +1211,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
              // Folia end - region threading
  
              if (tickets == null) {
-@@ -535,21 +567,19 @@ public final class ChunkHolderManager {
+@@ -536,21 +568,19 @@ public final class ChunkHolderManager {
                  }
              }
          } finally {
@@ -1237,7 +1237,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
          }
      }
  
-@@ -567,45 +597,66 @@ public final class ChunkHolderManager {
+@@ -568,45 +598,66 @@ public final class ChunkHolderManager {
          return this.addTicketAtLevel(type, CoordinateUtils.getChunkKey(chunkX, chunkZ), level, identifier);
      }
  
@@ -1333,7 +1333,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
                  return SortedArraySet.create(4);
              });
  
-@@ -614,30 +665,20 @@ public final class ChunkHolderManager {
+@@ -615,30 +666,20 @@ public final class ChunkHolderManager {
              final int levelAfter = getTicketLevelAt(ticketsAtChunk);
  
              if (current != ticket) {
@@ -1375,7 +1375,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
                  }
              }
  
-@@ -646,13 +687,13 @@ public final class ChunkHolderManager {
+@@ -647,13 +688,13 @@ public final class ChunkHolderManager {
              }
  
              return current == ticket;
@@ -1395,7 +1395,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
          }
      }
  
-@@ -665,117 +706,104 @@ public final class ChunkHolderManager {
+@@ -666,117 +707,104 @@ public final class ChunkHolderManager {
      }
  
      public <T> boolean removeTicketAtLevel(final TicketType<T> type, final long chunk, final int level, final T identifier) {
@@ -1560,7 +1560,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
          }
      }
  
-@@ -784,58 +812,122 @@ public final class ChunkHolderManager {
+@@ -785,58 +813,122 @@ public final class ChunkHolderManager {
              return;
          }
  
@@ -1718,7 +1718,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
          }
  
          this.processTicketUpdates();
-@@ -887,10 +979,11 @@ public final class ChunkHolderManager {
+@@ -888,10 +980,11 @@ public final class ChunkHolderManager {
      }
  
      private NewChunkHolder getOrCreateChunkHolder(final long position) {
@@ -1732,7 +1732,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
              throw new IllegalStateException("Must hold scheduler lock!!");
          }
  
-@@ -903,12 +996,14 @@ public final class ChunkHolderManager {
+@@ -904,12 +997,14 @@ public final class ChunkHolderManager {
          }
  
          current = this.createChunkHolder(position);
@@ -1748,7 +1748,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
  
      public ChunkEntitySlices getOrCreateEntityChunk(final int chunkX, final int chunkZ, final boolean transientChunk) {
          TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Cannot create entity chunk off-main");
-@@ -921,13 +1016,13 @@ public final class ChunkHolderManager {
+@@ -922,13 +1017,13 @@ public final class ChunkHolderManager {
  
          final AtomicBoolean isCompleted = new AtomicBoolean();
          final Thread waiter = Thread.currentThread();
@@ -1766,7 +1766,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
              try {
                  current = this.getOrCreateChunkHolder(chunkX, chunkZ);
                  if ((ret = current.getEntityChunk()) != null && (transientChunk || !ret.isTransient())) {
-@@ -951,10 +1046,10 @@ public final class ChunkHolderManager {
+@@ -952,10 +1047,10 @@ public final class ChunkHolderManager {
                      }
                  }
              } finally {
@@ -1779,7 +1779,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
          }
  
          if (loadTask != null) {
-@@ -996,7 +1091,7 @@ public final class ChunkHolderManager {
+@@ -997,7 +1092,7 @@ public final class ChunkHolderManager {
          return null;
      }
  
@@ -1788,7 +1788,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
  
      public PoiChunk loadPoiChunk(final int chunkX, final int chunkZ) {
          TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Cannot create poi chunk off-main");
-@@ -1013,13 +1108,13 @@ public final class ChunkHolderManager {
+@@ -1014,13 +1109,13 @@ public final class ChunkHolderManager {
          final AtomicReference<PoiChunk> completed = new AtomicReference<>();
          final AtomicBoolean isCompleted = new AtomicBoolean();
          final Thread waiter = Thread.currentThread();
@@ -1806,7 +1806,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
              try {
                  current = this.getOrCreateChunkHolder(chunkX, chunkZ);
                  if (current.isPoiChunkLoaded()) {
-@@ -1038,10 +1133,10 @@ public final class ChunkHolderManager {
+@@ -1039,10 +1134,10 @@ public final class ChunkHolderManager {
                      poiLoad.raisePriority(PrioritisedExecutor.Priority.BLOCKING);
                  }
              } finally {
@@ -1819,7 +1819,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
          }
  
          if (loadTask != null) {
-@@ -1122,7 +1217,9 @@ public final class ChunkHolderManager {
+@@ -1123,7 +1218,9 @@ public final class ChunkHolderManager {
          }
      }
  
@@ -1830,7 +1830,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
  
      /*
       * Note: Only called on chunk holders that the current ticking region owns
-@@ -1133,7 +1230,9 @@ public final class ChunkHolderManager {
+@@ -1134,7 +1231,9 @@ public final class ChunkHolderManager {
          // Folia - region threading
          ChunkSystem.onChunkHolderDelete(this.world, holder.vanillaChunkHolder);
          this.getCurrentRegionData().autoSaveQueue.remove(holder); // Folia - region threading
@@ -1840,7 +1840,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
      }
  
      // note: never call while inside the chunk system, this will absolutely break everything
-@@ -1143,100 +1242,150 @@ public final class ChunkHolderManager {
+@@ -1144,100 +1243,150 @@ public final class ChunkHolderManager {
          if (BLOCK_TICKET_UPDATES.get() == Boolean.TRUE) {
              throw new IllegalStateException("Cannot unload chunks recursively");
          }
@@ -2063,7 +2063,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
          }
      }
  
-@@ -1298,88 +1447,71 @@ public final class ChunkHolderManager {
+@@ -1299,88 +1448,71 @@ public final class ChunkHolderManager {
          }
      }
  
@@ -2198,7 +2198,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
      }
  
      private final ThreadLocal<Boolean> BLOCK_TICKET_UPDATES = ThreadLocal.withInitial(() -> {
-@@ -1413,12 +1545,7 @@ public final class ChunkHolderManager {
+@@ -1414,12 +1546,7 @@ public final class ChunkHolderManager {
          if (BLOCK_TICKET_UPDATES.get() == Boolean.TRUE) {
              throw new IllegalStateException("Cannot update ticket level while unloading chunks or updating entity manager");
          }
@@ -2212,7 +2212,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
  
          List<NewChunkHolder> changedFullStatus = null;
  
-@@ -1428,94 +1555,19 @@ public final class ChunkHolderManager {
+@@ -1429,94 +1556,19 @@ public final class ChunkHolderManager {
          final boolean canProcessFullUpdates = processFullUpdates & isTickThread;
          final boolean canProcessScheduling = scheduledTasks == null;
  
@@ -2317,7 +2317,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
  
          if (changedFullStatus != null) {
              this.addChangedStatuses(changedFullStatus);
-@@ -1561,43 +1613,7 @@ public final class ChunkHolderManager {
+@@ -1562,43 +1614,7 @@ public final class ChunkHolderManager {
      }
  
      public JsonObject getDebugJsonForWatchdog() {
@@ -2362,7 +2362,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
      }
  
      private JsonObject getDebugJsonNoLock() {
-@@ -1606,12 +1622,31 @@ public final class ChunkHolderManager {
+@@ -1607,12 +1623,31 @@ public final class ChunkHolderManager {
  
          final JsonArray unloadQueue = new JsonArray();
          ret.add("unload_queue", unloadQueue);
@@ -2399,7 +2399,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
          }
  
          final JsonArray holders = new JsonArray();
-@@ -1621,71 +1656,77 @@ public final class ChunkHolderManager {
+@@ -1622,71 +1657,77 @@ public final class ChunkHolderManager {
              holders.add(holder.getDebugJson());
          }
  
@@ -2525,7 +2525,7 @@ index aa6dad3a41077b187ef0702cb27ca03f6d9596fb..eba309c8614eb099d55db9c9ebfe6b09
          });
          // Folia end - region threading
  
-@@ -1693,27 +1734,6 @@ public final class ChunkHolderManager {
+@@ -1694,27 +1735,6 @@ public final class ChunkHolderManager {
      }
  
      public JsonObject getDebugJson() {
@@ -2794,10 +2794,10 @@ index 5ca4e9c85c957c669d54fd9e5e52f13502b592da..4ea4b5a78fe629d5aa565d8d9a47f58d
          }
  
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
-index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02d18a26fb 100644
+index a4c0e0440a288a8eed51c1cc87d7d7e3391a0337..b570619b1b65de0558838015a10758d4e22fc0bf 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
-@@ -74,7 +74,7 @@ public final class NewChunkHolder {
+@@ -77,7 +77,7 @@ public final class NewChunkHolder {
          TickThread.ensureTickThread(this.world, this.chunkX, this.chunkZ, "Cannot sync load entity data off-main");
          final CompoundTag entityChunk;
          final ChunkEntitySlices ret;
@@ -2806,7 +2806,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          try {
              if (this.entityChunk != null && (transientChunk || !this.entityChunk.isTransient())) {
                  return this.entityChunk;
-@@ -106,7 +106,7 @@ public final class NewChunkHolder {
+@@ -109,7 +109,7 @@ public final class NewChunkHolder {
                  entityChunk = null;
              }
          } finally {
@@ -2815,7 +2815,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          }
  
          if (!transientChunk) {
-@@ -145,7 +145,7 @@ public final class NewChunkHolder {
+@@ -148,7 +148,7 @@ public final class NewChunkHolder {
          final List<GenericDataLoadTaskCallback> completeWaiters;
          ChunkLoadTask.EntityDataLoadTask entityDataLoadTask = null;
          boolean scheduleEntityTask = false;
@@ -2824,7 +2824,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          try {
              final List<GenericDataLoadTaskCallback> waiters = this.entityDataLoadTaskWaiters;
              this.entityDataLoadTask = null;
-@@ -177,7 +177,7 @@ public final class NewChunkHolder {
+@@ -180,7 +180,7 @@ public final class NewChunkHolder {
                  }
              }
          } finally {
@@ -2833,7 +2833,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          }
  
          if (scheduleEntityTask) {
-@@ -191,11 +191,11 @@ public final class NewChunkHolder {
+@@ -194,11 +194,11 @@ public final class NewChunkHolder {
              }
          }
  
@@ -2847,7 +2847,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          }
      }
  
-@@ -206,7 +206,7 @@ public final class NewChunkHolder {
+@@ -209,7 +209,7 @@ public final class NewChunkHolder {
              throw new IllegalStateException("Cannot load entity data, it is already loaded");
          }
          // why not just acquire the lock? because the caller NEEDS to call isEntityChunkNBTLoaded before this!
@@ -2856,7 +2856,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
              throw new IllegalStateException("Must hold scheduling lock");
          }
  
-@@ -262,7 +262,7 @@ public final class NewChunkHolder {
+@@ -265,7 +265,7 @@ public final class NewChunkHolder {
          final List<GenericDataLoadTaskCallback> completeWaiters;
          ChunkLoadTask.PoiDataLoadTask poiDataLoadTask = null;
          boolean schedulePoiTask = false;
@@ -2865,7 +2865,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          try {
              final List<GenericDataLoadTaskCallback> waiters = this.poiDataLoadTaskWaiters;
              this.poiDataLoadTask = null;
-@@ -294,7 +294,7 @@ public final class NewChunkHolder {
+@@ -297,7 +297,7 @@ public final class NewChunkHolder {
                  }
              }
          } finally {
@@ -2874,7 +2874,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          }
  
          if (schedulePoiTask) {
-@@ -307,11 +307,11 @@ public final class NewChunkHolder {
+@@ -310,11 +310,11 @@ public final class NewChunkHolder {
                  callback.accept(result);
              }
          }
@@ -2888,7 +2888,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          }
      }
  
-@@ -322,7 +322,7 @@ public final class NewChunkHolder {
+@@ -325,7 +325,7 @@ public final class NewChunkHolder {
              throw new IllegalStateException("Cannot load poi data, it is already loaded");
          }
          // why not just acquire the lock? because the caller NEEDS to call isPoiChunkLoaded before this!
@@ -2897,7 +2897,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
              throw new IllegalStateException("Must hold scheduling lock");
          }
  
-@@ -411,7 +411,8 @@ public final class NewChunkHolder {
+@@ -414,7 +414,8 @@ public final class NewChunkHolder {
  
          @Override
          public boolean cancel() {
@@ -2907,7 +2907,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
              try {
                  if (!this.completed) {
                      this.completed = true;
-@@ -420,7 +421,7 @@ public final class NewChunkHolder {
+@@ -423,7 +424,7 @@ public final class NewChunkHolder {
                  }
                  return false;
              } finally {
@@ -2916,7 +2916,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
              }
          }
      }
-@@ -714,10 +715,10 @@ public final class NewChunkHolder {
+@@ -717,10 +718,10 @@ public final class NewChunkHolder {
          }
          if (this.isSafeToUnload() == null) {
              // ensure in unload queue
@@ -2929,7 +2929,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          }
      }
  
-@@ -787,13 +788,13 @@ public final class NewChunkHolder {
+@@ -790,13 +791,13 @@ public final class NewChunkHolder {
              RegionFileIOThread.scheduleSave(this.world, this.chunkX, this.chunkZ, data, RegionFileIOThread.RegionFileType.CHUNK_DATA);
          }
          this.chunkDataUnload.completable().complete(data);
@@ -2945,7 +2945,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          }
      }
  
-@@ -830,12 +831,12 @@ public final class NewChunkHolder {
+@@ -833,12 +834,12 @@ public final class NewChunkHolder {
              this.lastEntityUnload = null;
  
              if (entityChunk.unload()) {
@@ -2960,7 +2960,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
                  }
              } else {
                  this.world.getEntityLookup().entitySectionUnload(this.chunkX, this.chunkZ);
-@@ -1206,7 +1207,7 @@ public final class NewChunkHolder {
+@@ -1209,7 +1210,7 @@ public final class NewChunkHolder {
      // only call on main thread // Folia - update comment
      private void onFullChunkLoadChange(final boolean loaded, final List<NewChunkHolder> changedFullStatus) {
          // Folia start - chunk system fix - acquire scheduling lock
@@ -2969,7 +2969,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          try {
          // Folia end - chunk system fix - acquire scheduling lock
          for (int dz = -NEIGHBOUR_RADIUS; dz <= NEIGHBOUR_RADIUS; ++dz) {
-@@ -1225,7 +1226,7 @@ public final class NewChunkHolder {
+@@ -1228,7 +1229,7 @@ public final class NewChunkHolder {
          }
          // Folia start - chunk system fix - acquire scheduling lock
          } finally {
@@ -2978,7 +2978,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          }
          // Folia end - chunk system fix - acquire scheduling lock
      }
-@@ -1265,7 +1266,7 @@ public final class NewChunkHolder {
+@@ -1268,7 +1269,7 @@ public final class NewChunkHolder {
          // note: use opaque reads for chunk status read since we need it to be atomic
  
          // test if anything changed
@@ -2987,7 +2987,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          if ((int)statusCheck == (int)(statusCheck >>> 32)) {
              // nothing changed
              return ret;
-@@ -1274,14 +1275,23 @@ public final class NewChunkHolder {
+@@ -1277,14 +1278,23 @@ public final class NewChunkHolder {
          final ChunkTaskScheduler scheduler = this.scheduler;
          final ChunkHolderManager holderManager = scheduler.chunkHolderManager;
          final int ticketKeep;
@@ -3016,7 +3016,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
          }
  
          this.processingFullStatus = true;
-@@ -1292,11 +1302,11 @@ public final class NewChunkHolder {
+@@ -1295,11 +1305,11 @@ public final class NewChunkHolder {
                  ChunkHolder.FullChunkStatus nextState = getPendingChunkStatus(currStateEncoded);
                  if (currState == nextState) {
                      if (nextState == ChunkHolder.FullChunkStatus.INACCESSIBLE) {
@@ -3030,7 +3030,7 @@ index 12feb739a784a0108256451a37d94d041b7a5cdc..1ff6b138ccf4a1cefa719cd0b2b3af02
                          }
                      }
                      break;
-@@ -1696,14 +1706,14 @@ public final class NewChunkHolder {
+@@ -1699,14 +1709,14 @@ public final class NewChunkHolder {
                  // this means we have to leave the ticket level update to handle the scheduling
              }
              final List<NewChunkHolder> changedLoadStatus = new ArrayList<>();

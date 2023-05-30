@@ -34,7 +34,7 @@ index 0000000000000000000000000000000000000000..9533fb470a4d42d4de644f2837ee2243
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 3cc7a686151461730710003aef0be37b844b2f34..77de5772c71fb6a1f943462727a8c3670ae853a4 100644
+index e5952820e4d3318a5b13939f2c5803d2e5dc6e0e..2ad528fee515c1a24735b1b222b4a4596471963e 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1,11 +1,9 @@
@@ -262,7 +262,7 @@ index 3cc7a686151461730710003aef0be37b844b2f34..77de5772c71fb6a1f943462727a8c367
  
  public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, AutoCloseable {
  
-@@ -1700,6 +1630,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1682,6 +1612,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                  for (final io.papermc.paper.chunk.SingleThreadChunkRegionManager regionManager : worldserver.getChunkSource().chunkMap.regionManagers) {
                      regionManager.recalculateRegions();
                  }
