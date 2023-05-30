@@ -97,7 +97,7 @@ index 3b83f25a24d6f9cdbf131d5a4432fb4ad018be4e..aac24c25805fc54d36d6cb0d973ccea8
  
      // Folia start - threaded regions
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index f5721f6d719b7055fdccc81d5e67ed758e90cb10..3cc7a686151461730710003aef0be37b844b2f34 100644
+index 61bac6fda2d2f4b3db8a3f7e3003f47c84d5c4cd..e5952820e4d3318a5b13939f2c5803d2e5dc6e0e 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -14,6 +14,7 @@ import com.mojang.authlib.GameProfileRepository;
@@ -108,7 +108,7 @@ index f5721f6d719b7055fdccc81d5e67ed758e90cb10..3cc7a686151461730710003aef0be37b
  import it.unimi.dsi.fastutil.longs.LongIterator;
  import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  import java.awt.image.BufferedImage;
-@@ -1833,7 +1834,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1815,7 +1816,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @DontObfuscate
      public String getServerModName() {
