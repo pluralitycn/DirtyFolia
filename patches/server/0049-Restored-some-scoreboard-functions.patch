@@ -1,0 +1,723 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Thu, 1 Jun 2023 18:36:46 +0800
+Subject: [PATCH] Restored some scoreboard functions
+
+
+diff --git a/src/main/java/net/minecraft/commands/Commands.java b/src/main/java/net/minecraft/commands/Commands.java
+index e970a9807f1497b8b9f4155f558f4fcb719cb368..6e4c98dfc63521e3284a9b7b7b8f5c6b15308b38 100644
+--- a/src/main/java/net/minecraft/commands/Commands.java
++++ b/src/main/java/net/minecraft/commands/Commands.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.commands;
+ 
++import com.google.common.base.Joiner;
+ import com.google.common.collect.Maps;
+ import com.mojang.brigadier.ParseResults;
+ import com.mojang.brigadier.StringReader;
+@@ -12,14 +13,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
+ import com.mojang.brigadier.tree.CommandNode;
+ import com.mojang.brigadier.tree.RootCommandNode;
+ import com.mojang.logging.LogUtils;
+-import java.util.Iterator;
+-import java.util.Map;
+-import java.util.Optional;
+-import java.util.Set;
+-import java.util.function.Predicate;
+-import java.util.function.UnaryOperator;
+-import java.util.stream.Collectors;
+-import javax.annotation.Nullable;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.SharedConstants;
+ import net.minecraft.Util;
+@@ -31,100 +24,22 @@ import net.minecraft.core.HolderSet;
+ import net.minecraft.core.Registry;
+ import net.minecraft.data.registries.VanillaRegistries;
+ import net.minecraft.gametest.framework.TestCommand;
+-import net.minecraft.network.chat.ClickEvent;
+-import net.minecraft.network.chat.CommonComponents;
+-import net.minecraft.network.chat.Component;
+-import net.minecraft.network.chat.ComponentUtils;
+-import net.minecraft.network.chat.HoverEvent;
+-import net.minecraft.network.chat.MutableComponent;
++import net.minecraft.network.chat.*;
+ import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
+ import net.minecraft.resources.ResourceKey;
+-import net.minecraft.server.commands.AdvancementCommands;
+-import net.minecraft.server.commands.AttributeCommand;
+-import net.minecraft.server.commands.BanIpCommands;
+-import net.minecraft.server.commands.BanListCommands;
+-import net.minecraft.server.commands.BanPlayerCommands;
+-import net.minecraft.server.commands.BossBarCommands;
+-import net.minecraft.server.commands.ClearInventoryCommands;
+-import net.minecraft.server.commands.CloneCommands;
+-import net.minecraft.server.commands.DamageCommand;
+-import net.minecraft.server.commands.DataPackCommand;
+-import net.minecraft.server.commands.DeOpCommands;
+-import net.minecraft.server.commands.DebugCommand;
+-import net.minecraft.server.commands.DefaultGameModeCommands;
+-import net.minecraft.server.commands.DifficultyCommand;
+-import net.minecraft.server.commands.EffectCommands;
+-import net.minecraft.server.commands.EmoteCommands;
+-import net.minecraft.server.commands.EnchantCommand;
+-import net.minecraft.server.commands.ExecuteCommand;
+-import net.minecraft.server.commands.ExperienceCommand;
+-import net.minecraft.server.commands.FillBiomeCommand;
+-import net.minecraft.server.commands.FillCommand;
+-import net.minecraft.server.commands.ForceLoadCommand;
+-import net.minecraft.server.commands.FunctionCommand;
+-import net.minecraft.server.commands.GameModeCommand;
+-import net.minecraft.server.commands.GameRuleCommand;
+-import net.minecraft.server.commands.GiveCommand;
+-import net.minecraft.server.commands.HelpCommand;
+-import net.minecraft.server.commands.ItemCommands;
+-import net.minecraft.server.commands.JfrCommand;
+-import net.minecraft.server.commands.KickCommand;
+-import net.minecraft.server.commands.KillCommand;
+-import net.minecraft.server.commands.ListPlayersCommand;
+-import net.minecraft.server.commands.LocateCommand;
+-import net.minecraft.server.commands.LootCommand;
+-import net.minecraft.server.commands.MsgCommand;
+-import net.minecraft.server.commands.OpCommand;
+-import net.minecraft.server.commands.PardonCommand;
+-import net.minecraft.server.commands.PardonIpCommand;
+-import net.minecraft.server.commands.ParticleCommand;
+-import net.minecraft.server.commands.PerfCommand;
+-import net.minecraft.server.commands.PlaceCommand;
+-import net.minecraft.server.commands.PlaySoundCommand;
+-import net.minecraft.server.commands.PublishCommand;
+-import net.minecraft.server.commands.RecipeCommand;
+-import net.minecraft.server.commands.ReloadCommand;
+-import net.minecraft.server.commands.RideCommand;
+-import net.minecraft.server.commands.SaveAllCommand;
+-import net.minecraft.server.commands.SaveOffCommand;
+-import net.minecraft.server.commands.SaveOnCommand;
+-import net.minecraft.server.commands.SayCommand;
+-import net.minecraft.server.commands.ScheduleCommand;
+-import net.minecraft.server.commands.ScoreboardCommand;
+-import net.minecraft.server.commands.SeedCommand;
+-import net.minecraft.server.commands.SetBlockCommand;
+-import net.minecraft.server.commands.SetPlayerIdleTimeoutCommand;
+-import net.minecraft.server.commands.SetSpawnCommand;
+-import net.minecraft.server.commands.SetWorldSpawnCommand;
+-import net.minecraft.server.commands.SpawnArmorTrimsCommand;
+-import net.minecraft.server.commands.SpectateCommand;
+-import net.minecraft.server.commands.SpreadPlayersCommand;
+-import net.minecraft.server.commands.StopCommand;
+-import net.minecraft.server.commands.StopSoundCommand;
+-import net.minecraft.server.commands.SummonCommand;
+-import net.minecraft.server.commands.TagCommand;
+-import net.minecraft.server.commands.TeamCommand;
+-import net.minecraft.server.commands.TeamMsgCommand;
+-import net.minecraft.server.commands.TeleportCommand;
+-import net.minecraft.server.commands.TellRawCommand;
+-import net.minecraft.server.commands.TimeCommand;
+-import net.minecraft.server.commands.TitleCommand;
+-import net.minecraft.server.commands.TriggerCommand;
+-import net.minecraft.server.commands.WeatherCommand;
+-import net.minecraft.server.commands.WhitelistCommand;
+-import net.minecraft.server.commands.WorldBorderCommand;
+-import net.minecraft.server.commands.data.DataCommands;
++import net.minecraft.server.commands.*;
+ import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.tags.TagKey;
+ import net.minecraft.util.profiling.jfr.JvmProfiler;
+-import org.slf4j.Logger;
+-
+-// CraftBukkit start
+-import com.google.common.base.Joiner;
+-import java.util.Collection;
+-import java.util.LinkedHashSet;
+ import org.bukkit.event.player.PlayerCommandSendEvent;
+ import org.bukkit.event.server.ServerCommandEvent;
++import org.slf4j.Logger;
++
++import javax.annotation.Nullable;
++import java.util.*;
++import java.util.function.Predicate;
++import java.util.function.UnaryOperator;
++import java.util.stream.Collectors;
+ // CraftBukkit end
+ 
+ public class Commands {
+@@ -179,7 +94,7 @@ public class Commands {
+         //RideCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         SayCommand.register(this.dispatcher);
+         //ScheduleCommand.register(this.dispatcher); // Folia - region threading
+-        //ScoreboardCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        ScoreboardCommand.register(this.dispatcher); // Folia - region threading - TODO later // DirtyFolia - Recover
+         SeedCommand.register(this.dispatcher, environment != Commands.CommandSelection.INTEGRATED);
+         SetBlockCommand.register(this.dispatcher, commandRegistryAccess);
+         SetSpawnCommand.register(this.dispatcher);
+@@ -189,8 +104,8 @@ public class Commands {
+         StopSoundCommand.register(this.dispatcher);
+         SummonCommand.register(this.dispatcher, commandRegistryAccess);
+         //TagCommand.register(this.dispatcher); // Folia - region threading - TODO later
+-        //TeamCommand.register(this.dispatcher); // Folia - region threading - TODO later
+-        //TeamMsgCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        TeamCommand.register(this.dispatcher); // Folia - region threading - TODO later // DirtyFolia - Recover
++        TeamMsgCommand.register(this.dispatcher); // Folia - region threading - TODO later // DirtyFolia - Recover
+         TeleportCommand.register(this.dispatcher);
+         TellRawCommand.register(this.dispatcher);
+         TimeCommand.register(this.dispatcher);
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index 087f2239b5e1c7839f9a7c89c005513da8f56696..f662666f85f262811440b12b5ef0a081c00ec429 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -2681,7 +2681,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         public void onCreated(Entity entity) {}
+ 
+         public void onDestroyed(Entity entity) {
+-            // ServerLevel.this.getScoreboard().entityRemoved(entity); // Folia - region threading
++            ServerLevel.this.getScoreboard().entityRemoved(entity); // Folia - region threading // DirtyFolia - Recover
+         }
+ 
+         public void onTickingStart(Entity entity) {
+diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
+index ef9d900821c19588579839049879098403e2797a..437ad8ec2134a5441f446207da95f32caa54a5e1 100644
+--- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
++++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
+@@ -8,79 +8,19 @@ import com.mojang.datafixers.util.Either;
+ import com.mojang.logging.LogUtils;
+ import com.mojang.serialization.DataResult;
+ import com.mojang.serialization.Dynamic;
+-import java.net.InetSocketAddress;
+-import java.net.SocketAddress;
+-import java.util.Collection;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Objects;
+-import java.util.Optional;
+-import java.util.OptionalInt;
+-import java.util.Set;
+-import javax.annotation.Nullable;
+-import net.minecraft.BlockUtil;
+-import net.minecraft.ChatFormatting;
+-import net.minecraft.CrashReport;
+-import net.minecraft.CrashReportCategory;
+-import net.minecraft.ReportedException;
+-import net.minecraft.Util;
++import io.papermc.paper.adventure.PaperAdventure;
++import net.minecraft.*;
+ import net.minecraft.advancements.CriteriaTriggers;
+ import net.minecraft.commands.arguments.EntityAnchorArgument;
+-import net.minecraft.core.BlockPos;
+-import net.minecraft.core.Direction;
+-import net.minecraft.core.GlobalPos;
+-import net.minecraft.core.NonNullList;
+-import net.minecraft.core.PositionImpl;
+-import net.minecraft.core.SectionPos;
++import net.minecraft.core.*;
+ import net.minecraft.core.registries.BuiltInRegistries;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.nbt.NbtOps;
+ import net.minecraft.nbt.Tag;
+ import net.minecraft.network.PacketSendListener;
+-import net.minecraft.network.chat.ChatType;
+-import net.minecraft.network.chat.CommonComponents;
+-import net.minecraft.network.chat.Component;
+-import net.minecraft.network.chat.HoverEvent;
+-import net.minecraft.network.chat.MutableComponent;
+-import net.minecraft.network.chat.OutgoingChatMessage;
+-import net.minecraft.network.chat.RemoteChatSession;
++import net.minecraft.network.chat.*;
+ import net.minecraft.network.protocol.Packet;
+-import net.minecraft.network.protocol.game.ClientGamePacketListener;
+-import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
+-import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+-import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+-import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
+-import net.minecraft.network.protocol.game.ClientboundContainerClosePacket;
+-import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
+-import net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket;
+-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+-import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
+-import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
+-import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+-import net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket;
+-import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
+-import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
+-import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
+-import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
+-import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
+-import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
+-import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
+-import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
+-import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
+-import net.minecraft.network.protocol.game.ClientboundServerDataPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
+-import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
+-import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+-import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
+-import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+-import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
++import net.minecraft.network.protocol.game.*;
+ import net.minecraft.network.protocol.status.ServerStatus;
+ import net.minecraft.resources.ResourceKey;
+ import net.minecraft.resources.ResourceLocation;
+@@ -99,17 +39,14 @@ import net.minecraft.tags.DamageTypeTags;
+ import net.minecraft.util.Mth;
+ import net.minecraft.util.RandomSource;
+ import net.minecraft.util.Unit;
++import net.minecraft.world.Container;
++import net.minecraft.world.InteractionHand;
++import net.minecraft.world.MenuProvider;
++import net.minecraft.world.damagesource.CombatTracker;
+ import net.minecraft.world.damagesource.DamageSource;
+-import net.minecraft.world.damagesource.DamageSources;
+ import net.minecraft.world.effect.MobEffectInstance;
+ import net.minecraft.world.effect.MobEffects;
+-import net.minecraft.world.entity.Entity;
+-import net.minecraft.world.entity.EntitySelector;
+-import net.minecraft.world.entity.HumanoidArm;
+-import net.minecraft.world.entity.LivingEntity;
+-import net.minecraft.world.entity.Mob;
+-import net.minecraft.world.entity.NeutralMob;
+-import net.minecraft.world.entity.RelativeMovement;
++import net.minecraft.world.entity.*;
+ import net.minecraft.world.entity.animal.horse.AbstractHorse;
+ import net.minecraft.world.entity.item.ItemEntity;
+ import net.minecraft.world.entity.monster.Monster;
+@@ -119,18 +56,8 @@ import net.minecraft.world.entity.player.Inventory;
+ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.entity.projectile.AbstractArrow;
+ import net.minecraft.world.food.FoodData;
+-import net.minecraft.world.inventory.AbstractContainerMenu;
+-import net.minecraft.world.inventory.ContainerListener;
+-import net.minecraft.world.inventory.ContainerSynchronizer;
+-import net.minecraft.world.inventory.HorseInventoryMenu;
+-import net.minecraft.world.inventory.ResultSlot;
+-import net.minecraft.world.inventory.Slot;
+-import net.minecraft.world.item.ComplexItem;
+-import net.minecraft.world.item.ItemCooldowns;
+-import net.minecraft.world.item.ItemStack;
+-import net.minecraft.world.item.Items;
+-import net.minecraft.world.item.ServerItemCooldowns;
+-import net.minecraft.world.item.WrittenBookItem;
++import net.minecraft.world.inventory.*;
++import net.minecraft.world.item.*;
+ import net.minecraft.world.item.crafting.Recipe;
+ import net.minecraft.world.item.enchantment.EnchantmentHelper;
+ import net.minecraft.world.item.trading.MerchantOffers;
+@@ -153,17 +80,11 @@ import net.minecraft.world.level.gameevent.GameEvent;
+ import net.minecraft.world.level.portal.PortalInfo;
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.Vec3;
+-import org.slf4j.Logger;
+-import net.minecraft.world.Container;
+-import net.minecraft.world.InteractionHand;
+-import net.minecraft.world.MenuProvider;
+-import net.minecraft.world.damagesource.CombatTracker;
+ import net.minecraft.world.scores.PlayerTeam;
+ import net.minecraft.world.scores.Score;
+ import net.minecraft.world.scores.Scoreboard;
+ import net.minecraft.world.scores.Team;
+ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+-import io.papermc.paper.adventure.PaperAdventure; // Paper
+ import org.bukkit.Bukkit;
+ import org.bukkit.Location;
+ import org.bukkit.WeatherType;
+@@ -174,15 +95,15 @@ import org.bukkit.craftbukkit.event.CraftEventFactory;
+ import org.bukkit.craftbukkit.event.CraftPortalEvent;
+ import org.bukkit.craftbukkit.inventory.CraftItemStack;
+ import org.bukkit.craftbukkit.util.CraftDimensionUtil;
+-import org.bukkit.event.player.PlayerBedLeaveEvent;
+-import org.bukkit.event.player.PlayerChangedMainHandEvent;
+-import org.bukkit.event.player.PlayerChangedWorldEvent;
+-import org.bukkit.event.player.PlayerLocaleChangeEvent;
+-import org.bukkit.event.player.PlayerPortalEvent;
+-import org.bukkit.event.player.PlayerTeleportEvent;
++import org.bukkit.event.player.*;
+ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+-import org.bukkit.event.player.PlayerToggleSneakEvent;
+ import org.bukkit.inventory.MainHand;
++import org.slf4j.Logger;
++
++import javax.annotation.Nullable;
++import java.net.InetSocketAddress;
++import java.net.SocketAddress;
++import java.util.*;
+ // CraftBukkit end
+ 
+ public class ServerPlayer extends Player {
+@@ -1546,10 +1467,8 @@ public class ServerPlayer extends Player {
+     @Nullable
+     public Entity changeDimension(ServerLevel worldserver, PlayerTeleportEvent.TeleportCause cause) {
+         // Folia start - region threading
+-        if (true) {
+-            throw new UnsupportedOperationException("Must use teleportAsync while in region threading");
+-        }
+         // Folia end - region threading
++        // DirtyFolia - Recover
+         // CraftBukkit end
+         if (this.isSleeping()) return this; // CraftBukkit - SPIGOT-3154
+         // this.isChangingDimension = true; // CraftBukkit - Moved down and into PlayerList#changeDimension
+diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
+index 6af3e57e72caa0cf25b970fb08939fdde3be2fd3..84e3f4e025a3ace7d25479134c6b2ad6106658e1 100644
+--- a/src/main/java/net/minecraft/server/players/PlayerList.java
++++ b/src/main/java/net/minecraft/server/players/PlayerList.java
+@@ -2,7 +2,6 @@ package net.minecraft.server.players;
+ 
+ import co.aikar.timings.MinecraftTimings;
+ import com.google.common.collect.Lists;
+-import com.google.common.collect.Maps;
+ import com.google.common.collect.Sets;
+ import com.mojang.authlib.GameProfile;
+ import com.mojang.logging.LogUtils;
+@@ -10,74 +9,32 @@ import com.mojang.serialization.DataResult;
+ import com.mojang.serialization.Dynamic;
+ import io.netty.buffer.Unpooled;
+ import io.papermc.paper.adventure.PaperAdventure;
+-import java.io.File;
+-import java.net.SocketAddress;
+-import java.nio.file.Path;
+-import java.text.SimpleDateFormat;
+-import java.time.Instant;
+-import java.util.Collection;
+-import java.util.EnumSet;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Map;
+-import java.util.Objects;
+-import java.util.Optional;
+-import java.util.Set;
+-import java.util.UUID;
+-import java.util.function.Function;
+-import java.util.function.Predicate;
+-import javax.annotation.Nullable;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.FileUtil;
+ import net.minecraft.commands.CommandSourceStack;
+-import net.minecraft.core.BlockPos;
+-import net.minecraft.core.LayeredRegistryAccess;
+-import net.minecraft.core.RegistryAccess;
+-import net.minecraft.core.RegistrySynchronization;
+-import net.minecraft.core.UUIDUtil;
++import net.minecraft.core.*;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.nbt.NbtOps;
+ import net.minecraft.network.Connection;
+ import net.minecraft.network.FriendlyByteBuf;
+-import net.minecraft.network.chat.ChatType;
+-import net.minecraft.network.chat.Component;
+-import net.minecraft.network.chat.MutableComponent;
+-import net.minecraft.network.chat.OutgoingChatMessage;
+-import net.minecraft.network.chat.PlayerChatMessage;
++import net.minecraft.network.chat.*;
+ import net.minecraft.network.protocol.Packet;
+-import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
+-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+-import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
+-import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+-import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
+-import net.minecraft.network.protocol.game.ClientboundLoginPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+-import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetBorderLerpSizePacket;
+-import net.minecraft.network.protocol.game.ClientboundSetBorderSizePacket;
+-import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDelayPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDistancePacket;
+-import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
+-import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetSimulationDistancePacket;
+-import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
+-import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+-import net.minecraft.network.protocol.game.ClientboundUpdateEnabledFeaturesPacket;
+-import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+-import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
+-import net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket;
++import net.minecraft.network.protocol.game.*;
+ import net.minecraft.network.protocol.status.ServerStatus;
+ import net.minecraft.resources.ResourceKey;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.PlayerAdvancements;
+ import net.minecraft.server.RegistryLayer;
+ import net.minecraft.server.ServerScoreboard;
++import net.minecraft.server.dedicated.DedicatedServer;
++import net.minecraft.server.level.ServerLevel;
++import net.minecraft.server.level.ServerPlayer;
++import net.minecraft.server.network.ServerGamePacketListenerImpl;
++import net.minecraft.server.network.ServerLoginPacketListenerImpl;
++import net.minecraft.sounds.SoundEvents;
++import net.minecraft.sounds.SoundSource;
++import net.minecraft.stats.ServerStatsCounter;
++import net.minecraft.stats.Stats;
+ import net.minecraft.tags.BlockTags;
+ import net.minecraft.tags.TagNetworkSerialization;
+ import net.minecraft.util.Mth;
+@@ -99,32 +56,26 @@ import net.minecraft.world.level.storage.PlayerDataStorage;
+ import net.minecraft.world.phys.Vec3;
+ import net.minecraft.world.scores.Objective;
+ import net.minecraft.world.scores.PlayerTeam;
+-import net.minecraft.world.scores.Scoreboard; // Paper
++import net.minecraft.world.scores.Scoreboard;
+ import net.minecraft.world.scores.Team;
+-import org.slf4j.Logger;
+-
+-// CraftBukkit start
+-import java.util.stream.Collectors;
+-import net.minecraft.server.dedicated.DedicatedServer;
+-import net.minecraft.server.level.ServerLevel;
+-import net.minecraft.server.level.ServerPlayer;
+-import net.minecraft.server.network.ServerGamePacketListenerImpl;
+-import net.minecraft.server.network.ServerLoginPacketListenerImpl;
+-import net.minecraft.sounds.SoundEvents;
+-import net.minecraft.sounds.SoundSource;
+-import net.minecraft.stats.ServerStatsCounter;
+-import net.minecraft.stats.Stats;
+ import org.bukkit.Location;
+ import org.bukkit.craftbukkit.CraftServer;
+ import org.bukkit.craftbukkit.CraftWorld;
+ import org.bukkit.craftbukkit.entity.CraftPlayer;
+-import org.bukkit.craftbukkit.util.CraftChatMessage;
+ import org.bukkit.entity.Player;
+-import org.bukkit.event.player.PlayerChangedWorldEvent;
+-import org.bukkit.event.player.PlayerJoinEvent;
+-import org.bukkit.event.player.PlayerLoginEvent;
+-import org.bukkit.event.player.PlayerQuitEvent;
+-import org.bukkit.event.player.PlayerRespawnEvent;
++import org.bukkit.event.player.*;
++import org.slf4j.Logger;
++
++import javax.annotation.Nullable;
++import java.io.File;
++import java.net.SocketAddress;
++import java.nio.file.Path;
++import java.text.SimpleDateFormat;
++import java.time.Instant;
++import java.util.*;
++import java.util.function.Function;
++import java.util.function.Predicate;
++import java.util.stream.Collectors;
+ // CraftBukkit end
+ 
+ public abstract class PlayerList {
+@@ -362,7 +313,7 @@ public abstract class PlayerList {
+         this.sendPlayerPermissionLevel(player);
+         player.getStats().markAllDirty();
+         player.getRecipeBook().sendInitialRecipeBook(player);
+-        if (false) this.updateEntireScoreboard(worldserver1.getScoreboard(), player); // Folia - region threading
++        this.updateEntireScoreboard(worldserver1.getScoreboard(), player); // Folia - region threading // DirtyFolia - Recover
+         this.server.invalidateStatus();
+         MutableComponent ichatmutablecomponent;
+ 
+@@ -536,7 +487,7 @@ public abstract class PlayerList {
+         // Paper start - Add to collideRule team if needed
+         final Scoreboard scoreboard = this.getServer().getLevel(Level.OVERWORLD).getScoreboard();
+         final PlayerTeam collideRuleTeam = scoreboard.getPlayerTeam(this.collideRuleTeamName);
+-        if (false && this.collideRuleTeamName != null && collideRuleTeam != null && player.getTeam() == null) { // Folia - region threading
++        if (this.collideRuleTeamName != null && collideRuleTeam != null && player.getTeam() == null) { // Folia - region threading // DirtyFolia - Recover
+             scoreboard.addPlayerToTeam(player.getScoreboardName(), collideRuleTeam);
+         }
+         // Paper end
+@@ -667,7 +618,7 @@ public abstract class PlayerList {
+         // CraftBukkit end
+ 
+         // Paper start - Remove from collideRule team if needed
+-        if (false && this.collideRuleTeamName != null) { // Folia - region threading
++        if (this.collideRuleTeamName != null) { // Folia - region threading // DirtyFolia - Recover
+             final Scoreboard scoreBoard = this.server.getLevel(Level.OVERWORLD).getScoreboard();
+             final PlayerTeam team = scoreBoard.getPlayersTeam(this.collideRuleTeamName);
+             if (entityplayer.getTeam() == team && team != null) {
+@@ -855,10 +806,8 @@ public abstract class PlayerList {
+     public ServerPlayer respawn(ServerPlayer entityplayer, ServerLevel worldserver, boolean flag, Location location, boolean avoidSuffocation, org.bukkit.event.player.PlayerRespawnEvent.RespawnFlag...respawnFlags) {
+         // Paper end
+         // Folia start - region threading
+-        if (true) {
+-            throw new UnsupportedOperationException("Must use teleportAsync while in region threading");
+-        }
+         // Folia end - region threading
++        // DirtyFolia - Recover
+         entityplayer.stopRiding(); // CraftBukkit
+         this.players.remove(entityplayer);
+         this.playersByName.remove(entityplayer.getScoreboardName().toLowerCase(java.util.Locale.ROOT)); // Spigot
+@@ -1431,7 +1380,7 @@ public abstract class PlayerList {
+         // CraftBukkit end
+ 
+         // Paper start - Remove collideRule team if it exists
+-        if (false && this.collideRuleTeamName != null) { // Folia - region threading
++        if (this.collideRuleTeamName != null) { // Folia - region threading // DirtyFolia - Recover
+             final Scoreboard scoreboard = this.getServer().getLevel(Level.OVERWORLD).getScoreboard();
+             final PlayerTeam team = scoreboard.getPlayersTeam(this.collideRuleTeamName);
+             if (team != null) scoreboard.removePlayerTeam(team);
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index a0bb3e12d0a6d4da6a648555748af23ca6f5a1ba..8b1d2000032fc2614e75254e9a0ed52020af1768 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -3070,10 +3070,8 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+     @Nullable
+     public Team getTeam() {
+         // Folia start - region threading
+-        if (true) {
+-            return null;
+-        }
+         // Folia end - region threading
++        // DirtyFolia - Recover
+         if (!this.level.paperConfig().scoreboards.allowNonPlayerEntitiesOnScoreboards && !(this instanceof Player)) { return null; } // Paper
+         return this.level.getScoreboard().getPlayersTeam(this.getScoreboardName());
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index 49716190b784339b80c8a3ac8e5b13bc450284ee..492921d73d2acd8f69d3ebf2c157275bcb6eaee9 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.world.entity;
+ 
+-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent; // Paper
++import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
++import com.google.common.base.Function;
+ import com.google.common.base.Objects;
+ import com.google.common.collect.ImmutableList;
+ import com.google.common.collect.ImmutableMap;
+@@ -10,15 +11,6 @@ import com.mojang.datafixers.util.Pair;
+ import com.mojang.logging.LogUtils;
+ import com.mojang.serialization.DataResult;
+ import com.mojang.serialization.Dynamic;
+-import java.util.Collection;
+-import java.util.ConcurrentModificationException;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Map;
+-import java.util.Optional;
+-import java.util.UUID;
+-import java.util.function.Predicate;
+-import javax.annotation.Nullable;
+ import net.minecraft.BlockUtil;
+ import net.minecraft.advancements.CriteriaTriggers;
+ import net.minecraft.commands.arguments.EntityAnchorArgument;
+@@ -29,17 +21,8 @@ import net.minecraft.core.NonNullList;
+ import net.minecraft.core.particles.BlockParticleOption;
+ import net.minecraft.core.particles.ItemParticleOption;
+ import net.minecraft.core.particles.ParticleTypes;
+-import net.minecraft.nbt.CompoundTag;
+-import net.minecraft.nbt.FloatTag;
+-import net.minecraft.nbt.IntTag;
+-import net.minecraft.nbt.ListTag;
+-import net.minecraft.nbt.NbtOps;
+-import net.minecraft.nbt.Tag;
+-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+-import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+-import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+-import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket;
++import net.minecraft.nbt.*;
++import net.minecraft.network.protocol.game.*;
+ import net.minecraft.network.syncher.EntityDataAccessor;
+ import net.minecraft.network.syncher.EntityDataSerializers;
+ import net.minecraft.network.syncher.SynchedEntityData;
+@@ -51,12 +34,7 @@ import net.minecraft.sounds.SoundEvent;
+ import net.minecraft.sounds.SoundEvents;
+ import net.minecraft.sounds.SoundSource;
+ import net.minecraft.stats.Stats;
+-import net.minecraft.tags.BlockTags;
+-import net.minecraft.tags.DamageTypeTags;
+-import net.minecraft.tags.EntityTypeTags;
+-import net.minecraft.tags.FluidTags;
+-import net.minecraft.tags.ItemTags;
+-import net.minecraft.tags.TagKey;
++import net.minecraft.tags.*;
+ import net.minecraft.util.Mth;
+ import net.minecraft.util.RandomSource;
+ import net.minecraft.world.Difficulty;
+@@ -69,13 +47,7 @@ import net.minecraft.world.effect.MobEffectInstance;
+ import net.minecraft.world.effect.MobEffectUtil;
+ import net.minecraft.world.effect.MobEffects;
+ import net.minecraft.world.entity.ai.Brain;
+-import net.minecraft.world.entity.ai.attributes.Attribute;
+-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+-import net.minecraft.world.entity.ai.attributes.AttributeMap;
+-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+-import net.minecraft.world.entity.ai.attributes.Attributes;
+-import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
++import net.minecraft.world.entity.ai.attributes.*;
+ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+ import net.minecraft.world.entity.animal.Animal;
+ import net.minecraft.world.entity.animal.FlyingAnimal;
+@@ -84,13 +56,7 @@ import net.minecraft.world.entity.boss.wither.WitherBoss;
+ import net.minecraft.world.entity.item.ItemEntity;
+ import net.minecraft.world.entity.projectile.AbstractArrow;
+ import net.minecraft.world.food.FoodProperties;
+-import net.minecraft.world.item.AxeItem;
+-import net.minecraft.world.item.ElytraItem;
+-import net.minecraft.world.item.Equipable;
+-import net.minecraft.world.item.Item;
+-import net.minecraft.world.item.ItemStack;
+-import net.minecraft.world.item.Items;
+-import net.minecraft.world.item.UseAnim;
++import net.minecraft.world.item.*;
+ import net.minecraft.world.item.alchemy.PotionUtils;
+ import net.minecraft.world.item.enchantment.EnchantmentHelper;
+ import net.minecraft.world.item.enchantment.Enchantments;
+@@ -98,13 +64,7 @@ import net.minecraft.world.item.enchantment.FrostWalkerEnchantment;
+ import net.minecraft.world.level.ClipContext;
+ import net.minecraft.world.level.GameRules;
+ import net.minecraft.world.level.Level;
+-import net.minecraft.world.level.block.BedBlock;
+-import net.minecraft.world.level.block.Blocks;
+-import net.minecraft.world.level.block.HoneyBlock;
+-import net.minecraft.world.level.block.LadderBlock;
+-import net.minecraft.world.level.block.PowderSnowBlock;
+-import net.minecraft.world.level.block.SoundType;
+-import net.minecraft.world.level.block.TrapDoorBlock;
++import net.minecraft.world.level.block.*;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.entity.EntityTypeTest;
+ import net.minecraft.world.level.gameevent.GameEvent;
+@@ -119,29 +79,19 @@ import net.minecraft.world.phys.EntityHitResult;
+ import net.minecraft.world.phys.HitResult;
+ import net.minecraft.world.phys.Vec3;
+ import net.minecraft.world.scores.PlayerTeam;
+-import org.slf4j.Logger;
+-
+-// CraftBukkit start
+-import java.util.ArrayList;
+-import java.util.HashSet;
+-import java.util.Set;
+-import com.google.common.base.Function;
+ import org.bukkit.Location;
+ import org.bukkit.craftbukkit.attribute.CraftAttributeMap;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
+ import org.bukkit.craftbukkit.inventory.CraftItemStack;
+ import org.bukkit.entity.Player;
+-import org.bukkit.event.entity.ArrowBodyCountChangeEvent;
+-import org.bukkit.event.entity.EntityDamageEvent;
++import org.bukkit.event.entity.*;
+ import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
+-import org.bukkit.event.entity.EntityPotionEffectEvent;
+-import org.bukkit.event.entity.EntityRegainHealthEvent;
+-import org.bukkit.event.entity.EntityResurrectEvent;
+-import org.bukkit.event.entity.EntityTeleportEvent;
+ import org.bukkit.event.player.PlayerItemConsumeEvent;
+-// CraftBukkit end
++import org.slf4j.Logger;
+ 
+-import co.aikar.timings.MinecraftTimings; // Paper
++import javax.annotation.Nullable;
++import java.util.*;
++import java.util.function.Predicate;
+ 
+ public abstract class LivingEntity extends Entity implements Attackable {
+ 
+@@ -840,7 +790,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+         this.hurtTime = nbt.getShort("HurtTime");
+         this.deathTime = nbt.getShort("DeathTime"); this.broadcastedDeath = false; // Folia - region threading
+         this.lastHurtByMobTimestamp = nbt.getInt("HurtByTimestamp");
+-        if (false && nbt.contains("Team", 8)) { // Folia start - region threading
++        if (nbt.contains("Team", 8)) { // Folia start - region threading // DirtyFolia - Recover
+             String s = nbt.getString("Team");
+             PlayerTeam scoreboardteam = this.level.getScoreboard().getPlayerTeam(s);
+             if (!level.paperConfig().scoreboards.allowNonPlayerEntitiesOnScoreboards && !(this instanceof net.minecraft.world.entity.player.Player)) { scoreboardteam = null; } // Paper
