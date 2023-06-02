@@ -1,0 +1,166 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Fri, 2 Jun 2023 17:48:49 +0800
+Subject: [PATCH] Optimized old getChunk code
+
+
+diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+index f435cc45ac46be588045a8ba7141a62b217aeff6..217db45e200cd8e6127678f76f57d028e5fa66b9 100644
+--- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
++++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+@@ -4,22 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
+ import com.google.common.collect.Lists;
+ import com.mojang.datafixers.DataFixer;
+ import com.mojang.datafixers.util.Either;
+-import java.io.File;
+-import java.io.IOException;
+-import java.util.Arrays;
+-import java.util.Collections;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Objects;
+-import java.util.Optional;
+-import java.util.concurrent.CompletableFuture;
+-import java.util.concurrent.Executor;
+-import java.util.function.BooleanSupplier;
+-import java.util.function.Consumer;
+-import java.util.function.Supplier;
+-import javax.annotation.Nullable;
+-
+-import dev.rgbmc.folia.FakePlugin;
+ import net.minecraft.Util;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.SectionPos;
+@@ -30,19 +14,8 @@ import net.minecraft.util.profiling.ProfilerFiller;
+ import net.minecraft.util.thread.BlockableEventLoop;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.ai.village.poi.PoiManager;
+-import net.minecraft.world.level.BlockGetter;
+-import net.minecraft.world.level.ChunkPos;
+-import net.minecraft.world.level.GameRules;
+-import net.minecraft.world.level.Level;
+-import net.minecraft.world.level.LightLayer;
+-import net.minecraft.world.level.LocalMobCapCalculator;
+-import net.minecraft.world.level.NaturalSpawner;
+-import net.minecraft.world.level.chunk.ChunkAccess;
+-import net.minecraft.world.level.chunk.ChunkGenerator;
+-import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+-import net.minecraft.world.level.chunk.ChunkSource;
+-import net.minecraft.world.level.chunk.ChunkStatus;
+-import net.minecraft.world.level.chunk.LevelChunk;
++import net.minecraft.world.level.*;
++import net.minecraft.world.level.chunk.*;
+ import net.minecraft.world.level.chunk.storage.ChunkScanAccess;
+ import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
+ import net.minecraft.world.level.levelgen.RandomState;
+@@ -50,8 +23,16 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
+ import net.minecraft.world.level.storage.DimensionDataStorage;
+ import net.minecraft.world.level.storage.LevelData;
+ import net.minecraft.world.level.storage.LevelStorageSource;
+-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet; // Paper
+-import org.bukkit.Bukkit;
++
++import javax.annotation.Nullable;
++import java.io.File;
++import java.io.IOException;
++import java.util.*;
++import java.util.concurrent.CompletableFuture;
++import java.util.concurrent.Executor;
++import java.util.function.BooleanSupplier;
++import java.util.function.Consumer;
++import java.util.function.Supplier;
+ 
+ public class ServerChunkCache extends ChunkSource {
+ 
+@@ -369,55 +350,48 @@ public class ServerChunkCache extends ChunkSource {
+     @Override
+     public ChunkAccess getChunk(int x, int z, ChunkStatus leastStatus, boolean create) {
+         final int x1 = x; final int z1 = z; // Paper - conflict on variable change
+-        if (!io.papermc.paper.util.TickThread.isTickThread()) { // Paper - rewrite chunk system
+-            CompletableFuture<ChunkAccess> future = new CompletableFuture<>();
+-            Bukkit.getRegionScheduler().run(new FakePlugin(), level.getWorld(), x, z, scheduledTask -> {
+-                future.complete(getChunk(x, z, leastStatus, create));
+-            });
+-            return future.join();
+-        } else {
+-            // Paper start - optimise for loaded chunks
+-            LevelChunk ifLoaded = this.getChunkAtIfLoadedMainThread(x, z);
+-            if (ifLoaded != null) {
+-                return ifLoaded;
+-            }
+-            // Paper end
+-            ProfilerFiller gameprofilerfiller = this.level.getProfiler();
++        // DirtyFolia - Improve old code
++        // Paper start - optimise for loaded chunks
++        LevelChunk ifLoaded = this.getChunkAtIfLoadedMainThread(x, z);
++        if (ifLoaded != null) {
++            return ifLoaded;
++        }
++        // Paper end
++        ProfilerFiller gameprofilerfiller = this.level.getProfiler();
+ 
+-            gameprofilerfiller.incrementCounter("getChunk");
+-            long k = ChunkPos.asLong(x, z);
++        gameprofilerfiller.incrementCounter("getChunk");
++        long k = ChunkPos.asLong(x, z);
+ 
+-            ChunkAccess ichunkaccess;
++        ChunkAccess ichunkaccess;
+ 
+-            // Paper - rewrite chunk system - there are no correct callbacks to remove items from cache in the new chunk system
++        // Paper - rewrite chunk system - there are no correct callbacks to remove items from cache in the new chunk system
+ 
+-            gameprofilerfiller.incrementCounter("getChunkCacheMiss");
+-            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> completablefuture = this.getChunkFutureMainThread(x, z, leastStatus, create, true); // Paper
+-            ServerChunkCache.MainThreadExecutor chunkproviderserver_b = this.mainThreadProcessor;
++        gameprofilerfiller.incrementCounter("getChunkCacheMiss");
++        CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> completablefuture = this.getChunkFutureMainThread(x, z, leastStatus, create, true); // Paper
++        ServerChunkCache.MainThreadExecutor chunkproviderserver_b = this.mainThreadProcessor;
+ 
+-            Objects.requireNonNull(completablefuture);
+-            if (!completablefuture.isDone()) { // Paper
+-                // Paper start - async chunk io/loading
+-                io.papermc.paper.chunk.system.scheduling.ChunkTaskScheduler.pushChunkWait(this.level, x1, z1); // Paper - rewrite chunk system
+-                // Paper end
+-                com.destroystokyo.paper.io.SyncLoadFinder.logSyncLoad(this.level, x1, z1); // Paper - sync load info
+-                this.level.timings.syncChunkLoad.startTiming(); // Paper
++        Objects.requireNonNull(completablefuture);
++        if (!completablefuture.isDone()) { // Paper
++            // Paper start - async chunk io/loading
++            io.papermc.paper.chunk.system.scheduling.ChunkTaskScheduler.pushChunkWait(this.level, x1, z1); // Paper - rewrite chunk system
++            // Paper end
++            com.destroystokyo.paper.io.SyncLoadFinder.logSyncLoad(this.level, x1, z1); // Paper - sync load info
++            this.level.timings.syncChunkLoad.startTiming(); // Paper
+             chunkproviderserver_b.managedBlock(completablefuture::isDone);
+-                io.papermc.paper.chunk.system.scheduling.ChunkTaskScheduler.popChunkWait(); // Paper - async chunk debug  // Paper - rewrite chunk system
+-                this.level.timings.syncChunkLoad.stopTiming(); // Paper
+-            } // Paper
+-            ichunkaccess = (ChunkAccess) ((Either) completablefuture.join()).map((ichunkaccess1) -> {
+-                return ichunkaccess1;
+-            }, (playerchunk_failure) -> {
+-                if (create) {
+-                    throw (IllegalStateException) Util.pauseInIde(new IllegalStateException("Chunk not there when requested: " + playerchunk_failure));
+-                } else {
+-                    return null;
+-                }
+-            });
+-            this.storeInCache(k, ichunkaccess, leastStatus);
+-            return ichunkaccess;
+-        }
++            io.papermc.paper.chunk.system.scheduling.ChunkTaskScheduler.popChunkWait(); // Paper - async chunk debug  // Paper - rewrite chunk system
++            this.level.timings.syncChunkLoad.stopTiming(); // Paper
++        } // Paper
++        ichunkaccess = (ChunkAccess) ((Either) completablefuture.join()).map((ichunkaccess1) -> {
++            return ichunkaccess1;
++        }, (playerchunk_failure) -> {
++            if (create) {
++                throw (IllegalStateException) Util.pauseInIde(new IllegalStateException("Chunk not there when requested: " + playerchunk_failure));
++            } else {
++                return null;
++            }
++        });
++        this.storeInCache(k, ichunkaccess, leastStatus);
++        return ichunkaccess;
+     }
+ 
+     @Nullable
