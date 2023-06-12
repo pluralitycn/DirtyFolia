@@ -1,8 +1,14 @@
 <div align=center>
     <img src="./folia.png">
     <br /><br />
-    <p>Fork of <a href="https://github.com/PaperMC/Paper">Paper</a> which adds regionised multithreading to the dedicated server.</p>
+    <p><b><font size="+3">DirtyFolia</font></b></p>
+    <p>Fork of <a href="https://github.com/PaperMC/Folia">Folia</a> working to support more bukkit plugins.</p>
 </div>
+
+- **DirtyFolia** is a project to make **Original Folia** support more **Only Bukkit-API** plugins
+- We will never support plugins that work based on NMS (Unsafe)
+- All plugin compatible work needs to be based on whether the original Folia related API is available
+## About Folia ↓
 
 ## Overview
 
