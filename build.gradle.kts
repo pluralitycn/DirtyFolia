@@ -82,7 +82,10 @@ allprojects {
         repositories {
             maven("https://repo.fastmcmirror.org/content/repositories/snapshots/") {
                 name = "rgbmcSnapshots"
-                credentials(PasswordCredentials::class)
+                credentials {
+                    username = System.getenv("USERNAME")
+                    password = System.getenv("PASSWORD")
+                }
             }
         }
     }

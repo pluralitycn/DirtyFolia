@@ -32,7 +32,10 @@ jobs:
       - name: Build Bundler & Paperclip
         run: ./gradlew createReobfBundlerJar createReobfPaperclipJar
       - name: Publish Snapshots
-        run: ./gradlew publish -PrgbmcSnapshotsUsername=${{ secrets.USERNAME }} -PrgbmcSnapshotsPassword=${{ secrets.PASSWORD }}
+        env:
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: ./gradlew publish
       - name: capture build artifacts
         uses: actions/upload-artifact@v2
         with:
