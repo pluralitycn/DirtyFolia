@@ -1819,7 +1819,7 @@ index 5e7f8f4cc24bc14e1a2639b60c33a04d8c0ccd85..d2b278b3ee7882077ee906a40e1a5a1b
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index e98c8d54ef30837da40e8f4ab9f7f46444d77359..1e0cfd57fce62071d34dea8665bab4d2a5ea9898 100644
+index 9fad382eeb4fed40ed4414e55c4027f9de8aa4aa..5ca839523bc2b0c8085a662ec0cb638084e8f1bd 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -9,25 +9,7 @@ import com.mojang.datafixers.util.Pair;
@@ -1981,7 +1981,7 @@ index e98c8d54ef30837da40e8f4ab9f7f46444d77359..1e0cfd57fce62071d34dea8665bab4d2
  
  @DelegateDeserialization(CraftOfflinePlayer.class)
  public class CraftPlayer extends CraftHumanEntity implements Player {
-@@ -1289,9 +1219,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1292,9 +1222,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
      @Override
      public boolean teleport(Location location, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
          // Folia start - region threading
@@ -1994,7 +1994,7 @@ index e98c8d54ef30837da40e8f4ab9f7f46444d77359..1e0cfd57fce62071d34dea8665bab4d2
          // Folia end - region threading
          java.util.Set<net.minecraft.world.entity.RelativeMovement> relativeArguments;
          java.util.Set<io.papermc.paper.entity.TeleportFlag> allFlags;
-@@ -1361,27 +1292,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1364,27 +1295,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
              this.wakeup(false);
          }
  

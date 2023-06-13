@@ -23753,7 +23753,7 @@ index ea056babe2f8123f20dc608d8a636da1de634b8c..6a54b582fdab953c452a32e9839e2a91
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 548eddde8b0558b780f672d321507cfcbac92558..4b4fd590574bb0a41bc84bbb18397f95cb61555c 100644
+index e41f5417304f5b05fa7e2f6b6e1c0095e820f1cc..1561d14448c451dd363d4d37497664ccd3756b5a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -573,7 +573,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
@@ -23765,7 +23765,7 @@ index 548eddde8b0558b780f672d321507cfcbac92558..4b4fd590574bb0a41bc84bbb18397f95
          if (this.getHandle().connection == null) return;
  
          this.getHandle().connection.disconnect(message == null ? "" : message, org.bukkit.event.player.PlayerKickEvent.Cause.PLUGIN); // Paper - kick event cause
-@@ -1288,6 +1288,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1291,6 +1291,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
  
      @Override
      public boolean teleport(Location location, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
@@ -23777,7 +23777,7 @@ index 548eddde8b0558b780f672d321507cfcbac92558..4b4fd590574bb0a41bc84bbb18397f95
          java.util.Set<net.minecraft.world.entity.RelativeMovement> relativeArguments;
          java.util.Set<io.papermc.paper.entity.TeleportFlag> allFlags;
          if (flags.length == 0) {
-@@ -1819,7 +1824,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1822,7 +1827,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
      private void unregisterEntity(Entity other) {
          // Paper end
          ChunkMap tracker = ((ServerLevel) this.getHandle().level()).getChunkSource().chunkMap;
@@ -23786,7 +23786,7 @@ index 548eddde8b0558b780f672d321507cfcbac92558..4b4fd590574bb0a41bc84bbb18397f95
          if (entry != null) {
              entry.removePlayer(this.getHandle());
          }
-@@ -1903,7 +1908,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1906,7 +1911,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
              this.getHandle().connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(otherPlayer)));
          }
  

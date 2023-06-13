@@ -344,7 +344,7 @@ index b9095f559472dd92375ea719886913f606f0374c..6d98e6a29f12c57031ba951c013501f5
          if (entity.isRemoved()) {
              LOGGER.warn("Refusing to add removed entity: " + entity);
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
-index 33524deb5e1eda5be53e5b426c88f5837eb3e512..e6acd702baf5cd5a871a8d5e9b05010fdaf62018 100644
+index d496ea6a583f71ddfc17ada1424c8c7a026fdf4d..d5b1b14ad00019052b5d51f230a6b29d03a0919a 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
 @@ -48,6 +48,7 @@ import java.util.List;
