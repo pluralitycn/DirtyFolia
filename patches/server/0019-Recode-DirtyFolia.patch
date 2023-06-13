@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Mon, 12 Jun 2023 19:05:29 +0800
+Date: Tue, 13 Jun 2023 19:58:13 +0800
 Subject: [PATCH] Recode DirtyFolia
 
 
@@ -613,7 +613,7 @@ index f1c68d9850ece7532a8607db955eaa4fc3a4bf05..a68d3ab3aa5c02d23545db4c9388e361
  
      static final class AsyncChunkSerializeTask implements Runnable {
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index 921666fdffc02e9b0420e1a06650c546376eeeea..5375aade41a855a9ecb0273f5b6362db7ae675db 100644
+index 1dc4f0c50f14e94b6f5c3ec397e72b82e8417c95..8bfdf080864ded6b70a6c7db7265181829a45410 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 @@ -24,8 +24,10 @@ public class GlobalConfiguration extends ConfigurationPart {
@@ -627,7 +627,7 @@ index 921666fdffc02e9b0420e1a06650c546376eeeea..5375aade41a855a9ecb0273f5b6362db
      }
  
      @Setting(Configuration.VERSION_FIELD)
-@@ -271,6 +273,7 @@ public class GlobalConfiguration extends ConfigurationPart {
+@@ -270,6 +272,7 @@ public class GlobalConfiguration extends ConfigurationPart {
          public boolean lagCompensateBlockBreaking = true;
          public boolean useDimensionTypeForCustomSpawners = false;
          public boolean strictAdvancementDimensionCheck = false;
@@ -787,7 +787,7 @@ index 681cd79ce24fe5d952e987d46e2fd8df07a0f8a1..7dcf4e791b8d16fccc42450380bf35b2
          TellRawCommand.register(this.dispatcher);
          TimeCommand.register(this.dispatcher);
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 5b484004488b6b413bd78a1dc6dc1828c89ce046..4d7f1816ab24cec4619a7aacc67c6c507aea46cd 100644
+index 11ff1bc559316da426070867f045720ebd8c1962..efb86f755890c26947e238b826706abf85ea7c7d 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -14,6 +14,9 @@ import com.mojang.authlib.GameProfileRepository;
@@ -808,7 +808,7 @@ index 5b484004488b6b413bd78a1dc6dc1828c89ce046..4d7f1816ab24cec4619a7aacc67c6c50
  import org.slf4j.Logger;
  
  // CraftBukkit start
-@@ -681,6 +685,35 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -679,6 +683,35 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD);
          this.server.getPluginManager().callEvent(new ServerLoadEvent(ServerLoadEvent.LoadType.STARTUP));
          this.connection.acceptConnections();
@@ -844,7 +844,7 @@ index 5b484004488b6b413bd78a1dc6dc1828c89ce046..4d7f1816ab24cec4619a7aacc67c6c50
      }
      // CraftBukkit end
  
-@@ -1680,6 +1713,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1678,6 +1711,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                  for (final io.papermc.paper.chunk.SingleThreadChunkRegionManager regionManager : worldserver.getChunkSource().chunkMap.regionManagers) {
                      regionManager.recalculateRegions();
                  }
@@ -854,7 +854,7 @@ index 5b484004488b6b413bd78a1dc6dc1828c89ce046..4d7f1816ab24cec4619a7aacc67c6c50
                  // Paper end
                  worldserver.timings.doTick.stopTiming(); // Spigot
              } catch (Throwable throwable) {
-@@ -1814,7 +1850,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1812,7 +1848,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @DontObfuscate
      public String getServerModName() {
@@ -996,7 +996,7 @@ index b126435b07572e7b8f41647a0179164b680e9e64..9ca054d573dd6c9eb667b5c10aad8488
  
          public void onTickingStart(Entity entity) {
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index 9fcf54ecd9703c6c5f2bf508d8e46d685166be6e..c263ba1239329380c22e8266817fab73f28a095b 100644
+index 8a1c6251af093d31a2b8eaa333e38e137eabf0ab..c0ed2b3365a51529fa4fc190ee28a0ad402afae9 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -1548,9 +1548,10 @@ public class ServerPlayer extends Player {
@@ -1013,7 +1013,7 @@ index 9fcf54ecd9703c6c5f2bf508d8e46d685166be6e..c263ba1239329380c22e8266817fab73
          // CraftBukkit end
          if (this.isSleeping()) return this; // CraftBukkit - SPIGOT-3154
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 7dc9114a994ff265eb66d99c4f15be197b327e55..b405594678daaae3f207357a11623895f6389452 100644
+index d4620ddfcd06a037f647ab0a8938797405e001b2..4d704a0275d73ed3f68cd8f08bf998db5b120925 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -377,7 +377,7 @@ public abstract class PlayerList {
@@ -1066,7 +1066,7 @@ index 7dc9114a994ff265eb66d99c4f15be197b327e55..b405594678daaae3f207357a11623895
              final PlayerTeam team = scoreboard.getPlayersTeam(this.collideRuleTeamName);
              if (team != null) scoreboard.removePlayerTeam(team);
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index e8c2d4f647b01dfaebccd5a2fa330594bbbcb74f..afbe604f7aa4a196a5670e7b585991e26e8fed62 100644
+index 669c78147c63b8ade6b5991481b9ebf1399d147f..e9896729ed03ddebedae82622ee57646c6bc26c5 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
@@ -1145,7 +1145,7 @@ index e8c2d4f647b01dfaebccd5a2fa330594bbbcb74f..afbe604f7aa4a196a5670e7b585991e2
          }
  
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 5b5473ff1a87b5f82d9179e54ae448120eb763a3..cc2fe3ec11c37b352c6c5c567140b7da9ca9a1e9 100644
+index 511ec694f3336a5d7276d171dd2345ed2ea1acac..3094a7d70ac4f8925e901287224778760f2f8cf4 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -857,7 +857,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
@@ -1244,10 +1244,10 @@ index bc938c2a4cb30f3151b600ab88ca5c4e9734f326..cd0c27d4c0c3ba97bc08a6429f3ebc03
          nbt.put("block_ticks", tickSchedulers.blocks().save(i, (block) -> {
              return BuiltInRegistries.BLOCK.getKey(block).toString();
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index beb4946b582e2d3608dc3adff22089b4c19177ee..6e09af3539a728a576f40bcd946188a6ad0241dd 100644
+index f1e6b90260e0244a6ec9268544fe48449a5a4c80..8e04c599b00e8df81cc8d752f8433dbe94c7405a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -262,7 +262,7 @@ import javax.annotation.Nullable; // Paper
+@@ -261,7 +261,7 @@ import javax.annotation.Nullable; // Paper
  import javax.annotation.Nonnull; // Paper
  
  public final class CraftServer implements Server {
@@ -1264,12 +1264,12 @@ index beb4946b582e2d3608dc3adff22089b4c19177ee..6e09af3539a728a576f40bcd946188a6
 +        //if (true) throw new UnsupportedOperationException(); // Folia - not implemented properly yet // DirtyFolia - Removed check
          Preconditions.checkState(this.console.getAllLevels().iterator().hasNext(), "Cannot create additional worlds on STARTUP");
          //Preconditions.checkState(!this.console.isIteratingOverLevels, "Cannot create a world while worlds are being ticked"); // Paper - Cat - Temp disable. We'll see how this goes.
-         Validate.notNull(creator, "Creator may not be null");
+         Preconditions.checkArgument(creator != null, "WorldCreator cannot be null");
 +        io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("World create can be done only on global tick thread");
  
          String name = creator.name();
          ChunkGenerator generator = creator.generator();
-@@ -1385,7 +1386,20 @@ public final class CraftServer implements Server {
+@@ -1386,7 +1387,20 @@ public final class CraftServer implements Server {
          }
  
          this.console.addLevel(internal); // Paper - move up
@@ -1291,7 +1291,7 @@ index beb4946b582e2d3608dc3adff22089b4c19177ee..6e09af3539a728a576f40bcd946188a6
  
          internal.setSpawnSettings(true, true);
          // Paper - move up
-@@ -1405,7 +1419,7 @@ public final class CraftServer implements Server {
+@@ -1406,7 +1420,7 @@ public final class CraftServer implements Server {
  
      @Override
      public boolean unloadWorld(World world, boolean save) {
@@ -1301,7 +1301,7 @@ index beb4946b582e2d3608dc3adff22089b4c19177ee..6e09af3539a728a576f40bcd946188a6
          if (world == null) {
              return false;
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
-index d4a1d17d5dde68b9bc2fbae370ef2268f3b604db..b6d19ab2b2447bd09a7355053454342e9e7e8bec 100644
+index ddf4d004546d5510b0471ff82c968a9b7b36737d..35e5e7c7ac5cd55d3cab107e7199ba35a6dbd39d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 @@ -81,9 +81,7 @@ public class CraftBlock implements Block {
@@ -1329,7 +1329,7 @@ index 2c46527dfe832919b055579a0876a043c06d8b67..7660ec94e36b825aa0fcd9b0c78ced0a
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractHorse.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractHorse.java
-index e0f2104154f1499ef7cd388d24ffc3983aef7f42..d2a648f176d95ef700bf7636b5fbf6641d27e773 100644
+index c43ce4c9f6d011a7403dd37ff62953aba29852aa..1a43280fca7875d89c11cb29bdb3b5bb7ceff34a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractHorse.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractHorse.java
 @@ -26,7 +26,7 @@ public abstract class CraftAbstractHorse extends CraftAnimals implements Abstrac
@@ -1420,7 +1420,7 @@ index 5cf8ea3a7dd4e8ea96ca6061aa1aaefc7ac8fcce..2bd8a28dad2aeadbe025acc3b87725b1
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java
-index 9ef569fad87838171198ff444538a401d664a710..7532a0e07fb61922481e1fa6279cffbc7c328203 100644
+index 2e5cc1c7cbe4fc7cbcc2b2aeb37d497e4909053d..0b3bee7bf2bd6b229361268fd907bc592a6bc586 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java
 @@ -33,7 +33,7 @@ public class CraftAreaEffectCloud extends CraftEntity implements AreaEffectCloud
@@ -1446,10 +1446,10 @@ index f678c151938ddd3e5277a05d6d8884c12b114336..99d207913441695132e5ce016c8a9c1a
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftArrow.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftArrow.java
-index 16c55774a622b3325af091c9e7cc657cf7717d95..1a70cb1bb032c2f05b33fb7ce40bbd4f84cd6ab1 100644
+index 6050a3209d893dc4b1f65f14f815840390c14eb0..8a0e0905c525c7d38b47a13b5569d59979fb80b4 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftArrow.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftArrow.java
-@@ -154,7 +154,7 @@ public class CraftArrow extends AbstractProjectile implements AbstractArrow {
+@@ -152,7 +152,7 @@ public class CraftArrow extends AbstractProjectile implements AbstractArrow {
  
      @Override
      public net.minecraft.world.entity.projectile.AbstractArrow getHandle() {
@@ -1823,7 +1823,7 @@ index 6d3325436a77153438bc40aa86819562e65e6a9e..d15ae696d2b4d4699b3f2dfc12b137ab
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index b23e399f65a75e10b6b3aabe8d3ea3660104125b..e43961c97b15f3e3cc9dec5d215870bd4f73bb74 100644
+index 76bcfda336e9cfa039d80ea3ccbebbc3d2b13f7f..698fa57404d6655ba684aeb263d8543715f57ce2 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
@@ -1875,7 +1875,7 @@ index b23e399f65a75e10b6b3aabe8d3ea3660104125b..e43961c97b15f3e3cc9dec5d215870bd
      }
  
      @Override
-@@ -850,7 +857,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -843,7 +850,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
      // Folia end - region threading
  
      public Entity getHandle() {
@@ -1937,7 +1937,7 @@ index 61bed78df554dc6a9689ea19e159fde990082a1e..3b50cdc28a03b8d6358e0bd5f777e363
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFireball.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFireball.java
-index d5ce8c22474c90300ed843bf3e5021f38a4d5751..3c011933e9eec2dea4f129ada0fc61a4bfedffe4 100644
+index bd1ed5b1e58cb3ce40036a602acbb0b7a7e6322b..7da30887d41b7990f9e86eec914dcf3af35c16da 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFireball.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFireball.java
 @@ -56,7 +56,7 @@ public class CraftFireball extends AbstractProjectile implements Fireball {
@@ -1976,10 +1976,10 @@ index d702e34f65de28df677a9d3616f38b2cf9abfa23..5f70807cb8f8d83bea02e6cafa62e3e9
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFishHook.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFishHook.java
-index 20b12701979daf1185332cffdc3895384da30fbb..74999dd81b47351913392f3fb4ab0df29d0a47d5 100644
+index d73d18e10d9a75a43f9352f5eebaa3be485e3572..31091bf755106f56b586c8d28138f1ef9be59e25 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFishHook.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFishHook.java
-@@ -25,7 +25,7 @@ public class CraftFishHook extends CraftProjectile implements FishHook {
+@@ -24,7 +24,7 @@ public class CraftFishHook extends CraftProjectile implements FishHook {
  
      @Override
      public FishingHook getHandle() {
@@ -2002,7 +2002,7 @@ index e1e51f050959aa23bd85bb794a7098a549c819c8..4f552f8aaaa6d78e2641b5246a30da9d
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftFox.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftFox.java
-index 17f94426754557082348375ec9a33ac82d2d13e8..c92e071328aaf754f4a06fcaaa919266ff2f965a 100644
+index 36997290fa276275bbcf890a7b368f40a9ad8e02..85e006329af277aa40240218baf96171cae912f8 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftFox.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftFox.java
 @@ -24,7 +24,7 @@ public class CraftFox extends CraftAnimals implements Fox {
@@ -2145,10 +2145,10 @@ index 1e312733b266e8350bc1a59113b195881c5a9e17..9235eb1ddd4e371128460685617a17b1
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHorse.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHorse.java
-index 4dd82aef0d4e37336c076f74fe01cbd43ebaab2a..1bf7bcad772bd8fc7f9c0e34f782ed7953225527 100644
+index a34608c74daced31ec45a96b643176a4d2ff72dc..50192f87b6779d683f66d17d4093176664efb96b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHorse.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHorse.java
-@@ -26,7 +26,7 @@ public class CraftHorse extends CraftAbstractHorse implements Horse {
+@@ -23,7 +23,7 @@ public class CraftHorse extends CraftAbstractHorse implements Horse {
  
      @Override
      public net.minecraft.world.entity.animal.horse.Horse getHandle() {
@@ -2158,10 +2158,10 @@ index 4dd82aef0d4e37336c076f74fe01cbd43ebaab2a..1bf7bcad772bd8fc7f9c0e34f782ed79
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
-index 773c07d78877e23f557e448b8d2631534a067350..373f2bf6c7761baffdd8521e25b4cd570c0ddde0 100644
+index 07347858bff8a764a140cb3fbd484301803cfa00..e34ef4917c00ccd82e1b80213b5582a24e3cf4fa 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
-@@ -302,7 +302,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+@@ -300,7 +300,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
  
      @Override
      public Player getHandle() {
@@ -2236,10 +2236,10 @@ index 06e2580653db00110b0f0a05cfda9d0e9baecdfa..7712093325cc76b5315335f6e9c682d6
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftItemFrame.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftItemFrame.java
-index 1122ce7763988af38a1f48e789a626d87d8cb4fd..65ef84c3771c7b0f4f805221bb6fc81c9ca8651b 100644
+index 9f5825c037d26528740ba02aaf9eb1e36d564f67..0c0154bfd39cb4895054710acb65740dd92652de 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftItemFrame.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftItemFrame.java
-@@ -166,7 +166,7 @@ public class CraftItemFrame extends CraftHanging implements ItemFrame {
+@@ -165,7 +165,7 @@ public class CraftItemFrame extends CraftHanging implements ItemFrame {
  
      @Override
      public net.minecraft.world.entity.decoration.ItemFrame getHandle() {
@@ -2288,10 +2288,10 @@ index 80cac5d7362577e53ef5ca215ab3261898127b2f..146c2a0564b4fffad357aad330dd79eb
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-index d065dfacb0980c7997b99ef7ed6e61a85a3c3055..dcf952f57e6b9f94390d04ea7a7895c0a87a1470 100644
+index 564c72d6351721505dbffaf5af732db2dd3210ac..4a3dc264a0226b2d3479418dcb120f6616b48cfc 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-@@ -428,7 +428,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+@@ -424,7 +424,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
  
      @Override
      public net.minecraft.world.entity.LivingEntity getHandle() {
@@ -3003,10 +3003,10 @@ index 34de9dcd6fa0e978c65bf48ae78923784bf575fd..2546db98bf212c94f299f1bf369b2139
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownPotion.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownPotion.java
-index f06d08fa5d693047a3bbf92428dc56bcae5cb66e..03b7d40cd3eeb1231bcabcc0248992aba11b9e74 100644
+index 6c15ba92215634a06a1d95fbd7d64bff2bb935dc..c625cacf685298e08982a5b48671110aa9a1221f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownPotion.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftThrownPotion.java
-@@ -74,7 +74,7 @@ public class CraftThrownPotion extends CraftThrowableProjectile implements Throw
+@@ -71,7 +71,7 @@ public class CraftThrownPotion extends CraftThrowableProjectile implements Throw
  
      @Override
      public net.minecraft.world.entity.projectile.ThrownPotion getHandle() {
@@ -3016,7 +3016,7 @@ index f06d08fa5d693047a3bbf92428dc56bcae5cb66e..03b7d40cd3eeb1231bcabcc0248992ab
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTippedArrow.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTippedArrow.java
-index f59a777987284b733ad8e8dd7e4d3e18baacd2af..7f89d5b1379a120f31ed2fc576d080854ac47b1b 100644
+index 8c4c07db82ed8aa1a1f746cfc43eef5ff81d085b..a102eb6a8bbe60322c3db7e4dc83c50680e0ba76 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTippedArrow.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTippedArrow.java
 @@ -29,7 +29,7 @@ public class CraftTippedArrow extends CraftArrow implements Arrow {
@@ -3094,10 +3094,10 @@ index 90c295ff95bbee4f51fda1be2f58312d281925e5..bcb60c85b75abc266d472d19d6643583
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftVillager.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftVillager.java
-index ca6a6507cadc6c3ada1a9d8ce35cd48d295e2884..40788025b9a5743f793a75114ce81ed427a6055c 100644
+index 4b4167edcf9e30d50a103c5b85685e7175842f4b..d5708191d04f53334188df85cac5acd853d35c3a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftVillager.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftVillager.java
-@@ -40,7 +40,7 @@ public class CraftVillager extends CraftAbstractVillager implements Villager {
+@@ -39,7 +39,7 @@ public class CraftVillager extends CraftAbstractVillager implements Villager {
  
      @Override
      public net.minecraft.world.entity.npc.Villager getHandle() {
@@ -3107,10 +3107,10 @@ index ca6a6507cadc6c3ada1a9d8ce35cd48d295e2884..40788025b9a5743f793a75114ce81ed4
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftVillagerZombie.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftVillagerZombie.java
-index c0e268b470dfa1c2f74c9cd8d21e49fdb50ae7ec..e5a5b4b32cc09eaee8b6c7177535eee54bffd085 100644
+index 6231a4948fd934d2e73f15b364035c64d7e03cc8..d67387c1df3fc8f2653c6ec860d9c5a5d50e0d14 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftVillagerZombie.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftVillagerZombie.java
-@@ -30,7 +30,7 @@ public class CraftVillagerZombie extends CraftZombie implements ZombieVillager {
+@@ -28,7 +28,7 @@ public class CraftVillagerZombie extends CraftZombie implements ZombieVillager {
  
      @Override
      public net.minecraft.world.entity.monster.ZombieVillager getHandle() {
@@ -3250,10 +3250,10 @@ index 631132549f454ffd6dc97e1bce2e994e7ce310d6..44890a0f5039f88454e27cced72bcc69
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
-index 9136fb30db749737e9f189d0901024fcad02e402..8355299005dcfeb7a5549f39db7d5558fbc960b5 100644
+index eb84a8dd97f92de4a7dd3826d9e124a442cba565..13af3853a7a470b5a5084363369720f5afb7c1d7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
-@@ -7,11 +7,7 @@ import java.util.Comparator;
+@@ -8,16 +8,18 @@ import java.util.Comparator;
  import java.util.Iterator;
  import java.util.List;
  import java.util.PriorityQueue;
@@ -3266,17 +3266,18 @@ index 9136fb30db749737e9f189d0901024fcad02e402..8355299005dcfeb7a5549f39db7d5558
  import java.util.concurrent.atomic.AtomicInteger;
  import java.util.concurrent.atomic.AtomicReference;
  import java.util.function.Consumer;
-@@ -20,7 +16,9 @@ import java.util.logging.Level;
- import com.destroystokyo.paper.ServerSchedulerReportingWrapper;
- import com.destroystokyo.paper.event.server.ServerExceptionEvent;
- import com.destroystokyo.paper.exception.ServerSchedulerException;
+ import java.util.function.IntUnaryOperator;
+ import java.util.logging.Level;
++import com.destroystokyo.paper.ServerSchedulerReportingWrapper;
++import com.destroystokyo.paper.event.server.ServerExceptionEvent;
++import com.destroystokyo.paper.exception.ServerSchedulerException;
 +import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
- import org.apache.commons.lang.Validate;
++import org.apache.commons.lang.Validate;
 +import org.bukkit.Bukkit;
  import org.bukkit.plugin.IllegalPluginAccessException;
  import org.bukkit.plugin.Plugin;
  import org.bukkit.scheduler.BukkitRunnable;
-@@ -533,15 +531,35 @@ public class CraftScheduler implements BukkitScheduler {
+@@ -530,15 +532,35 @@ public class CraftScheduler implements BukkitScheduler {
      }
  
      protected CraftTask handle(final CraftTask task, final long delay) { // Paper

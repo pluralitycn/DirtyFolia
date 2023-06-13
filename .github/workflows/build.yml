@@ -31,6 +31,8 @@ jobs:
         run: ./gradlew applyPatches
       - name: Build Bundler & Paperclip
         run: ./gradlew createReobfBundlerJar createReobfPaperclipJar
+      - name: Publish Snapshots
+        run: ./gradlew publish -PrgbmcSnapshotsUsername=${{ secrets.USERNAME }} -PrgbmcSnapshotsPassword=${{ secrets.PASSWORD }}
       - name: capture build artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -39,8 +41,8 @@ jobs:
       - name: Create Release Tag
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: "v1_20-${{ env.Compile_Date }}"
-          message: "1.20 Build ${{ env.Compile_Date }}"
+          tag: "v1_20_1-${{ env.Compile_Date }}"
+          message: "1.20.1 Build ${{ env.Compile_Date }}"
       - name: Upload Build to Release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -48,10 +50,10 @@ jobs:
           file: build/libs/*
           file_glob: true
           tag: "Build-${{ env.Compile_Date }}"
-          release_name: "1.20_DirtyFolia_Dev-${{ env.Compile_Date }}"
+          release_name: "1.20.1_DirtyFolia_Dev-${{ env.Compile_Date }}"
           overwrite: true
           prerelease: false
           body: |
             DirtyFolia Build
-            Version: 1.20
+            Version: 1.20.1
             Build Time: ${{ env.Compile_Date }}

@@ -80,8 +80,8 @@ tasks.generateDevelopmentBundle {
 allprojects {
     publishing {
         repositories {
-            maven("https://repo.papermc.io/repository/maven-snapshots/") {
-                name = "paperSnapshots"
+            maven("https://repo.fastmcmirror.org/content/repositories/snapshots/") {
+                name = "rgbmcSnapshots"
                 credentials(PasswordCredentials::class)
             }
         }

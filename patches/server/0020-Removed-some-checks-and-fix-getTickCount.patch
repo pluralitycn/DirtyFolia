@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Mon, 12 Jun 2023 21:14:50 +0800
+Date: Tue, 13 Jun 2023 20:05:59 +0800
 Subject: [PATCH] Removed some checks and fix getTickCount
 
 
@@ -100,7 +100,7 @@ index 38441121cf7cdc1d64ef9fc17ae76dc16fbf96f2..4b6cb48fa0450c903be4a43f36779534
      }
  
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 4d7f1816ab24cec4619a7aacc67c6c507aea46cd..1ddaf737f8fffb95d8624c51e51ecb906c87b762 100644
+index efb86f755890c26947e238b826706abf85ea7c7d..d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1,11 +1,9 @@
@@ -325,7 +325,7 @@ index 4d7f1816ab24cec4619a7aacc67c6c507aea46cd..1ddaf737f8fffb95d8624c51e51ecb90
  
  public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, AutoCloseable {
  
-@@ -323,25 +255,28 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -321,25 +253,28 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @Override
      public void execute(Runnable runnable) {
@@ -360,7 +360,7 @@ index 4d7f1816ab24cec4619a7aacc67c6c507aea46cd..1ddaf737f8fffb95d8624c51e51ecb90
          super.tell(runnable);
      }
      // Folia end - regionised ticking
-@@ -1435,7 +1370,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1433,7 +1368,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @Override
      public boolean pollTask() {
@@ -369,7 +369,7 @@ index 4d7f1816ab24cec4619a7aacc67c6c507aea46cd..1ddaf737f8fffb95d8624c51e51ecb90
          boolean flag = this.pollTaskInternal();
  
          this.mayHaveDelayedTasks = flag;
-@@ -1443,7 +1378,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1441,7 +1376,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      }
  
      private boolean pollTaskInternal() {
@@ -378,7 +378,7 @@ index 4d7f1816ab24cec4619a7aacc67c6c507aea46cd..1ddaf737f8fffb95d8624c51e51ecb90
          if (super.pollTask()) {
              this.executeMidTickTasks(); // Paper - execute chunk tasks mid tick
              return true;
-@@ -1466,7 +1401,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1464,7 +1399,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      }
  
      public void doRunTask(TickTask ticktask) { // CraftBukkit - decompile error
@@ -387,7 +387,7 @@ index 4d7f1816ab24cec4619a7aacc67c6c507aea46cd..1ddaf737f8fffb95d8624c51e51ecb90
          this.getProfiler().incrementCounter("runTask");
          super.doRunTask(ticktask);
      }
-@@ -1745,7 +1680,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1743,7 +1678,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          MinecraftTimings.connectionTimer.stopTiming(); // Spigot
          this.profiler.popPush("players");
          MinecraftTimings.playerListTimer.startTiming(); // Spigot // Paper
@@ -396,7 +396,7 @@ index 4d7f1816ab24cec4619a7aacc67c6c507aea46cd..1ddaf737f8fffb95d8624c51e51ecb90
          MinecraftTimings.playerListTimer.stopTiming(); // Spigot // Paper
          if (SharedConstants.IS_RUNNING_IN_IDE) {
              GameTestTicker.SINGLETON.tick();
-@@ -2092,7 +2027,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -2090,7 +2025,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      }
  
      public int getTickCount() {
@@ -405,7 +405,7 @@ index 4d7f1816ab24cec4619a7aacc67c6c507aea46cd..1ddaf737f8fffb95d8624c51e51ecb90
      }
  
      public int getSpawnProtectionRadius() {
-@@ -2170,7 +2105,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -2168,7 +2103,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @Override
      public void executeIfPossible(Runnable runnable) {
@@ -784,7 +784,7 @@ index 9ca054d573dd6c9eb667b5c10aad8488600fb089..e1dd43356b491850ce91d1529c3772e0
          ChunkPos chunkcoordintpair = new ChunkPos(x, z);
          long k = chunkcoordintpair.toLong();
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 6f88fbd45217dbbe67f2469040b7c5f621e185c6..1debb78165d66945ad87ac91b2dbdfa89aeba266 100644
+index 82ffef34b596a98faa245ba401e67add9d9ac7d0..ea195e0fbcbc15a1b8a77a8e645731477a0631c2 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -4,37 +4,15 @@ import com.google.common.collect.Lists;
@@ -1055,7 +1055,7 @@ index 6f88fbd45217dbbe67f2469040b7c5f621e185c6..1debb78165d66945ad87ac91b2dbdfa8
  // CraftBukkit end
  
  public class ServerGamePacketListenerImpl implements ServerPlayerConnection, TickablePacketListener, ServerGamePacketListener {
-@@ -2511,7 +2368,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -2514,7 +2371,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
      public void handleCommand(String s) { // Paper - private -> public
          // Paper Start
          if (!org.spigotmc.AsyncCatcher.shuttingDown && !org.bukkit.Bukkit.isPrimaryThread()) {
@@ -1064,7 +1064,7 @@ index 6f88fbd45217dbbe67f2469040b7c5f621e185c6..1debb78165d66945ad87ac91b2dbdfa8
              LOGGER.error("Command Dispatched Async: " + s);
              LOGGER.error("Please notify author of plugin causing this execution to fix this bug! see: http://bit.ly/1oSiM6C", new Throwable());
              Waitable<Void> wait = new Waitable<>() {
-@@ -2572,7 +2429,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -2575,7 +2432,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
          if (s.isEmpty()) {
              ServerGamePacketListenerImpl.LOGGER.warn(this.player.getScoreboardName() + " tried to send an empty message");
          } else if (this.getCraftPlayer().isConversing()) {
@@ -1074,7 +1074,7 @@ index 6f88fbd45217dbbe67f2469040b7c5f621e185c6..1debb78165d66945ad87ac91b2dbdfa8
              this.server.processQueue.add(new Runnable() {
                  @Override
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index afbe604f7aa4a196a5670e7b585991e26e8fed62..6c0fd2afab6ef050e7852323fd9eda46e89544ad 100644
+index e9896729ed03ddebedae82622ee57646c6bc26c5..144a338cba08188cd4619689c7465d81f0d1a563 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -1,35 +1,12 @@
@@ -1250,7 +1250,7 @@ index afbe604f7aa4a196a5670e7b585991e26e8fed62..6c0fd2afab6ef050e7852323fd9eda46
          // CraftBukkit end
          // Paper start - fix bad state entities causing dupes
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index cc2fe3ec11c37b352c6c5c567140b7da9ca9a1e9..61632d745af6965fc923aae49afa8c1924c0a450 100644
+index 3094a7d70ac4f8925e901287224778760f2f8cf4..dcc9c94b6ac36477003cfe5a91b91e47e612d944 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -1,6 +1,7 @@
@@ -1614,7 +1614,7 @@ index f3df9c9b6cff85565514f990597f3fe53652812c..b09b32d56bed38f3bb4c552331f02965
          LevelChunkTicks<T> levelChunkTicks = this.allContainers.get(l);
          if (levelChunkTicks == null) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 5e7f8f4cc24bc14e1a2639b60c33a04d8c0ccd85..d2b278b3ee7882077ee906a40e1a5a1b07604a76 100644
+index 4b49e091d5908e97c733bd5e870b9fd1a731840e..a098b2176c5643c3ef06bc9880b2f6f64eb17fd2 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -5,43 +5,17 @@ import com.google.common.base.Predicates;
@@ -1791,7 +1791,7 @@ index 5e7f8f4cc24bc14e1a2639b60c33a04d8c0ccd85..d2b278b3ee7882077ee906a40e1a5a1b
          warnUnsafeChunk("loading a faraway chunk", x, z); // Paper
          // Paper start - Optimize this method
          ChunkPos chunkPos = new ChunkPos(x, z);
-@@ -797,7 +739,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -803,7 +745,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean generateTree(Location loc, TreeType type, BlockChangeDelegate delegate) {
@@ -1800,7 +1800,7 @@ index 5e7f8f4cc24bc14e1a2639b60c33a04d8c0ccd85..d2b278b3ee7882077ee906a40e1a5a1b
          io.papermc.paper.threadedregions.RegionizedWorldData worldData = world.getCurrentWorldData(); // Folia - region threading
          worldData.captureTreeGeneration = true; // Folia - region threading
          worldData.captureBlockStates = true; // Folia - region threading
-@@ -987,7 +929,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -993,7 +935,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public int getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
@@ -1809,7 +1809,7 @@ index 5e7f8f4cc24bc14e1a2639b60c33a04d8c0ccd85..d2b278b3ee7882077ee906a40e1a5a1b
          warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
          // Transient load for this tick
          return this.world.getChunk(x >> 4, z >> 4).getHeight(CraftHeightMap.toNMS(heightMap), x, z);
-@@ -1018,7 +960,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1024,7 +966,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      public void setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {
          BlockPos pos = new BlockPos(x, 0, z);
@@ -1819,7 +1819,7 @@ index 5e7f8f4cc24bc14e1a2639b60c33a04d8c0ccd85..d2b278b3ee7882077ee906a40e1a5a1b
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 9fad382eeb4fed40ed4414e55c4027f9de8aa4aa..5ca839523bc2b0c8085a662ec0cb638084e8f1bd 100644
+index 2e49f35376435529ac48ad5f9b2d098809200f90..b3b721a16dde143944177db6dbf729d628d4a0c7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -9,25 +9,7 @@ import com.mojang.datafixers.util.Pair;
@@ -1887,7 +1887,7 @@ index 9fad382eeb4fed40ed4414e55c4027f9de8aa4aa..5ca839523bc2b0c8085a662ec0cb6380
  import net.minecraft.resources.ResourceLocation;
  import net.minecraft.server.PlayerAdvancements;
  import net.minecraft.server.level.ChunkMap;
-@@ -82,7 +35,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
+@@ -82,29 +35,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
  import net.minecraft.world.inventory.AbstractContainerMenu;
  import net.minecraft.world.level.GameType;
  import net.minecraft.world.level.block.Blocks;
@@ -1895,10 +1895,9 @@ index 9fad382eeb4fed40ed4414e55c4027f9de8aa4aa..5ca839523bc2b0c8085a662ec0cb6380
  import net.minecraft.world.level.block.entity.SignBlockEntity;
  import net.minecraft.world.level.block.entity.SignText;
  import net.minecraft.world.level.border.BorderChangeListener;
-@@ -90,22 +42,7 @@ import net.minecraft.world.level.saveddata.maps.MapDecoration;
+ import net.minecraft.world.level.saveddata.maps.MapDecoration;
  import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
  import net.minecraft.world.phys.Vec3;
- import org.apache.commons.lang.Validate;
 -import org.bukkit.BanList;
 -import org.bukkit.Bukkit;
 -import org.bukkit.DyeColor;
@@ -1915,11 +1914,12 @@ index 9fad382eeb4fed40ed4414e55c4027f9de8aa4aa..5ca839523bc2b0c8085a662ec0cb6380
 -import org.bukkit.Statistic;
 -import org.bukkit.WeatherType;
 -import org.bukkit.WorldBorder;
++import org.apache.commons.lang.Validate;
 +import org.bukkit.*;
  import org.bukkit.block.Block;
  import org.bukkit.block.BlockState;
  import org.bukkit.block.Sign;
-@@ -115,15 +52,7 @@ import org.bukkit.configuration.serialization.DelegateDeserialization;
+@@ -114,15 +52,7 @@ import org.bukkit.configuration.serialization.DelegateDeserialization;
  import org.bukkit.conversations.Conversation;
  import org.bukkit.conversations.ConversationAbandonedEvent;
  import org.bukkit.conversations.ManuallyAbandonedConversationCanceller;
@@ -1936,7 +1936,7 @@ index 9fad382eeb4fed40ed4414e55c4027f9de8aa4aa..5ca839523bc2b0c8085a662ec0cb6380
  import org.bukkit.craftbukkit.advancement.CraftAdvancement;
  import org.bukkit.craftbukkit.advancement.CraftAdvancementProgress;
  import org.bukkit.craftbukkit.block.CraftBlockState;
-@@ -134,7 +63,6 @@ import org.bukkit.craftbukkit.event.CraftEventFactory;
+@@ -133,7 +63,6 @@ import org.bukkit.craftbukkit.event.CraftEventFactory;
  import org.bukkit.craftbukkit.inventory.CraftItemStack;
  import org.bukkit.craftbukkit.map.CraftMapView;
  import org.bukkit.craftbukkit.map.RenderData;
@@ -1944,7 +1944,7 @@ index 9fad382eeb4fed40ed4414e55c4027f9de8aa4aa..5ca839523bc2b0c8085a662ec0cb6380
  import org.bukkit.craftbukkit.scoreboard.CraftScoreboard;
  import org.bukkit.craftbukkit.util.CraftChatMessage;
  import org.bukkit.craftbukkit.util.CraftLocation;
-@@ -143,13 +71,7 @@ import org.bukkit.craftbukkit.util.CraftNamespacedKey;
+@@ -142,13 +71,7 @@ import org.bukkit.craftbukkit.util.CraftNamespacedKey;
  import org.bukkit.entity.EntityType;
  import org.bukkit.entity.LivingEntity;
  import org.bukkit.entity.Player;
@@ -1959,7 +1959,7 @@ index 9fad382eeb4fed40ed4414e55c4027f9de8aa4aa..5ca839523bc2b0c8085a662ec0cb6380
  import org.bukkit.inventory.EquipmentSlot;
  import org.bukkit.inventory.InventoryView.Property;
  import org.bukkit.inventory.ItemStack;
-@@ -158,11 +80,19 @@ import org.bukkit.map.MapView;
+@@ -157,11 +80,19 @@ import org.bukkit.map.MapView;
  import org.bukkit.metadata.MetadataValue;
  import org.bukkit.plugin.Plugin;
  import org.bukkit.plugin.messaging.StandardMessenger;
@@ -1981,7 +1981,7 @@ index 9fad382eeb4fed40ed4414e55c4027f9de8aa4aa..5ca839523bc2b0c8085a662ec0cb6380
  
  @DelegateDeserialization(CraftOfflinePlayer.class)
  public class CraftPlayer extends CraftHumanEntity implements Player {
-@@ -1292,9 +1222,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1279,9 +1210,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
      @Override
      public boolean teleport(Location location, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
          // Folia start - region threading
@@ -1994,7 +1994,7 @@ index 9fad382eeb4fed40ed4414e55c4027f9de8aa4aa..5ca839523bc2b0c8085a662ec0cb6380
          // Folia end - region threading
          java.util.Set<net.minecraft.world.entity.RelativeMovement> relativeArguments;
          java.util.Set<io.papermc.paper.entity.TeleportFlag> allFlags;
-@@ -1364,27 +1295,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1351,27 +1283,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
              this.wakeup(false);
          }
  
