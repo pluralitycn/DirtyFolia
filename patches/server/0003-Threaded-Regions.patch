@@ -1,8 +1,10 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: killerprojecte <admin@fastmcmirror.org>
-Date: Tue, 13 Jun 2023 19:43:14 +0800
+From: Spottedleaf <Spottedleaf@users.noreply.github.com>
+Date: Sun, 2 Oct 2022 21:28:53 -0700
 Subject: [PATCH] Threaded Regions
 
+See https://docs.papermc.io/folia/reference/overview and
+https://docs.papermc.io/folia/reference/region-logic
 
 diff --git a/src/main/java/ca/spottedleaf/concurrentutil/collection/MultiThreadedQueue.java b/src/main/java/ca/spottedleaf/concurrentutil/collection/MultiThreadedQueue.java
 index f4415f782b32fed25da98e44b172f717c4d46e34..ba7c24b3627a1827721d2462add15fdd4adbed90 100644
@@ -1380,71 +1382,102 @@ index 0000000000000000000000000000000000000000..63688716244066581d5b505703576e33
 +}
 diff --git a/src/main/java/ca/spottedleaf/leafprofiler/LProfileGraph.java b/src/main/java/ca/spottedleaf/leafprofiler/LProfileGraph.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..14a4778f7913b849fabbd772f9cb8a0bc5a6ed6c
+index 0000000000000000000000000000000000000000..1083a3dc0fc824da176e6ee64654b8c01b80ca4b
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/leafprofiler/LProfileGraph.java
-@@ -0,0 +1,58 @@
+@@ -0,0 +1,89 @@
 +package ca.spottedleaf.leafprofiler;
 +
-+import ca.spottedleaf.concurrentutil.map.SWMRInt2IntHashTable;
++import it.unimi.dsi.fastutil.ints.Int2IntMap;
++import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
++import java.util.ArrayDeque;
++import java.util.ArrayList;
 +import java.util.Arrays;
++import java.util.Iterator;
++import java.util.List;
 +
 +public final class LProfileGraph {
 +
 +    public static final int ROOT_NODE = 0;
-+
-+    // volatile required for correct publishing after resizing
-+    private volatile SWMRInt2IntHashTable[] nodes = new SWMRInt2IntHashTable[16];
++    // Array idx is the graph node id, where the int->int mapping is a mapping of profile timer id to graph node id
++    private Int2IntOpenHashMap[] nodes;
 +    private int nodeCount;
 +
 +    public LProfileGraph() {
-+        this.nodes[ROOT_NODE] = new SWMRInt2IntHashTable();
++        final Int2IntOpenHashMap[] nodes = new Int2IntOpenHashMap[16];
++        nodes[ROOT_NODE] = new Int2IntOpenHashMap();
++
++        this.nodes = nodes;
 +        this.nodeCount = 1;
 +    }
 +
-+    private int createNode(final int parent, final int type) {
-+        synchronized (this) {
-+            SWMRInt2IntHashTable[] nodes = this.nodes;
++    public static record GraphNode(GraphNode parent, int nodeId, int timerId) {}
 +
-+            final SWMRInt2IntHashTable node = nodes[parent];
++    public List<GraphNode> getDFS() {
++        final List<GraphNode> ret = new ArrayList<>();
++        final ArrayDeque<GraphNode> queue = new ArrayDeque<>();
 +
-+            final int newNode = this.nodeCount;
-+            final int prev = node.putIfAbsent(type, newNode);
++        queue.addFirst(new GraphNode(null, ROOT_NODE, -1));
++        final Int2IntOpenHashMap[] nodes = this.nodes;
 +
-+            if (prev != 0) {
-+                // already exists
-+                return prev;
++        GraphNode graphNode;
++        while ((graphNode = queue.pollFirst()) != null) {
++            ret.add(graphNode);
++
++            final int parent = graphNode.nodeId;
++
++            final Int2IntOpenHashMap children = nodes[parent];
++
++            for (final Iterator<Int2IntMap.Entry> iterator = children.int2IntEntrySet().fastIterator(); iterator.hasNext();) {
++                final Int2IntMap.Entry entry = iterator.next();
++                queue.addFirst(new GraphNode(graphNode, entry.getIntValue(), entry.getIntKey()));
 +            }
-+
-+            // insert new node
-+            ++this.nodeCount;
-+
-+            if (newNode >= nodes.length) {
-+                this.nodes = nodes = Arrays.copyOf(nodes, nodes.length * 2);
-+            }
-+
-+            nodes[newNode] = new SWMRInt2IntHashTable();
-+
-+            return newNode;
 +        }
++
++        return ret;
 +    }
 +
-+    public int getOrCreateNode(final int parent, final int type) {
-+        // note: requires parent node to exist
-+        final SWMRInt2IntHashTable[] nodes = this.nodes;
++    private int createNode(final int parent, final int timerId) {
++        Int2IntOpenHashMap[] nodes = this.nodes;
 +
-+        final int mapping = nodes[parent].get(type);
++        final Int2IntOpenHashMap node = nodes[parent];
++
++        final int newNode = this.nodeCount;
++        final int prev = node.putIfAbsent(timerId, newNode);
++
++        if (prev != 0) {
++            // already exists
++            return prev;
++        }
++
++        // insert new node
++        ++this.nodeCount;
++
++        if (newNode >= nodes.length) {
++            this.nodes = (nodes = Arrays.copyOf(nodes, nodes.length * 2));
++        }
++
++        nodes[newNode] = new Int2IntOpenHashMap();
++
++        return newNode;
++    }
++
++    public int getOrCreateNode(final int parent, final int timerId) {
++        // note: requires parent node to exist
++        final Int2IntOpenHashMap[] nodes = this.nodes;
++
++        final int mapping = nodes[parent].get(timerId);
 +
 +        if (mapping != 0) {
 +            return mapping;
 +        }
 +
-+        return this.createNode(parent, type);
++        return this.createNode(parent, timerId);
 +    }
 +}
 diff --git a/src/main/java/ca/spottedleaf/leafprofiler/LProfilerRegistry.java b/src/main/java/ca/spottedleaf/leafprofiler/LProfilerRegistry.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ffa32c1eae22bda371dd1d0318cc7c587f8e5a5c
+index 0000000000000000000000000000000000000000..66200c6f4bcf27d060eedf066f56b70bd0cc3929
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/leafprofiler/LProfilerRegistry.java
 @@ -0,0 +1,59 @@
@@ -1502,29 +1535,42 @@ index 0000000000000000000000000000000000000000..ffa32c1eae22bda371dd1d0318cc7c58
 +    }
 +
 +    public static enum ProfileType {
-+        TIMER, COUNTER
++        COUNTER, TIMER;
 +    }
 +
 +    public static record ProfilerEntry(ProfileType type, String name, int id) {}
 +}
 diff --git a/src/main/java/ca/spottedleaf/leafprofiler/LeafProfiler.java b/src/main/java/ca/spottedleaf/leafprofiler/LeafProfiler.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ad8c590fe7479fcb3c7ff5dc3ac3a4d6f33c5938
+index 0000000000000000000000000000000000000000..24d041db762f82c16a735271dd4266b8630666ca
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/leafprofiler/LeafProfiler.java
-@@ -0,0 +1,61 @@
+@@ -0,0 +1,313 @@
 +package ca.spottedleaf.leafprofiler;
 +
 +import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 +import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
++import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
++import java.text.DecimalFormat;
++import java.util.ArrayDeque;
++import java.util.ArrayList;
 +import java.util.Arrays;
++import java.util.List;
 +
 +public final class LeafProfiler {
 +
-+    public final LProfilerRegistry registry;
-+    public final LProfileGraph graph;
++    private static final ThreadLocal<DecimalFormat> THREE_DECIMAL_PLACES = ThreadLocal.withInitial(() -> {
++        return new DecimalFormat("#,##0.000");
++    });
++    private static final ThreadLocal<DecimalFormat> NO_DECIMAL_PLACES = ThreadLocal.withInitial(() -> {
++        return new DecimalFormat("#,##0");
++    });
 +
-+    private long[] data;
++    public final LProfilerRegistry registry;
++    private final LProfileGraph graph;
++
++    private long[] timers = new long[16];
++    private long[] counters = new long[16];
 +    private final IntArrayFIFOQueue callStack = new IntArrayFIFOQueue();
 +    private int topOfStack = LProfileGraph.ROOT_NODE;
 +    private final LongArrayFIFOQueue timerStack = new LongArrayFIFOQueue();
@@ -1535,44 +1581,283 @@ index 0000000000000000000000000000000000000000..ad8c590fe7479fcb3c7ff5dc3ac3a4d6
 +        this.graph = graph;
 +    }
 +
-+    private long[] resizeData(final long[] old, final int least) {
-+        return this.data = Arrays.copyOf(old, Math.max(old.length * 2, least * 2));
++    private long[] resizeTimers(final long[] old, final int least) {
++        return this.timers = Arrays.copyOf(old, Math.max(old.length * 2, least * 2));
 +    }
 +
-+    private void incrementDirect(final int nodeId, final long count) {
-+        final long[] data = this.data;
-+        if (nodeId >= data.length) {
-+            this.resizeData(data, nodeId)[nodeId] += count;
++    private void incrementTimersDirect(final int nodeId, final long count) {
++        final long[] timers = this.timers;
++        if (nodeId >= timers.length) {
++            this.resizeTimers(timers, nodeId)[nodeId] += count;
 +        } else {
-+            data[nodeId] += count;
++            timers[nodeId] += count;
 +        }
 +    }
 +
-+    public void incrementCounter(final int type, final long count) {
-+        // this is supposed to be an optimised version of startTimer then stopTimer
-+        final int node = this.graph.getOrCreateNode(this.topOfStack, type);
-+        this.incrementDirect(node, count);
++    private long[] resizeCounters(final long[] old, final int least) {
++        return this.counters = Arrays.copyOf(old, Math.max(old.length * 2, least * 2));
 +    }
 +
-+    public void startTimer(final int type, final long startTime) {
++    private void incrementCountersDirect(final int nodeId, final long count) {
++        final long[] counters = this.counters;
++        if (nodeId >= counters.length) {
++            this.resizeTimers(counters, nodeId)[nodeId] += count;
++        } else {
++            counters[nodeId] += count;
++        }
++    }
++
++    public void incrementCounter(final int timerId, final long count) {
++        final int node = this.graph.getOrCreateNode(this.topOfStack, timerId);
++        this.incrementCountersDirect(node, count);
++    }
++
++    public void incrementTimer(final int timerId, final long count) {
++        final int node = this.graph.getOrCreateNode(this.topOfStack, timerId);
++        this.incrementTimersDirect(node, count);
++    }
++
++    public void startTimer(final int timerId, final long startTime) {
++        final long lastTimerStart = this.lastTimerStart;
++        final LProfileGraph graph = this.graph;
 +        final int parentNode = this.topOfStack;
-+        final int newNode = this.graph.getOrCreateNode(parentNode, type);
-+        this.callStack.enqueue(parentNode);
-+        this.topOfStack = newNode;
++        final IntArrayFIFOQueue callStack = this.callStack;
++        final LongArrayFIFOQueue timerStack = this.timerStack;
 +
-+        this.timerStack.enqueue(this.lastTimerStart);
 +        this.lastTimerStart = startTime;
++        this.topOfStack = graph.getOrCreateNode(parentNode, timerId);
++
++        callStack.enqueue(parentNode);
++        timerStack.enqueue(lastTimerStart);
 +    }
 +
-+    public void stopTimer(final int type, final long endTime) {
-+        final int currentNode = this.topOfStack;
-+        this.topOfStack = this.callStack.dequeueLastInt();
-+
++    public void stopTimer(final int timerId, final long endTime) {
 +        final long lastStart = this.lastTimerStart;
-+        this.lastTimerStart = this.timerStack.dequeueLastLong();
++        final int currentNode = this.topOfStack;
++        final IntArrayFIFOQueue callStack = this.callStack;
++        final LongArrayFIFOQueue timerStack = this.timerStack;
++        this.lastTimerStart = timerStack.dequeueLastLong();
++        this.topOfStack = callStack.dequeueLastInt();
 +
-+        this.incrementDirect(currentNode, endTime - lastStart);
++        this.incrementTimersDirect(currentNode, endTime - lastStart);
++        this.incrementCountersDirect(currentNode, 1L);
 +    }
++
++    private static final char[][] INDENT_PATTERNS = new char[][] {
++        "|---".toCharArray(),
++        "|+++".toCharArray(),
++    };
++
++    public List<String> dumpToString() {
++        final List<LProfileGraph.GraphNode> graphDFS = this.graph.getDFS();
++        final Reference2ReferenceOpenHashMap<LProfileGraph.GraphNode, ProfileNode> nodeMap = new Reference2ReferenceOpenHashMap<>();
++
++        final ArrayDeque<ProfileNode> orderedNodes = new ArrayDeque<>();
++
++        for (int i = 0, len = graphDFS.size(); i < len; ++i) {
++            final LProfileGraph.GraphNode graphNode = graphDFS.get(i);
++            final ProfileNode parent = nodeMap.get(graphNode.parent());
++            final int nodeId = graphNode.nodeId();
++
++            final long totalTime = this.timers[nodeId];
++            final long totalCount = this.counters[nodeId];
++            final LProfilerRegistry.ProfilerEntry profiler = this.registry.getById(graphNode.timerId());
++
++            final ProfileNode profileNode = new ProfileNode(parent, nodeId, profiler, totalTime, totalCount);
++
++            if (parent != null) {
++                parent.childrenTimingCount += totalTime;
++                parent.children.add(profileNode);
++            } else if (i != 0) { // i == 0 is root
++                throw new IllegalStateException("Node " + nodeId + " must have parent");
++            } else {
++                // set up
++                orderedNodes.add(profileNode);
++            }
++
++            nodeMap.put(graphNode, profileNode);
++        }
++
++        final List<String> ret = new ArrayList<>();
++
++        long totalTime = 0L;
++
++        // totalTime = sum of times for root node's children
++        for (final ProfileNode node : orderedNodes.peekFirst().children) {
++            totalTime += node.totalTime;
++        }
++
++        ProfileNode profileNode;
++        final StringBuilder builder = new StringBuilder();
++        while ((profileNode = orderedNodes.pollFirst()) != null) {
++            if (profileNode.nodeId != LProfileGraph.ROOT_NODE && profileNode.totalCount == 0L) {
++                // skip nodes not recorded
++                continue;
++            }
++
++            final int depth = profileNode.depth;
++            profileNode.children.sort((final ProfileNode p1, final ProfileNode p2) -> {
++                final int typeCompare = p1.profiler.type().compareTo(p2.profiler.type());
++                if (typeCompare != 0) {
++                    // first count, then profiler
++                    return typeCompare;
++                }
++
++                if (p1.profiler.type() == LProfilerRegistry.ProfileType.COUNTER) {
++                    // highest count first
++                    return Long.compare(p2.totalCount, p1.totalCount);
++                } else {
++                    // highest time first
++                    return Long.compare(p2.totalTime, p1.totalTime);
++                }
++            });
++
++            for (int i = profileNode.children.size() - 1; i >= 0; --i) {
++                final ProfileNode child = profileNode.children.get(i);
++                child.depth = depth + 1;
++                orderedNodes.addFirst(child);
++            }
++
++            if (profileNode.nodeId == LProfileGraph.ROOT_NODE) {
++                // don't display root
++                continue;
++            }
++
++            final boolean noParent = profileNode.parent == null || profileNode.parent.nodeId == LProfileGraph.ROOT_NODE;
++
++            final long parentTime = noParent ? totalTime : profileNode.parent.totalTime;
++            final LProfilerRegistry.ProfilerEntry profilerEntry = profileNode.profiler;
++
++            // format:
++            // For profiler type:
++            // <indent><name> X% of total, Y% of parent, self A% of total, self B% of children, Dms raw sum
++            // For counter type:
++            // <indent>#<name> avg X sum Y
++            builder.setLength(0);
++            // prepare indent
++            final char[] indent = INDENT_PATTERNS[ret.size() % INDENT_PATTERNS.length];
++            for (int i = 0; i < depth; ++i) {
++                builder.append(indent);
++            }
++
++            switch (profilerEntry.type()) {
++                case TIMER: {
++                    ret.add(
++                        builder
++                            .append(profilerEntry.name())
++                            .append(' ')
++                            .append(THREE_DECIMAL_PLACES.get().format(((double)profileNode.totalTime / (double)totalTime) * 100.0))
++                            .append("% of total, ")
++                            .append(THREE_DECIMAL_PLACES.get().format(((double)profileNode.totalTime / (double)parentTime) * 100.0))
++                            .append("% of parent, self ")
++                            .append(THREE_DECIMAL_PLACES.get().format(((double)(profileNode.totalTime - profileNode.childrenTimingCount) / (double)totalTime) * 100.0))
++                            .append("% of total, self ")
++                            .append(THREE_DECIMAL_PLACES.get().format(((double)(profileNode.totalTime - profileNode.childrenTimingCount) / (double)profileNode.totalTime) * 100.0))
++                            .append("% of children, ")
++                            .append(THREE_DECIMAL_PLACES.get().format((double)profileNode.totalTime / 1.0E6))
++                            .append("ms raw sum")
++                            .toString()
++                    );
++                    break;
++                }
++                case COUNTER: {
++                    ret.add(
++                        builder
++                            .append('#')
++                            .append(profilerEntry.name())
++                            .append(" avg ")
++                            .append(THREE_DECIMAL_PLACES.get().format((double)profileNode.totalCount / (double)(noParent ? 1L : profileNode.parent.totalCount)))
++                            .append(" sum ")
++                            .append(NO_DECIMAL_PLACES.get().format(profileNode.totalCount))
++                            .toString()
++                    );
++                    break;
++                }
++                default: {
++                    throw new IllegalStateException("Unknown type " + profilerEntry.type());
++                }
++            }
++        }
++
++        return ret;
++    }
++
++    private static final class ProfileNode {
++
++        public final ProfileNode parent;
++        public final int nodeId;
++        public final LProfilerRegistry.ProfilerEntry profiler;
++        public final long totalTime;
++        public final long totalCount;
++        public final List<ProfileNode> children = new ArrayList<>();
++        public long childrenTimingCount;
++        public int depth = -1;
++
++        private ProfileNode(final ProfileNode parent, final int nodeId, final LProfilerRegistry.ProfilerEntry profiler,
++                            final long totalTime, final long totalCount) {
++            this.parent = parent;
++            this.nodeId = nodeId;
++            this.profiler = profiler;
++            this.totalTime = totalTime;
++            this.totalCount = totalCount;
++        }
++    }
++
++    /*
++    public static void main(final String[] args) throws Throwable {
++        final Thread timerHack = new Thread("Timer hack thread") {
++            @Override
++            public void run() {
++                for (;;) {
++                    try {
++                        Thread.sleep(Long.MAX_VALUE);
++                    } catch (final InterruptedException ex) {
++                        continue;
++                    }
++                }
++            }
++        };
++        timerHack.setDaemon(true);
++        timerHack.start();
++
++        final LProfilerRegistry registry = new LProfilerRegistry();
++
++        final int tickId = registry.createType(LProfilerRegistry.ProfileType.TIMER, "tick");
++        final int entityTickId = registry.createType(LProfilerRegistry.ProfileType.TIMER, "entity tick");
++        final int getEntitiesId = registry.createType(LProfilerRegistry.ProfileType.COUNTER, "getEntities call");
++        final int tileEntityId = registry.createType(LProfilerRegistry.ProfileType.TIMER, "tile entity tick");
++        final int creeperEntityId = registry.createType(LProfilerRegistry.ProfileType.TIMER, "creeper entity tick");
++        final int furnaceId = registry.createType(LProfilerRegistry.ProfileType.TIMER, "furnace tile entity tick");
++
++        final LeafProfiler profiler = new LeafProfiler(registry, new LProfileGraph());
++
++        profiler.startTimer(tickId, System.nanoTime());
++        Thread.sleep(10L);
++
++        profiler.startTimer(entityTickId, System.nanoTime());
++        Thread.sleep(1L);
++
++        profiler.startTimer(creeperEntityId, System.nanoTime());
++        Thread.sleep(15L);
++        profiler.incrementCounter(getEntitiesId, 50L);
++        profiler.stopTimer(creeperEntityId, System.nanoTime());
++
++        profiler.stopTimer(entityTickId, System.nanoTime());
++
++        profiler.startTimer(tileEntityId, System.nanoTime());
++        Thread.sleep(1L);
++
++        profiler.startTimer(furnaceId, System.nanoTime());
++        Thread.sleep(20L);
++        profiler.stopTimer(furnaceId, System.nanoTime());
++
++        profiler.stopTimer(tileEntityId, System.nanoTime());
++
++        profiler.stopTimer(tickId, System.nanoTime());
++
++        System.out.println("Done.");
++    }
++     */
 +}
 diff --git a/src/main/java/com/destroystokyo/paper/util/RedstoneWireTurbo.java b/src/main/java/com/destroystokyo/paper/util/RedstoneWireTurbo.java
 index 22a2547810d0c029f29685faddf7ac21cde2df0b..e36b4053eb2676e934b8c9c401bf58cfa7dd969c 100644
@@ -10846,7 +11131,7 @@ index 0159ed9cbc644c39fa79e62327f13375193fdc98..a930c8eb64d6c7044646d6b0156e202e
              }
  
 diff --git a/src/main/java/net/minecraft/network/Connection.java b/src/main/java/net/minecraft/network/Connection.java
-index 1b634b303105a0f8424e1e40b7c39f9938232d95..f34630a7e6af5abe354edfa50c8c1af4ef7a4bdd 100644
+index 1b634b303105a0f8424e1e40b7c39f9938232d95..619040e7197153af4c4a3fae62ce9d50d3408308 100644
 --- a/src/main/java/net/minecraft/network/Connection.java
 +++ b/src/main/java/net/minecraft/network/Connection.java
 @@ -73,7 +73,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
@@ -10900,15 +11185,16 @@ index 1b634b303105a0f8424e1e40b7c39f9938232d95..f34630a7e6af5abe354edfa50c8c1af4
      public void channelActive(ChannelHandlerContext channelhandlercontext) throws Exception {
          super.channelActive(channelhandlercontext);
          this.channel = channelhandlercontext.channel();
-@@ -193,6 +219,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
-             Connection.LOGGER.error(LogUtils.FATAL_MARKER, "Failed to change protocol to handshake", throwable);
-         }
- 
-+        this.becomeActive = true; // Folia - region threading
+@@ -196,7 +222,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
          if (this.delayedDisconnect != null) {
              this.disconnect(this.delayedDisconnect);
          }
-@@ -382,13 +409,6 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
+-
++        this.becomeActive = true; // Folia - region threading
+     }
+ 
+     public void setProtocol(ConnectionProtocol state) {
+@@ -382,13 +408,6 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
              return; // Do nothing
          }
          packet.onPacketDispatch(getPlayer());
@@ -10922,7 +11208,7 @@ index 1b634b303105a0f8424e1e40b7c39f9938232d95..f34630a7e6af5abe354edfa50c8c1af4
          // write the packets to the queue, then flush - antixray hooks there already
          java.util.List<Packet> extraPackets = InnerUtil.buildExtraPackets(packet);
          boolean hasExtraPackets = extraPackets != null && !extraPackets.isEmpty();
-@@ -510,66 +530,58 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
+@@ -510,66 +529,58 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
  
      // Paper start - rewrite this to be safer if ran off main thread
      private boolean flushQueue() { // void -> boolean
@@ -10940,7 +11226,7 @@ index 1b634b303105a0f8424e1e40b7c39f9938232d95..f34630a7e6af5abe354edfa50c8c1af4
 -        }
 -        return false;
 +        return this.processQueue();
-     }
++    }
 +
 +    // allow only one thread to be flushing the queue at once to ensure packets are written in the order they are sent
 +    // into the queue
@@ -10949,7 +11235,7 @@ index 1b634b303105a0f8424e1e40b7c39f9938232d95..f34630a7e6af5abe354edfa50c8c1af4
 +    private boolean canWritePackets() {
 +        PacketHolder holder = this.queue.peek();
 +        return holder != null && holder.packet.isReady();
-+    }
+     }
 +
      private boolean processQueue() {
 -        try { // Paper - add pending task queue
@@ -11028,7 +11314,7 @@ index 1b634b303105a0f8424e1e40b7c39f9938232d95..f34630a7e6af5abe354edfa50c8c1af4
      }
      // Paper end
  
-@@ -578,21 +590,41 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
+@@ -578,21 +589,41 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
      private static int currTick; // Paper
      public void tick() {
          this.flushQueue();
@@ -11078,7 +11364,7 @@ index 1b634b303105a0f8424e1e40b7c39f9938232d95..f34630a7e6af5abe354edfa50c8c1af4
              // Paper start - detailed watchdog information
              net.minecraft.network.protocol.PacketUtils.packetProcessing.push(this.packetListener);
              try { // Paper end - detailed watchdog information
-@@ -632,13 +664,21 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
+@@ -632,13 +663,21 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
      // Paper start
      public void clearPacketQueue() {
          net.minecraft.server.level.ServerPlayer player = getPlayer();
@@ -11103,16 +11389,7 @@ index 1b634b303105a0f8424e1e40b7c39f9938232d95..f34630a7e6af5abe354edfa50c8c1af4
      }
      // Paper end
      public void disconnect(Component disconnectReason) {
-@@ -646,14 +686,11 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
-         this.preparing = false;
-         clearPacketQueue(); // Paper
-         // Spigot End
--        if (this.channel == null) {
--            this.delayedDisconnect = disconnectReason;
--        }
--
--        if (this.isConnected()) {
-+        if (this.channel.isOpen()) {
+@@ -654,6 +693,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
              this.channel.close(); // We can't wait as this may be called from an event loop.
              this.disconnectedReason = disconnectReason;
          }
@@ -11120,45 +11397,7 @@ index 1b634b303105a0f8424e1e40b7c39f9938232d95..f34630a7e6af5abe354edfa50c8c1af4
  
      }
  
-@@ -670,14 +707,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
-     }
- 
-     public static Connection connectToServer(InetSocketAddress address, boolean useEpoll) {
--        Connection networkmanager = new Connection(PacketFlow.CLIENTBOUND);
--        ChannelFuture channelfuture = Connection.connect(address, useEpoll, networkmanager);
--
--        channelfuture.syncUninterruptibly();
--        return networkmanager;
--    }
--
--    public static ChannelFuture connect(InetSocketAddress address, boolean useEpoll, final Connection connection) {
-+        final Connection networkmanager = new Connection(PacketFlow.CLIENTBOUND);
-         Class oclass;
-         LazyLoadedValue lazyinitvar;
- 
-@@ -689,7 +719,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
-             lazyinitvar = Connection.NETWORK_WORKER_GROUP;
-         }
- 
--        return ((Bootstrap) ((Bootstrap) ((Bootstrap) (new Bootstrap()).group((EventLoopGroup) lazyinitvar.get())).handler(new ChannelInitializer<Channel>() {
-+        ((Bootstrap) ((Bootstrap) ((Bootstrap) (new Bootstrap()).group((EventLoopGroup) lazyinitvar.get())).handler(new ChannelInitializer<Channel>() {
-             protected void initChannel(Channel channel) {
-                 try {
-                     channel.config().setOption(ChannelOption.TCP_NODELAY, true);
-@@ -700,9 +730,10 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
-                 ChannelPipeline channelpipeline = channel.pipeline().addLast("timeout", new ReadTimeoutHandler(30));
- 
-                 Connection.configureSerialization(channelpipeline, PacketFlow.CLIENTBOUND);
--                channelpipeline.addLast("packet_handler", connection);
-+                channelpipeline.addLast("packet_handler", networkmanager);
-             }
--        })).channel(oclass)).connect(address.getAddress(), address.getPort());
-+        })).channel(oclass)).connect(address.getAddress(), address.getPort()).syncUninterruptibly();
-+        return networkmanager;
-     }
- 
-     public static void configureSerialization(ChannelPipeline pipeline, PacketFlow side) {
-@@ -822,13 +853,27 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
+@@ -822,13 +862,27 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                      final net.minecraft.server.network.ServerGamePacketListenerImpl playerConnection = (net.minecraft.server.network.ServerGamePacketListenerImpl) packetListener;
                      new com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent(playerConnection.player.getUUID(),
                          playerConnection.player.getScoreboardName(), ((java.net.InetSocketAddress)address).getAddress(), false).callEvent();
@@ -15410,7 +15649,7 @@ index 18aac3da3c88f33b1a71a5920a8daa27e9723913..b126435b07572e7b8f41647a0179164b
                  for (ServerPlayer player : ServerLevel.this.players) {
                      player.getBukkitEntity().onEntityRemove(entity);
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index 9d46536f80b5b3e6641fd377c02166a431edfd77..f437fa40299ef699f3a629730a6bfc16e025d1b8 100644
+index 9d46536f80b5b3e6641fd377c02166a431edfd77..84dce5ec9d43d6f148cd8a7d19e503ce4c9900fd 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -190,7 +190,7 @@ import org.bukkit.inventory.MainHand;
@@ -15555,7 +15794,7 @@ index 9d46536f80b5b3e6641fd377c02166a431edfd77..f437fa40299ef699f3a629730a6bfc16
          return horizontalSpawnArea <= 16 ? horizontalSpawnArea - 1 : 17;
      }
  
-@@ -1161,6 +1200,344 @@ public class ServerPlayer extends Player {
+@@ -1161,6 +1200,345 @@ public class ServerPlayer extends Player {
          }
      }
  
@@ -15747,6 +15986,7 @@ index 9d46536f80b5b3e6641fd377c02166a431edfd77..f437fa40299ef699f3a629730a6bfc16
 +        }
 +        this.connection.internalTeleport(pos.x, pos.y, pos.z, this.getYRot(), this.getXRot(), java.util.Collections.emptySet());
 +        this.connection.resetPosition();
++        this.mainSupportingBlockPos = Optional.empty();
 +    }
 +
 +    @Override
@@ -15900,7 +16140,7 @@ index 9d46536f80b5b3e6641fd377c02166a431edfd77..f437fa40299ef699f3a629730a6bfc16
      @Nullable
      @Override
      public Entity changeDimension(ServerLevel destination) {
-@@ -1170,6 +1547,11 @@ public class ServerPlayer extends Player {
+@@ -1170,6 +1548,11 @@ public class ServerPlayer extends Player {
  
      @Nullable
      public Entity changeDimension(ServerLevel worldserver, PlayerTeleportEvent.TeleportCause cause) {
@@ -15912,7 +16152,7 @@ index 9d46536f80b5b3e6641fd377c02166a431edfd77..f437fa40299ef699f3a629730a6bfc16
          // CraftBukkit end
          if (this.isSleeping()) return this; // CraftBukkit - SPIGOT-3154
          // this.isChangingDimension = true; // CraftBukkit - Moved down and into PlayerList#changeDimension
-@@ -2114,6 +2496,12 @@ public class ServerPlayer extends Player {
+@@ -2114,6 +2497,12 @@ public class ServerPlayer extends Player {
      public void setCamera(@Nullable Entity entity) {
          Entity entity1 = this.getCamera();
  
@@ -15925,7 +16165,7 @@ index 9d46536f80b5b3e6641fd377c02166a431edfd77..f437fa40299ef699f3a629730a6bfc16
          this.camera = (Entity) (entity == null ? this : entity);
          if (entity1 != this.camera) {
              // Paper start - Add PlayerStartSpectatingEntityEvent and PlayerStopSpectatingEntity Event
-@@ -2307,7 +2695,7 @@ public class ServerPlayer extends Player {
+@@ -2307,7 +2696,7 @@ public class ServerPlayer extends Player {
      }
  
      public void untrackChunk(ChunkPos chunkPos) {
@@ -15934,7 +16174,7 @@ index 9d46536f80b5b3e6641fd377c02166a431edfd77..f437fa40299ef699f3a629730a6bfc16
              this.connection.send(new ClientboundForgetLevelChunkPacket(chunkPos.x, chunkPos.z));
              // Paper start
              if(io.papermc.paper.event.packet.PlayerChunkUnloadEvent.getHandlerList().getRegisteredListeners().length > 0){
-@@ -2626,7 +3014,7 @@ public class ServerPlayer extends Player {
+@@ -2626,7 +3015,7 @@ public class ServerPlayer extends Player {
          this.experienceLevel = this.newLevel;
          this.totalExperience = this.newTotalExp;
          this.experienceProgress = 0;
@@ -17388,7 +17628,7 @@ index 25a5a3b949a0eb632611355e74ccd4865be108ca..1df8d601e41c2ab35921b6a1534fdec6
  
                  itemstack = entityliving2.getMainHandItem();
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef84c082372 100644
+index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..37b90c70196717c3a68b6d3b652e5716ab89998c 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -166,7 +166,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
@@ -17571,7 +17811,7 @@ index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef8
              return;
          }
          // CraftBukkit end
-@@ -3506,6 +3532,763 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3506,6 +3532,764 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          this.portalEntrancePos = original.portalEntrancePos;
      }
  
@@ -17841,6 +18081,7 @@ index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef8
 +            this.setDeltaMovement(speedDirectionUpdate.normalize().scale(this.getDeltaMovement().length()));
 +        }
 +        this.moveTo(pos.x, pos.y, pos.z);
++        this.mainSupportingBlockPos = Optional.empty();
 +    }
 +
 +    protected void transform(Vec3 pos, Float yaw, Float pitch, Vec3 speedDirectionUpdate) {
@@ -17967,7 +18208,7 @@ index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef8
 +    }
 +
 +    public void postChangeDimension() {
-+
++        this.mainSupportingBlockPos = Optional.empty();
 +    }
 +
 +    protected static enum PortalType {
@@ -18335,7 +18576,7 @@ index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef8
      @Nullable
      public Entity changeDimension(ServerLevel destination) {
          // CraftBukkit start
-@@ -3514,6 +4297,11 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3514,6 +4298,11 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
      @Nullable
      public Entity teleportTo(ServerLevel worldserver, PositionImpl location) {
@@ -18347,7 +18588,7 @@ index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef8
          // CraftBukkit end
          // Paper start - fix bad state entities causing dupes
          if (!this.isAlive() || !this.valid) {
-@@ -3597,6 +4385,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3597,6 +4386,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          }
      }
  
@@ -18360,7 +18601,7 @@ index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef8
      protected void removeAfterChangingDimensions() {
          this.setRemoved(Entity.RemovalReason.CHANGED_DIMENSION);
      }
-@@ -4041,17 +4835,13 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4041,17 +4836,13 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
      // Paper start
      public void startSeenByPlayer(ServerPlayer player) {
@@ -18380,7 +18621,7 @@ index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef8
      }
      // Paper end
  
-@@ -4546,7 +5336,8 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4546,7 +5337,8 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
              }
          }
          // Paper end - fix MC-4
@@ -18390,7 +18631,7 @@ index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef8
              synchronized (this.posLock) { // Paper
              this.position = new Vec3(x, y, z);
              } // Paper
-@@ -4567,7 +5358,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4567,7 +5359,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
          // Paper start - never allow AABB to become desynced from position
          // hanging has its own special logic
@@ -18399,7 +18640,7 @@ index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef8
              this.setBoundingBox(this.makeBoundingBox());
          }
          // Paper end
-@@ -4654,6 +5445,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4654,6 +5446,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          return this.removalReason != null;
      }
  
@@ -18412,7 +18653,7 @@ index b38c4cbcf0405d82c7b6e018e80a3174e460c1a4..1d40724d70d65294afbff230e9134ef8
      @Nullable
      public Entity.RemovalReason getRemovalReason() {
          return this.removalReason;
-@@ -4678,7 +5475,23 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4678,7 +5476,23 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
          if (reason != RemovalReason.UNLOADED_TO_CHUNK) this.getPassengers().forEach(Entity::stopRiding); // Paper - chunk system - don't adjust passenger state when unloading, it's just not safe (and messes with our logic in entity chunk unload)
          this.levelCallback.onRemove(reason);
@@ -22984,18 +23225,10 @@ index 9987df6c0ef96a2600298d2be4e57137ee201c1c..e35777b6501fa8290176b757b0889349
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1a731840e 100644
+index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..23b8dde3cd185b372d4adc97201a422cebbbe804 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -62,6 +62,7 @@ import net.minecraft.world.level.storage.LevelResource;
- import net.minecraft.world.phys.AABB;
- import net.minecraft.world.phys.HitResult;
- import net.minecraft.world.phys.Vec3;
-+import org.apache.commons.lang.Validate;
- import org.bukkit.BlockChangeDelegate;
- import org.bukkit.Bukkit;
- import org.bukkit.Chunk;
-@@ -183,7 +184,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -183,7 +183,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public int getTickableTileEntityCount() {
@@ -23004,7 +23237,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
      }
  
      @Override
-@@ -240,7 +241,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -240,7 +240,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          // Paper start - per world spawn limits
          for (SpawnCategory spawnCategory : SpawnCategory.values()) {
              if (CraftSpawnCategory.isValidForLimits(spawnCategory)) {
@@ -23013,7 +23246,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
              }
          }
          // Paper end
-@@ -327,6 +328,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -327,6 +327,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public Chunk getChunkAt(int x, int z) {
@@ -23021,7 +23254,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          warnUnsafeChunk("getting a faraway chunk", x, z); // Paper
          // Paper start - add ticket to hold chunk for a little while longer if plugin accesses it
          net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkSource().getChunkAtIfLoadedImmediately(x, z);
-@@ -350,7 +352,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -350,7 +351,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      // Paper start
      private void addTicket(int x, int z) {
@@ -23030,7 +23263,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
      }
      // Paper end
  
-@@ -369,10 +371,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -369,10 +370,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      public boolean isChunkGenerated(int x, int z) {
          // Paper start - Fix this method
@@ -23043,7 +23276,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          }
          ChunkAccess chunk = world.getChunkSource().getChunkAtImmediately(x, z);
          if (chunk == null) {
-@@ -426,7 +428,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -426,7 +427,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      }
  
      private boolean unloadChunk0(int x, int z, boolean save) {
@@ -23052,7 +23285,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          if (!this.isChunkLoaded(x, z)) {
              return true;
          }
-@@ -441,7 +443,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -441,7 +442,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean regenerateChunk(int x, int z) {
@@ -23061,7 +23294,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          warnUnsafeChunk("regenerating a faraway chunk", x, z); // Paper
          // Paper start - implement regenerateChunk method
          final ServerLevel serverLevel = this.world;
-@@ -502,6 +504,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -502,6 +503,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean refreshChunk(int x, int z) {
@@ -23069,7 +23302,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          ChunkHolder playerChunk = this.world.getChunkSource().chunkMap.getVisibleChunkIfPresent(ChunkPos.asLong(x, z));
          if (playerChunk == null) return false;
  
-@@ -537,7 +540,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -537,7 +539,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean loadChunk(int x, int z, boolean generate) {
@@ -23078,7 +23311,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          warnUnsafeChunk("loading a faraway chunk", x, z); // Paper
          // Paper start - Optimize this method
          ChunkPos chunkPos = new ChunkPos(x, z);
-@@ -609,7 +612,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -609,7 +611,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          DistanceManager chunkDistanceManager = this.world.getChunkSource().chunkMap.distanceManager;
  
          if (chunkDistanceManager.addRegionTicketAtDistance(TicketType.PLUGIN_TICKET, new ChunkPos(x, z), 2, plugin)) { // keep in-line with force loading, add at level 31
@@ -23087,7 +23320,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
              return true;
          }
  
-@@ -800,13 +803,15 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -800,13 +802,15 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean generateTree(Location loc, TreeType type, BlockChangeDelegate delegate) {
@@ -23108,7 +23341,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
                  BlockPos position = ((CraftBlockState) blockstate).getPosition();
                  net.minecraft.world.level.block.state.BlockState oldBlock = this.world.getBlockState(position);
                  int flag = ((CraftBlockState) blockstate).getFlag();
-@@ -814,10 +819,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -814,10 +818,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
                  net.minecraft.world.level.block.state.BlockState newBlock = this.world.getBlockState(position);
                  this.world.notifyAndUpdatePhysics(position, null, oldBlock, newBlock, newBlock, flag, 512);
              }
@@ -23121,7 +23354,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
              return false;
          }
      }
-@@ -851,6 +856,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -851,6 +855,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setTime(long time) {
@@ -23129,7 +23362,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          long margin = (time - this.getFullTime()) % 24000;
          if (margin < 0) margin += 24000;
          this.setFullTime(this.getFullTime() + margin);
-@@ -863,6 +869,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -863,6 +868,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setFullTime(long time) {
@@ -23137,7 +23370,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          // Notify anyone who's listening
          TimeSkipEvent event = new TimeSkipEvent(this, TimeSkipEvent.SkipReason.CUSTOM, time - this.world.getDayTime());
          this.server.getPluginManager().callEvent(event);
-@@ -890,7 +897,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -890,7 +896,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public long getGameTime() {
@@ -23146,7 +23379,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
      }
  
      @Override
-@@ -910,11 +917,13 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -910,11 +916,13 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean createExplosion(double x, double y, double z, float power, boolean setFire, boolean breakBlocks, Entity source) {
@@ -23160,7 +23393,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          return !world.explode(source != null ? ((org.bukkit.craftbukkit.entity.CraftEntity) source).getHandle() : null, loc.getX(), loc.getY(), loc.getZ(), power, setFire, breakBlocks ? net.minecraft.world.level.Level.ExplosionInteraction.MOB : net.minecraft.world.level.Level.ExplosionInteraction.NONE).wasCanceled;
      }
      // Paper end
-@@ -984,6 +993,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -984,6 +992,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public int getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
@@ -23168,7 +23401,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
          // Transient load for this tick
          return this.world.getChunk(x >> 4, z >> 4).getHeight(CraftHeightMap.toNMS(heightMap), x, z);
-@@ -1014,6 +1024,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1014,6 +1023,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      public void setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {
          BlockPos pos = new BlockPos(x, 0, z);
@@ -23176,7 +23409,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          if (this.world.hasChunkAt(pos)) {
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
-@@ -1289,6 +1300,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1289,6 +1299,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setStorm(boolean hasStorm) {
@@ -23184,7 +23417,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          world.serverLevelData.setRaining(hasStorm, org.bukkit.event.weather.WeatherChangeEvent.Cause.PLUGIN); // Paper
          this.setWeatherDuration(0); // Reset weather duration (legacy behaviour)
          this.setClearWeatherDuration(0); // Reset clear weather duration (reset "/weather clear" commands)
-@@ -1301,6 +1313,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1301,6 +1312,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setWeatherDuration(int duration) {
@@ -23192,7 +23425,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          world.serverLevelData.setRainTime(duration);
      }
  
-@@ -1311,6 +1324,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1311,6 +1323,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setThundering(boolean thundering) {
@@ -23200,7 +23433,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          world.serverLevelData.setThundering(thundering, org.bukkit.event.weather.ThunderChangeEvent.Cause.PLUGIN); // Paper
          this.setThunderDuration(0); // Reset weather duration (legacy behaviour)
          this.setClearWeatherDuration(0); // Reset clear weather duration (reset "/weather clear" commands)
-@@ -1323,6 +1337,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1323,6 +1336,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setThunderDuration(int duration) {
@@ -23208,7 +23441,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          world.serverLevelData.setThunderTime(duration);
      }
  
-@@ -1333,6 +1348,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1333,6 +1347,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setClearWeatherDuration(int duration) {
@@ -23216,7 +23449,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          world.serverLevelData.setClearWeatherTime(duration);
      }
  
-@@ -1527,6 +1543,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1527,6 +1542,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setKeepSpawnInMemory(boolean keepLoaded) {
@@ -23224,7 +23457,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          // Paper start - Configurable spawn radius
          if (keepLoaded == world.keepSpawnInMemory) {
              // do nothing, nothing has changed
-@@ -1605,6 +1622,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1605,6 +1621,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setHardcore(boolean hardcore) {
@@ -23232,7 +23465,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          world.serverLevelData.settings.hardcore = hardcore;
      }
  
-@@ -1617,6 +1635,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1617,6 +1634,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setTicksPerAnimalSpawns(int ticksPerAnimalSpawns) {
@@ -23240,7 +23473,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setTicksPerSpawns(SpawnCategory.ANIMAL, ticksPerAnimalSpawns);
      }
  
-@@ -1629,6 +1648,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1629,6 +1647,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setTicksPerMonsterSpawns(int ticksPerMonsterSpawns) {
@@ -23248,7 +23481,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setTicksPerSpawns(SpawnCategory.MONSTER, ticksPerMonsterSpawns);
      }
  
-@@ -1641,6 +1661,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1641,6 +1660,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setTicksPerWaterSpawns(int ticksPerWaterSpawns) {
@@ -23256,7 +23489,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setTicksPerSpawns(SpawnCategory.WATER_ANIMAL, ticksPerWaterSpawns);
      }
  
-@@ -1653,6 +1674,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1653,6 +1673,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setTicksPerWaterAmbientSpawns(int ticksPerWaterAmbientSpawns) {
@@ -23264,7 +23497,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setTicksPerSpawns(SpawnCategory.WATER_AMBIENT, ticksPerWaterAmbientSpawns);
      }
  
-@@ -1665,6 +1687,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1665,6 +1686,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setTicksPerWaterUndergroundCreatureSpawns(int ticksPerWaterUndergroundCreatureSpawns) {
@@ -23272,7 +23505,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setTicksPerSpawns(SpawnCategory.WATER_UNDERGROUND_CREATURE, ticksPerWaterUndergroundCreatureSpawns);
      }
  
-@@ -1677,6 +1700,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1677,11 +1699,13 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setTicksPerAmbientSpawns(int ticksPerAmbientSpawns) {
@@ -23280,17 +23513,13 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setTicksPerSpawns(SpawnCategory.AMBIENT, ticksPerAmbientSpawns);
      }
  
-@@ -1684,6 +1708,9 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+     @Override
      public void setTicksPerSpawns(SpawnCategory spawnCategory, int ticksPerCategorySpawn) {
++        io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Cannot modify server settings off of the global region"); // Folia - region threading
          Preconditions.checkArgument(spawnCategory != null, "SpawnCategory cannot be null");
          Preconditions.checkArgument(CraftSpawnCategory.isValidForLimits(spawnCategory), "SpawnCategory.%s are not supported", spawnCategory);
-+        io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Cannot modify server settings off of the global region"); // Folia - region threading
-+        Validate.notNull(spawnCategory, "SpawnCategory cannot be null");
-+        Validate.isTrue(CraftSpawnCategory.isValidForLimits(spawnCategory), "SpawnCategory." + spawnCategory + " are not supported.");
  
-         world.ticksPerSpawnCategory.put(spawnCategory, (long) ticksPerCategorySpawn);
-     }
-@@ -1698,21 +1725,25 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1698,21 +1722,25 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setMetadata(String metadataKey, MetadataValue newMetadataValue) {
@@ -23316,7 +23545,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.server.getWorldMetadata().removeMetadata(this, metadataKey, owningPlugin);
      }
  
-@@ -1725,6 +1756,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1725,6 +1753,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setMonsterSpawnLimit(int limit) {
@@ -23324,7 +23553,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setSpawnLimit(SpawnCategory.MONSTER, limit);
      }
  
-@@ -1737,6 +1769,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1737,6 +1766,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setAnimalSpawnLimit(int limit) {
@@ -23332,7 +23561,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setSpawnLimit(SpawnCategory.ANIMAL, limit);
      }
  
-@@ -1749,6 +1782,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1749,6 +1779,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setWaterAnimalSpawnLimit(int limit) {
@@ -23340,7 +23569,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setSpawnLimit(SpawnCategory.WATER_ANIMAL, limit);
      }
  
-@@ -1761,6 +1795,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1761,6 +1792,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setWaterAmbientSpawnLimit(int limit) {
@@ -23348,7 +23577,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setSpawnLimit(SpawnCategory.WATER_AMBIENT, limit);
      }
  
-@@ -1773,6 +1808,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1773,6 +1805,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setWaterUndergroundCreatureSpawnLimit(int limit) {
@@ -23356,7 +23585,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setSpawnLimit(SpawnCategory.WATER_UNDERGROUND_CREATURE, limit);
      }
  
-@@ -1785,6 +1821,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1785,6 +1818,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      @Deprecated
      public void setAmbientSpawnLimit(int limit) {
@@ -23364,17 +23593,15 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          this.setSpawnLimit(SpawnCategory.AMBIENT, limit);
      }
  
-@@ -1809,6 +1846,9 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1807,6 +1841,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+ 
+     @Override
      public void setSpawnLimit(SpawnCategory spawnCategory, int limit) {
++        io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Cannot modify server settings off of the global region"); // Folia - region threading
          Preconditions.checkArgument(spawnCategory != null, "SpawnCategory cannot be null");
          Preconditions.checkArgument(CraftSpawnCategory.isValidForLimits(spawnCategory), "SpawnCategory.%s are not supported", spawnCategory);
-+        io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Cannot modify server settings off of the global region"); // Folia - region threading
-+        Validate.notNull(spawnCategory, "SpawnCategory cannot be null");
-+        Validate.isTrue(CraftSpawnCategory.isValidForLimits(spawnCategory), "SpawnCategory." + spawnCategory + " are not supported.");
  
-         this.spawnCategoryLimit.put(spawnCategory, limit);
-     }
-@@ -1861,7 +1901,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1861,7 +1896,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          if (!(entity instanceof CraftEntity craftEntity) || entity.getWorld() != this || sound == null || category == null) return;
  
          ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(CraftSound.getSoundEffect(sound)), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, this.getHandle().getRandom().nextLong());
@@ -23383,7 +23610,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          if (entityTracker != null) {
              entityTracker.broadcastAndSend(packet);
          }
-@@ -1872,7 +1912,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1872,7 +1907,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          if (!(entity instanceof CraftEntity craftEntity) || entity.getWorld() != this || sound == null || category == null) return;
  
          ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(sound))), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, this.getHandle().getRandom().nextLong());
@@ -23392,7 +23619,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          if (entityTracker != null) {
              entityTracker.broadcastAndSend(packet);
          }
-@@ -1958,6 +1998,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1958,6 +1993,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean setGameRuleValue(String rule, String value) {
@@ -23400,17 +23627,15 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          // No null values allowed
          if (rule == null || value == null) return false;
  
-@@ -2002,6 +2043,9 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2000,6 +2036,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+ 
+     @Override
      public <T> boolean setGameRule(GameRule<T> rule, T newValue) {
++        io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Cannot modify server settings off of the global region"); // Folia - region threading
          Preconditions.checkArgument(rule != null, "GameRule cannot be null");
          Preconditions.checkArgument(newValue != null, "GameRule value cannot be null");
-+        io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Cannot modify server settings off of the global region"); // Folia - region threading
-+        Validate.notNull(rule, "GameRule cannot be null");
-+        Validate.notNull(newValue, "GameRule value cannot be null");
  
-         if (!this.isGameRule(rule.getName())) return false;
- 
-@@ -2265,6 +2309,12 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2265,6 +2302,12 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void sendGameEvent(Entity sourceEntity, org.bukkit.GameEvent gameEvent, Vector position) {
@@ -23423,7 +23648,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
          getHandle().gameEvent(sourceEntity != null ? ((CraftEntity) sourceEntity).getHandle(): null, net.minecraft.core.registries.BuiltInRegistries.GAME_EVENT.get(org.bukkit.craftbukkit.util.CraftNamespacedKey.toMinecraft(gameEvent.getKey())), org.bukkit.craftbukkit.util.CraftVector.toBlockPos(position));
      }
      // Paper end
-@@ -2397,7 +2447,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2397,7 +2440,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      // Paper start
      public java.util.concurrent.CompletableFuture<Chunk> getChunkAtAsync(int x, int z, boolean gen, boolean urgent) {
          warnUnsafeChunk("getting a faraway chunk async", x, z); // Paper
@@ -23432,7 +23657,7 @@ index 1a481fb4f4228f0fea8a7dc6132248c98b727c90..4b49e091d5908e97c733bd5e870b9fd1
              net.minecraft.world.level.chunk.LevelChunk immediate = this.world.getChunkSource().getChunkAtIfLoadedImmediately(x, z);
              if (immediate != null) {
                  return java.util.concurrent.CompletableFuture.completedFuture(new CraftChunk(immediate));
-@@ -2414,7 +2464,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2414,7 +2457,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          java.util.concurrent.CompletableFuture<Chunk> ret = new java.util.concurrent.CompletableFuture<>();
  
          io.papermc.paper.chunk.system.ChunkSystem.scheduleChunkLoad(this.getHandle(), x, z, gen, ChunkStatus.FULL, true, priority, (c) -> {
@@ -23454,18 +23679,10 @@ index a3d5e319473e2f6316b3ef8edf719296e02d85a1..55abed5fdf8dc699ade5b25b1f194941
                      tileentitybeehive.addOccupantWithPresetTicks(entitybee, false, random.nextInt(599));
                  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
-index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b7b36737d 100644
+index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..66ee61f27dc435e27c4792b6cf4f320b91a54c57 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
-@@ -28,6 +28,7 @@ import net.minecraft.world.phys.BlockHitResult;
- import net.minecraft.world.phys.HitResult;
- import net.minecraft.world.phys.Vec3;
- import net.minecraft.world.phys.shapes.VoxelShape;
-+import org.apache.commons.lang.Validate;
- import org.bukkit.Bukkit;
- import org.bukkit.Chunk;
- import org.bukkit.FluidCollisionMode;
-@@ -79,6 +80,11 @@ public class CraftBlock implements Block {
+@@ -79,6 +79,11 @@ public class CraftBlock implements Block {
      }
  
      public net.minecraft.world.level.block.state.BlockState getNMS() {
@@ -23477,7 +23694,7 @@ index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b
          return this.world.getBlockState(position);
      }
  
-@@ -155,6 +161,11 @@ public class CraftBlock implements Block {
+@@ -155,6 +160,11 @@ public class CraftBlock implements Block {
      }
  
      private void setData(final byte data, int flag) {
@@ -23489,7 +23706,7 @@ index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b
          this.world.setBlock(position, CraftMagicNumbers.getBlock(this.getType(), data), flag);
      }
  
-@@ -196,6 +207,11 @@ public class CraftBlock implements Block {
+@@ -196,6 +206,11 @@ public class CraftBlock implements Block {
      }
  
      public static boolean setTypeAndData(LevelAccessor world, BlockPos position, net.minecraft.world.level.block.state.BlockState old, net.minecraft.world.level.block.state.BlockState blockData, boolean applyPhysics) {
@@ -23501,7 +23718,7 @@ index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b
          // SPIGOT-611: need to do this to prevent glitchiness. Easier to handle this here (like /setblock) than to fix weirdness in tile entity cleanup
          if (old.hasBlockEntity() && blockData.getBlock() != old.getBlock()) { // SPIGOT-3725 remove old tile entity if block changes
              // SPIGOT-4612: faster - just clear tile
-@@ -341,18 +357,33 @@ public class CraftBlock implements Block {
+@@ -341,18 +356,33 @@ public class CraftBlock implements Block {
  
      @Override
      public Biome getBiome() {
@@ -23535,7 +23752,7 @@ index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b
          this.getWorld().setBiome(this.getX(), this.getY(), this.getZ(), bio);
      }
  
-@@ -422,6 +453,11 @@ public class CraftBlock implements Block {
+@@ -422,6 +452,11 @@ public class CraftBlock implements Block {
  
      @Override
      public boolean isBlockFaceIndirectlyPowered(BlockFace face) {
@@ -23547,7 +23764,7 @@ index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b
          int power = this.world.getMinecraftWorld().getSignal(position, CraftBlock.blockFaceToNotch(face));
  
          Block relative = this.getRelative(face);
-@@ -434,6 +470,11 @@ public class CraftBlock implements Block {
+@@ -434,6 +469,11 @@ public class CraftBlock implements Block {
  
      @Override
      public int getBlockPower(BlockFace face) {
@@ -23559,7 +23776,7 @@ index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b
          int power = 0;
          net.minecraft.world.level.Level world = this.world.getMinecraftWorld();
          int x = this.getX();
-@@ -520,6 +561,11 @@ public class CraftBlock implements Block {
+@@ -520,6 +560,11 @@ public class CraftBlock implements Block {
  
      @Override
      public boolean breakNaturally(ItemStack item, boolean triggerEffect, boolean dropExperience) {
@@ -23571,7 +23788,7 @@ index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b
          // Paper end
          // Order matters here, need to drop before setting to air so skulls can get their data
          net.minecraft.world.level.block.state.BlockState iblockdata = this.getNMS();
-@@ -563,21 +609,27 @@ public class CraftBlock implements Block {
+@@ -563,21 +608,27 @@ public class CraftBlock implements Block {
  
      @Override
      public boolean applyBoneMeal(BlockFace face) {
@@ -23606,32 +23823,31 @@ index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b
              StructureGrowEvent structureEvent = null;
  
              if (treeType != null) {
-@@ -663,6 +715,11 @@ public class CraftBlock implements Block {
+@@ -663,6 +714,11 @@ public class CraftBlock implements Block {
  
      @Override
      public RayTraceResult rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
 +        // Folia start - region threading
-+        if (world instanceof ServerLevel serverWorld) {
-+            io.papermc.paper.util.TickThread.ensureTickThread(serverWorld, position, "Cannot read world asynchronously");
++        if (this.world instanceof ServerLevel serverWorld) {
++            io.papermc.paper.util.TickThread.ensureTickThread(serverWorld, this.position, "Cannot read world asynchronously");
 +        }
 +        // Folia end - region threading
          Preconditions.checkArgument(start != null, "Location start cannot be null");
          Preconditions.checkArgument(this.getWorld().equals(start.getWorld()), "Location start cannot be a different world");
          start.checkFinite();
-@@ -705,6 +762,12 @@ public class CraftBlock implements Block {
+@@ -704,6 +760,11 @@ public class CraftBlock implements Block {
+ 
      @Override
      public boolean canPlace(BlockData data) {
-         Preconditions.checkArgument(data != null, "BlockData cannot be null");
 +        // Folia start - region threading
-+        if (world instanceof ServerLevel serverWorld) {
-+            io.papermc.paper.util.TickThread.ensureTickThread(serverWorld, position, "Cannot read world asynchronously");
++        if (this.world instanceof ServerLevel serverWorld) {
++            io.papermc.paper.util.TickThread.ensureTickThread(serverWorld, this.position, "Cannot read world asynchronously");
 +        }
 +        // Folia end - region threading
-+        Preconditions.checkArgument(data != null, "Provided block data is null!");
+         Preconditions.checkArgument(data != null, "BlockData cannot be null");
          net.minecraft.world.level.block.state.BlockState iblockdata = ((CraftBlockData) data).getState();
          net.minecraft.world.level.Level world = this.world.getMinecraftWorld();
- 
-@@ -734,6 +797,11 @@ public class CraftBlock implements Block {
+@@ -734,6 +795,11 @@ public class CraftBlock implements Block {
  
      @Override
      public float getDestroySpeed(ItemStack itemStack, boolean considerEnchants) {
@@ -23643,7 +23859,7 @@ index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b
          net.minecraft.world.item.ItemStack nmsItemStack;
          if (itemStack instanceof CraftItemStack) {
              nmsItemStack = ((CraftItemStack) itemStack).handle;
-@@ -759,6 +827,11 @@ public class CraftBlock implements Block {
+@@ -759,6 +825,11 @@ public class CraftBlock implements Block {
  
      @Override
      public void tick() {
@@ -23655,7 +23871,7 @@ index 5401ab9f8f6ce12e1c5368dbc3acc78a250b3822..ddf4d004546d5510b0471ff82c968a9b
          net.minecraft.world.level.block.state.BlockState blockData = this.getNMS();
          net.minecraft.server.level.ServerLevel level = this.world.getMinecraftWorld();
  
-@@ -767,6 +840,11 @@ public class CraftBlock implements Block {
+@@ -767,6 +838,11 @@ public class CraftBlock implements Block {
  
      @Override
      public void randomTick() {

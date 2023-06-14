@@ -45,7 +45,7 @@ index 8b96d1b7548d354fbcabe6d1b5e9d6c3e2a5cb9d..e8fb179c5f443efd70293f31cdf00ca2
  
      public static record TicksToSave(SerializableTickContainer<Block> blocks, SerializableTickContainer<Fluid> fluids) {
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index 7a3b7f2466f4a1ed107497d99c8509a6e9ba3624..4d4e503cfdefb8c8e7f03f5792f354ec0a41c125 100644
+index 3fb7e51638720ef9635b1d695ac809d504fcd69b..0483a86e4053c73245724035ef0b2d83efc71117 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -306,7 +306,7 @@ public class LevelChunk extends ChunkAccess {

@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Tue, 13 Jun 2023 20:05:59 +0800
+Date: Wed, 14 Jun 2023 15:19:43 +0800
 Subject: [PATCH] Removed some checks and fix getTickCount
 
 
@@ -1074,7 +1074,7 @@ index 82ffef34b596a98faa245ba401e67add9d9ac7d0..ea195e0fbcbc15a1b8a77a8e64573147
              this.server.processQueue.add(new Runnable() {
                  @Override
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index e9896729ed03ddebedae82622ee57646c6bc26c5..144a338cba08188cd4619689c7465d81f0d1a563 100644
+index 6f0ba8991078f242b1323aa25f186d421c87178e..e5ad67a783c13d61850cb668e3895eb399a2787f 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -1,35 +1,12 @@
@@ -1236,7 +1236,7 @@ index e9896729ed03ddebedae82622ee57646c6bc26c5..144a338cba08188cd4619689c7465d81
  // CraftBukkit end
  
  public abstract class Entity implements Nameable, EntityAccess, CommandSource {
-@@ -4324,9 +4277,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4325,9 +4278,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      @Nullable
      public Entity teleportTo(ServerLevel worldserver, PositionImpl location) {
          // Folia start - region threading
@@ -1614,139 +1614,10 @@ index f3df9c9b6cff85565514f990597f3fe53652812c..b09b32d56bed38f3bb4c552331f02965
          LevelChunkTicks<T> levelChunkTicks = this.allContainers.get(l);
          if (levelChunkTicks == null) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 4b49e091d5908e97c733bd5e870b9fd1a731840e..a098b2176c5643c3ef06bc9880b2f6f64eb17fd2 100644
+index 23b8dde3cd185b372d4adc97201a422cebbbe804..519aa325ac5e3af7664fb0b843e7bc49ff08f429 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -5,43 +5,17 @@ import com.google.common.base.Predicates;
- import com.google.common.collect.ImmutableList;
- import com.google.common.collect.ImmutableMap;
- import com.mojang.datafixers.util.Pair;
--import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
- import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
- import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
--import java.io.File;
--import java.util.ArrayList;
--import java.util.Collection;
--import java.util.Collections;
--import java.util.HashMap;
--import java.util.HashSet;
--import java.util.List;
--import java.util.Map;
--import java.util.Objects;
--import java.util.Random;
--import java.util.Set;
--import java.util.UUID;
--import java.util.concurrent.ExecutionException;
--import java.util.function.Predicate;
--import java.util.stream.Collectors;
- import net.minecraft.core.BlockPos;
- import net.minecraft.core.Holder;
- import net.minecraft.core.HolderSet;
- import net.minecraft.core.registries.BuiltInRegistries;
- import net.minecraft.nbt.CompoundTag;
- import net.minecraft.nbt.Tag;
--import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
--import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
--import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
--import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
--import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-+import net.minecraft.network.protocol.game.*;
- import net.minecraft.resources.ResourceLocation;
--import net.minecraft.server.level.ChunkHolder;
--import net.minecraft.server.level.ChunkMap;
--import net.minecraft.server.level.DistanceManager;
--import net.minecraft.server.level.ServerLevel;
--import net.minecraft.server.level.ServerPlayer;
--import net.minecraft.server.level.Ticket;
--import net.minecraft.server.level.TicketType;
-+import net.minecraft.server.level.*;
- import net.minecraft.sounds.SoundEvent;
- import net.minecraft.sounds.SoundSource;
- import net.minecraft.util.SortedArraySet;
-@@ -51,7 +25,6 @@ import net.minecraft.world.entity.LightningBolt;
- import net.minecraft.world.entity.item.FallingBlockEntity;
- import net.minecraft.world.entity.item.ItemEntity;
- import net.minecraft.world.entity.raid.Raids;
--import net.minecraft.world.flag.FeatureFlags;
- import net.minecraft.world.level.ChunkPos;
- import net.minecraft.world.level.ClipContext;
- import net.minecraft.world.level.GameRules;
-@@ -63,24 +36,7 @@ import net.minecraft.world.phys.AABB;
- import net.minecraft.world.phys.HitResult;
- import net.minecraft.world.phys.Vec3;
- import org.apache.commons.lang.Validate;
--import org.bukkit.BlockChangeDelegate;
--import org.bukkit.Bukkit;
--import org.bukkit.Chunk;
--import org.bukkit.ChunkSnapshot;
--import org.bukkit.Difficulty;
--import org.bukkit.Effect;
--import org.bukkit.FeatureFlag;
--import org.bukkit.FluidCollisionMode;
--import org.bukkit.GameRule;
--import org.bukkit.Location;
--import org.bukkit.NamespacedKey;
--import org.bukkit.Particle;
--import org.bukkit.Raid;
--import org.bukkit.Registry;
--import org.bukkit.Sound;
--import org.bukkit.TreeType;
--import org.bukkit.World;
--import org.bukkit.WorldBorder;
-+import org.bukkit.*;
- import org.bukkit.block.Biome;
- import org.bukkit.block.Block;
- import org.bukkit.block.BlockState;
-@@ -98,26 +54,10 @@ import org.bukkit.craftbukkit.metadata.BlockMetadataStore;
- import org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer;
- import org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry;
- import org.bukkit.craftbukkit.potion.CraftPotionUtil;
--import org.bukkit.craftbukkit.util.CraftLocation;
--import org.bukkit.craftbukkit.util.CraftMagicNumbers;
--import org.bukkit.craftbukkit.util.CraftNamespacedKey;
--import org.bukkit.craftbukkit.util.CraftRayTraceResult;
--import org.bukkit.craftbukkit.util.CraftSpawnCategory;
--import org.bukkit.craftbukkit.util.CraftStructureSearchResult;
--import org.bukkit.entity.AbstractArrow;
--import org.bukkit.entity.Arrow;
--import org.bukkit.entity.Entity;
--import org.bukkit.entity.FallingBlock;
--import org.bukkit.entity.HumanEntity;
--import org.bukkit.entity.LightningStrike;
--import org.bukkit.entity.Player;
--import org.bukkit.entity.SpawnCategory;
--import org.bukkit.entity.SpectralArrow;
--import org.bukkit.entity.TippedArrow;
--import org.bukkit.entity.Trident;
-+import org.bukkit.craftbukkit.util.*;
-+import org.bukkit.entity.*;
- import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
- import org.bukkit.event.weather.LightningStrikeEvent;
--import org.bukkit.event.world.SpawnChangeEvent;
- import org.bukkit.event.world.TimeSkipEvent;
- import org.bukkit.generator.BiomeProvider;
- import org.bukkit.generator.BlockPopulator;
-@@ -132,13 +72,15 @@ import org.bukkit.plugin.Plugin;
- import org.bukkit.plugin.messaging.StandardMessenger;
- import org.bukkit.potion.PotionData;
- import org.bukkit.potion.PotionType;
--import org.bukkit.util.BoundingBox;
--import org.bukkit.util.Consumer;
--import org.bukkit.util.RayTraceResult;
--import org.bukkit.util.StructureSearchResult;
- import org.bukkit.util.Vector;
-+import org.bukkit.util.*;
- import org.jetbrains.annotations.NotNull;
- 
-+import java.io.File;
-+import java.util.*;
-+import java.util.function.Predicate;
-+import java.util.stream.Collectors;
-+
- public class CraftWorld extends CraftRegionAccessor implements World {
-     public static final int CUSTOM_DIMENSION_OFFSET = 10;
-     private static final CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new CraftPersistentDataTypeRegistry();
-@@ -328,7 +270,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -327,7 +327,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public Chunk getChunkAt(int x, int z) {
@@ -1755,7 +1626,7 @@ index 4b49e091d5908e97c733bd5e870b9fd1a731840e..a098b2176c5643c3ef06bc9880b2f6f6
          warnUnsafeChunk("getting a faraway chunk", x, z); // Paper
          // Paper start - add ticket to hold chunk for a little while longer if plugin accesses it
          net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkSource().getChunkAtIfLoadedImmediately(x, z);
-@@ -428,7 +370,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -427,7 +427,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      }
  
      private boolean unloadChunk0(int x, int z, boolean save) {
@@ -1764,7 +1635,7 @@ index 4b49e091d5908e97c733bd5e870b9fd1a731840e..a098b2176c5643c3ef06bc9880b2f6f6
          if (!this.isChunkLoaded(x, z)) {
              return true;
          }
-@@ -443,7 +385,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -442,7 +442,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean regenerateChunk(int x, int z) {
@@ -1773,7 +1644,7 @@ index 4b49e091d5908e97c733bd5e870b9fd1a731840e..a098b2176c5643c3ef06bc9880b2f6f6
          warnUnsafeChunk("regenerating a faraway chunk", x, z); // Paper
          // Paper start - implement regenerateChunk method
          final ServerLevel serverLevel = this.world;
-@@ -504,7 +446,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -503,7 +503,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean refreshChunk(int x, int z) {
@@ -1782,7 +1653,7 @@ index 4b49e091d5908e97c733bd5e870b9fd1a731840e..a098b2176c5643c3ef06bc9880b2f6f6
          ChunkHolder playerChunk = this.world.getChunkSource().chunkMap.getVisibleChunkIfPresent(ChunkPos.asLong(x, z));
          if (playerChunk == null) return false;
  
-@@ -540,7 +482,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -539,7 +539,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean loadChunk(int x, int z, boolean generate) {
@@ -1791,7 +1662,7 @@ index 4b49e091d5908e97c733bd5e870b9fd1a731840e..a098b2176c5643c3ef06bc9880b2f6f6
          warnUnsafeChunk("loading a faraway chunk", x, z); // Paper
          // Paper start - Optimize this method
          ChunkPos chunkPos = new ChunkPos(x, z);
-@@ -803,7 +745,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -802,7 +802,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean generateTree(Location loc, TreeType type, BlockChangeDelegate delegate) {
@@ -1800,7 +1671,7 @@ index 4b49e091d5908e97c733bd5e870b9fd1a731840e..a098b2176c5643c3ef06bc9880b2f6f6
          io.papermc.paper.threadedregions.RegionizedWorldData worldData = world.getCurrentWorldData(); // Folia - region threading
          worldData.captureTreeGeneration = true; // Folia - region threading
          worldData.captureBlockStates = true; // Folia - region threading
-@@ -993,7 +935,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -992,7 +992,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public int getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
@@ -1809,7 +1680,7 @@ index 4b49e091d5908e97c733bd5e870b9fd1a731840e..a098b2176c5643c3ef06bc9880b2f6f6
          warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
          // Transient load for this tick
          return this.world.getChunk(x >> 4, z >> 4).getHeight(CraftHeightMap.toNMS(heightMap), x, z);
-@@ -1024,7 +966,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1023,7 +1023,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      @Override
      public void setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {
          BlockPos pos = new BlockPos(x, 0, z);
