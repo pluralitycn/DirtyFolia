@@ -957,7 +957,7 @@ index af35fd63b090aa3d89bc60cb9cb7694b5f502681..9d0321d8f2f2c1903b77647017dfb88d
  
      @Nullable
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index b126435b07572e7b8f41647a0179164b680e9e64..9ca054d573dd6c9eb667b5c10aad8488600fb089 100644
+index f95f1d1bc08b3c8f331a4f760e3218238f74ff67..51e155d90c839b73c481cdca8fba1f700d4b5759 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -222,6 +222,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
@@ -1244,7 +1244,7 @@ index bc938c2a4cb30f3151b600ab88ca5c4e9734f326..cd0c27d4c0c3ba97bc08a6429f3ebc03
          nbt.put("block_ticks", tickSchedulers.blocks().save(i, (block) -> {
              return BuiltInRegistries.BLOCK.getKey(block).toString();
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index f1e6b90260e0244a6ec9268544fe48449a5a4c80..8e04c599b00e8df81cc8d752f8433dbe94c7405a 100644
+index 20af7484bf570d28cd9723fdbb1ec07657117367..b59c5e5ff5437ce4617d132d50f8db423de91623 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -261,7 +261,7 @@ import javax.annotation.Nullable; // Paper
@@ -1256,7 +1256,7 @@ index f1e6b90260e0244a6ec9268544fe48449a5a4c80..8e04c599b00e8df81cc8d752f8433dbe
      private final String serverVersion;
      private final String bukkitVersion = Versioning.getBukkitVersion();
      private final Logger logger = Logger.getLogger("Minecraft");
-@@ -1264,10 +1264,11 @@ public final class CraftServer implements Server {
+@@ -1268,10 +1268,11 @@ public final class CraftServer implements Server {
  
      @Override
      public World createWorld(WorldCreator creator) {
@@ -1269,7 +1269,7 @@ index f1e6b90260e0244a6ec9268544fe48449a5a4c80..8e04c599b00e8df81cc8d752f8433dbe
  
          String name = creator.name();
          ChunkGenerator generator = creator.generator();
-@@ -1386,7 +1387,20 @@ public final class CraftServer implements Server {
+@@ -1390,7 +1391,20 @@ public final class CraftServer implements Server {
          }
  
          this.console.addLevel(internal); // Paper - move up
@@ -1291,7 +1291,7 @@ index f1e6b90260e0244a6ec9268544fe48449a5a4c80..8e04c599b00e8df81cc8d752f8433dbe
  
          internal.setSpawnSettings(true, true);
          // Paper - move up
-@@ -1406,7 +1420,7 @@ public final class CraftServer implements Server {
+@@ -1410,7 +1424,7 @@ public final class CraftServer implements Server {
  
      @Override
      public boolean unloadWorld(World world, boolean save) {
@@ -1797,10 +1797,10 @@ index 631dce2beaa9c8d72d45349a436d72c5417e8de7..49f512a2a5892dfc384843e1056308b8
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderman.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderman.java
-index a36326164d22d21a4483e9499435f7c450751683..aee136fe9cfb8f9bae759e895c5f51d6bb85ce7d 100644
+index 6061d0ea83479611d2c33cf0e001cd43e75c03c4..15a21bad8037871c44635216a188ac58adce8040 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderman.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEnderman.java
-@@ -70,7 +70,7 @@ public class CraftEnderman extends CraftMonster implements Enderman {
+@@ -72,7 +72,7 @@ public class CraftEnderman extends CraftMonster implements Enderman {
  
      @Override
      public EnderMan getHandle() {
@@ -2821,7 +2821,7 @@ index 17b83eb8563586f1ddf252f438d52d554e946def..b559c3cebed7eb840345b80361071837
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftSniffer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftSniffer.java
-index 79de600fbc424d80b5f37a60ad60a8f18e746ff6..74e0c8ffd464c8782874a608352d5134def6f800 100644
+index 3549d9b0c8ed9d746c38bebedaa7c729717bed92..0609990ad2849b7f5f64c2273133a1b7fe835e04 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftSniffer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftSniffer.java
 @@ -26,7 +26,7 @@ public class CraftSniffer extends CraftAnimals implements Sniffer {

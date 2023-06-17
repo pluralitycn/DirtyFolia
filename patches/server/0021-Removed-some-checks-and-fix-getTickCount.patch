@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Wed, 14 Jun 2023 15:19:43 +0800
+Date: Sat, 17 Jun 2023 12:56:13 +0800
 Subject: [PATCH] Removed some checks and fix getTickCount
 
 
@@ -598,7 +598,7 @@ index 9d0321d8f2f2c1903b77647017dfb88da314f733..364229c0a2945cf093bc448b7c3d9faf
              super.doRunTask(task);
          }
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 9ca054d573dd6c9eb667b5c10aad8488600fb089..e1dd43356b491850ce91d1529c3772e0e2c06132 100644
+index 51e155d90c839b73c481cdca8fba1f700d4b5759..cb33fbdc2fc3312c0f4d4eaf5fd4481102889bf0 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -1,7 +1,7 @@
@@ -1690,169 +1690,26 @@ index 23b8dde3cd185b372d4adc97201a422cebbbe804..519aa325ac5e3af7664fb0b843e7bc49
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 2e49f35376435529ac48ad5f9b2d098809200f90..b3b721a16dde143944177db6dbf729d628d4a0c7 100644
+index 43c899d466bfffec4ea5ce1a4ed988f9ce4ecf42..d103ae4db914ab993c4809532f57d7687acf9972 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -9,25 +9,7 @@ import com.mojang.datafixers.util.Pair;
- import io.netty.buffer.Unpooled;
- import it.unimi.dsi.fastutil.shorts.ShortArraySet;
- import it.unimi.dsi.fastutil.shorts.ShortSet;
--import java.io.ByteArrayOutputStream;
--import java.io.IOException;
--import java.lang.ref.WeakReference;
--import java.net.InetSocketAddress;
--import java.net.SocketAddress;
--import java.util.ArrayList;
--import java.util.Collection;
--import java.util.HashMap;
--import java.util.HashSet;
--import java.util.LinkedHashMap;
--import java.util.List;
--import java.util.Map;
--import java.util.Optional;
--import java.util.Set;
--import java.util.UUID;
--import java.util.WeakHashMap;
--import java.util.logging.Level;
--import java.util.logging.Logger;
--import javax.annotation.Nullable;
-+import net.md_5.bungee.api.chat.BaseComponent;
+@@ -27,6 +27,7 @@ import java.util.UUID;
+ import java.util.WeakHashMap;
+ import java.util.logging.Level;
+ import java.util.logging.Logger;
++import java.util.concurrent.ExecutionException;
+ import javax.annotation.Nullable;
  import net.minecraft.advancements.AdvancementProgress;
  import net.minecraft.core.BlockPos;
- import net.minecraft.core.Holder;
-@@ -37,36 +19,7 @@ import net.minecraft.nbt.CompoundTag;
+@@ -37,7 +38,6 @@ import net.minecraft.nbt.CompoundTag;
  import net.minecraft.network.FriendlyByteBuf;
  import net.minecraft.network.chat.Component;
  import net.minecraft.network.chat.PlayerChatMessage;
--import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
--import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
--import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
--import net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket;
--import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
--import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
--import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
--import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
--import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
--import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
--import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
--import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
--import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
--import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket;
--import net.minecraft.network.protocol.game.ClientboundSetBorderLerpSizePacket;
--import net.minecraft.network.protocol.game.ClientboundSetBorderSizePacket;
--import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDelayPacket;
--import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDistancePacket;
--import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
--import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
--import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
--import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
--import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
--import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
--import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
--import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
--import net.minecraft.network.protocol.game.ClientboundSoundPacket;
--import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
--import net.minecraft.network.protocol.game.ClientboundTabListPacket;
--import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
-+import net.minecraft.network.protocol.game.*;
- import net.minecraft.resources.ResourceLocation;
- import net.minecraft.server.PlayerAdvancements;
- import net.minecraft.server.level.ChunkMap;
-@@ -82,29 +35,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
- import net.minecraft.world.inventory.AbstractContainerMenu;
- import net.minecraft.world.level.GameType;
- import net.minecraft.world.level.block.Blocks;
--import net.minecraft.world.level.biome.BiomeManager;
- import net.minecraft.world.level.block.entity.SignBlockEntity;
- import net.minecraft.world.level.block.entity.SignText;
- import net.minecraft.world.level.border.BorderChangeListener;
- import net.minecraft.world.level.saveddata.maps.MapDecoration;
- import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
- import net.minecraft.world.phys.Vec3;
--import org.bukkit.BanList;
--import org.bukkit.Bukkit;
--import org.bukkit.DyeColor;
--import org.bukkit.Effect;
--import org.bukkit.GameMode;
--import org.bukkit.Instrument;
--import org.bukkit.Location;
--import org.bukkit.Material;
--import org.bukkit.NamespacedKey;
--import org.bukkit.Note;
--import org.bukkit.OfflinePlayer;
--import org.bukkit.Particle;
--import org.bukkit.Sound;
--import org.bukkit.Statistic;
--import org.bukkit.WeatherType;
--import org.bukkit.WorldBorder;
-+import org.apache.commons.lang.Validate;
-+import org.bukkit.*;
- import org.bukkit.block.Block;
- import org.bukkit.block.BlockState;
- import org.bukkit.block.Sign;
-@@ -114,15 +52,7 @@ import org.bukkit.configuration.serialization.DelegateDeserialization;
- import org.bukkit.conversations.Conversation;
- import org.bukkit.conversations.ConversationAbandonedEvent;
- import org.bukkit.conversations.ManuallyAbandonedConversationCanceller;
--import org.bukkit.craftbukkit.CraftEffect;
--import org.bukkit.craftbukkit.CraftEquipmentSlot;
--import org.bukkit.craftbukkit.CraftOfflinePlayer;
--import org.bukkit.craftbukkit.CraftParticle;
--import org.bukkit.craftbukkit.CraftServer;
--import org.bukkit.craftbukkit.CraftSound;
--import org.bukkit.craftbukkit.CraftStatistic;
--import org.bukkit.craftbukkit.CraftWorld;
--import org.bukkit.craftbukkit.CraftWorldBorder;
-+import org.bukkit.craftbukkit.*;
- import org.bukkit.craftbukkit.advancement.CraftAdvancement;
- import org.bukkit.craftbukkit.advancement.CraftAdvancementProgress;
- import org.bukkit.craftbukkit.block.CraftBlockState;
-@@ -133,7 +63,6 @@ import org.bukkit.craftbukkit.event.CraftEventFactory;
- import org.bukkit.craftbukkit.inventory.CraftItemStack;
- import org.bukkit.craftbukkit.map.CraftMapView;
- import org.bukkit.craftbukkit.map.RenderData;
--import org.bukkit.craftbukkit.profile.CraftPlayerProfile;
- import org.bukkit.craftbukkit.scoreboard.CraftScoreboard;
- import org.bukkit.craftbukkit.util.CraftChatMessage;
- import org.bukkit.craftbukkit.util.CraftLocation;
-@@ -142,13 +71,7 @@ import org.bukkit.craftbukkit.util.CraftNamespacedKey;
- import org.bukkit.entity.EntityType;
- import org.bukkit.entity.LivingEntity;
- import org.bukkit.entity.Player;
--import org.bukkit.event.player.PlayerExpCooldownChangeEvent;
--import org.bukkit.event.player.PlayerHideEntityEvent;
--import org.bukkit.event.player.PlayerRegisterChannelEvent;
--import org.bukkit.event.player.PlayerShowEntityEvent;
--import org.bukkit.event.player.PlayerSpawnChangeEvent;
--import org.bukkit.event.player.PlayerTeleportEvent;
--import org.bukkit.event.player.PlayerUnregisterChannelEvent;
-+import org.bukkit.event.player.*;
- import org.bukkit.inventory.EquipmentSlot;
- import org.bukkit.inventory.InventoryView.Property;
- import org.bukkit.inventory.ItemStack;
-@@ -157,11 +80,19 @@ import org.bukkit.map.MapView;
- import org.bukkit.metadata.MetadataValue;
- import org.bukkit.plugin.Plugin;
- import org.bukkit.plugin.messaging.StandardMessenger;
--import org.bukkit.profile.PlayerProfile;
- import org.bukkit.scoreboard.Scoreboard;
- import org.jetbrains.annotations.NotNull;
- 
--import net.md_5.bungee.api.chat.BaseComponent; // Spigot
-+import javax.annotation.Nullable;
-+import java.io.ByteArrayOutputStream;
-+import java.io.IOException;
-+import java.lang.ref.WeakReference;
-+import java.net.InetSocketAddress;
-+import java.net.SocketAddress;
-+import java.util.*;
-+import java.util.concurrent.ExecutionException;
-+import java.util.logging.Level;
-+import java.util.logging.Logger;
- 
- @DelegateDeserialization(CraftOfflinePlayer.class)
- public class CraftPlayer extends CraftHumanEntity implements Player {
-@@ -1279,9 +1210,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+-import net.minecraft.network.protocol.Packet;
+ import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
+ import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+ import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
+@@ -1292,9 +1292,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
      @Override
      public boolean teleport(Location location, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
          // Folia start - region threading
@@ -1865,35 +1722,3 @@ index 2e49f35376435529ac48ad5f9b2d098809200f90..b3b721a16dde143944177db6dbf729d6
          // Folia end - region threading
          java.util.Set<net.minecraft.world.entity.RelativeMovement> relativeArguments;
          java.util.Set<io.papermc.paper.entity.TeleportFlag> allFlags;
-@@ -1351,27 +1283,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
-             this.wakeup(false);
-         }
- 
--        // Update the From Location
--        from = event.getFrom();
--        // Grab the new To Location dependent on whether the event was cancelled.
--        to = event.getTo();
--        // Grab the To and From World Handles.
--        ServerLevel fromWorld = ((CraftWorld) from.getWorld()).getHandle();
--        ServerLevel toWorld = ((CraftWorld) to.getWorld()).getHandle();
--
--        // Close any foreign inventory
--        if (this.getHandle().containerMenu != this.getHandle().inventoryMenu && !allFlags.contains(io.papermc.paper.entity.TeleportFlag.EntityState.RETAIN_OPEN_INVENTORY)) { // Paper
--            this.getHandle().closeContainer(org.bukkit.event.inventory.InventoryCloseEvent.Reason.TELEPORT); // Paper
-+        try {
-+            return teleportAsync(location, cause).get();
-+        } catch (InterruptedException | ExecutionException e) {
-+            throw new RuntimeException(e);
-         }
--
--        // Check if the fromWorld and toWorld are the same.
--        if (fromWorld == toWorld) {
--            entity.connection.internalTeleport(to.getX(), to.getY(), to.getZ(), to.getYaw(), to.getPitch(), relativeArguments); // Paper - Teleport API
--        } else {
--            // The respawn reason should never be used if the passed location is non null.
--            server.getHandle().respawn(entity, toWorld, true, to, !toWorld.paperConfig().environment.disableTeleportationSuffocationCheck, null); // Paper
--        }
--        return true;
-     }
- 
-     @Override

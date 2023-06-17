@@ -5,10 +5,10 @@ Subject: [PATCH] Update implementation version
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 0bbdb3f47b674d0553eaf083b709f1ded3b5bff7..6e67852e86a5f5040c791c6e8f51e291146f067e 100644
+index 215366d7cc3720805d2dfde0662372ecede8383c..c3a136faddd16bbdec4043ae6fd4d866cd7e5738 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -67,7 +67,7 @@ tasks.jar {
+@@ -68,7 +68,7 @@ tasks.jar {
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",
