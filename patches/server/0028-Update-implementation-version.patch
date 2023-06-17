@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Sat, 17 Jun 2023 18:55:24 +0800
+Subject: [PATCH] Update implementation version
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index d24f5fdc6a8c34774933a5cd8bfed8571299bd35..00cc450f502d6e54c06e6b8458cca02f1de07bab 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -79,7 +79,7 @@ tasks.jar {
+         attributes(
+             "Main-Class" to "org.bukkit.craftbukkit.Main",
+             "Implementation-Title" to "CraftBukkit",
+-            "Implementation-Version" to "git-Kaiiju-$implementationVersion", // Folia // Kaiiju
++            "Implementation-Version" to "git-DirtyKaiiju-$implementationVersion", // Folia // Kaiiju
+             "Implementation-Vendor" to date, // Paper
+             "Specification-Title" to "Bukkit",
+             "Specification-Version" to project.version,

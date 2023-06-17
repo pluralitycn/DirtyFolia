@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Mon, 12 Jun 2023 19:05:33 +0800
+Subject: [PATCH] Recode DirtyFolia
+
+
+diff --git a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
+index 7bc31036a612df6088a7bb190ed16d0cdbfeaccc..d537d03055446fe4164726cfbb0bdcaf212d0eda 100644
+--- a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
++++ b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
+@@ -266,6 +266,9 @@ public final class PluginDescriptionFile implements io.papermc.paper.plugin.conf
+      */
+     @Override
+     public boolean isFoliaSupported() {
++        if (System.getProperty("folia.force-load-all-plugins", "false").equalsIgnoreCase("true")) {
++            return true;
++        }
+         return this.foliaSupported != null && this.foliaSupported.equalsIgnoreCase("true");
+     }
+     // Folia end - block plugins not marked as supported

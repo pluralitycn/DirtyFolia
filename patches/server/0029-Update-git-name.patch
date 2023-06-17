@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Sat, 17 Jun 2023 19:15:12 +0800
+Subject: [PATCH] Update git name
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+index 8bfc38a11421b63e985a592ba0458cb89bc9cf2f..4508a6b96585875efe5daa86525060c00a13cf57 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
++++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+@@ -34,7 +34,7 @@ public class PaperVersionFetcher implements VersionFetcher {
+     @Nonnull
+     @Override
+     public Component getVersionMessage(@Nonnull String serverVersion) {
+-        String[] parts = serverVersion.substring("git-DirtyFolia-".length()).split("[-\\s]"); // Folia
++        String[] parts = serverVersion.substring("git-DirtyKaiiju-".length()).split("[-\\s]"); // Folia
+         final Component updateMessage = getUpdateStatusMessage("killerprojecte/Folia", GITHUB_BRANCH_NAME, parts[0]); // Folia
+         final Component history = getHistory();
+ 

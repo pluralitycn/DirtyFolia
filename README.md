@@ -1,14 +1,20 @@
 
 <div align="center">
-  <img src="https://github.com/kugge/Kaiiju/blob/ver/1.19.3/logo.png?" width="32%" height="32%"/>
-  <h1>Kaiiju</h1>
-  <h3>Folia fork, designed for vanilla/anarchy servers</h3>
+  <img src="logo.png" width="32%" height="32%"/>
+  <p><b><font size="+3">DirtyKaiiju</font></b></p>
+  <p>Fork of <a href="https://github.com/KaiijuMC/Kaiiju">Kaiiju</a> working to support more bukkit plugins.</p>
 
   [![License](https://img.shields.io/github/license/kugge/Kaiiju?style=for-the-badge&logo=github)](LICENSE)
   [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/kugge/Kaiiju/build.yml?style=for-the-badge)](https://github.com/kugge/Kaiiju/actions)
   [![Discord](https://img.shields.io/discord/1059774886672859136?color=5865F2&label=discord&style=for-the-badge)](https://discord.gg/qagZRAepb7)
 
 </div>
+
+- **DirtyKaiiju** is a project to make **Kaijju** support more **Only Bukkit-API** plugins
+- We will never support plugins that work based on NMS (Unsafe)
+- All plugin compatible work needs to be based on whether the original Folia related API is available
+- **This is the experimental branch of DirtyFolia**
+## About Kaiiju ↓
 
 ## Features
 
