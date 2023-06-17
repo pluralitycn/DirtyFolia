@@ -2016,7 +2016,7 @@ index fccb8d7a99bef076838ebefa233f2f00a1364c30..e822f308315a955d00dcbedfc1b54d22
  
      public static ChunkHolder getUnloadingChunkHolder(final ServerLevel level, final int chunkX, final int chunkZ) {
 diff --git a/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java b/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
-index a495d692841c1a6056ca82519ee9b9c66f1ff5cd..5788fc92976c7704bb48dde91b5c9d403abc5cf0 100644
+index 924539d4ac50c70178ba220424ffacd6ff277c8b..7b664f32868028758d0c6ee1eaa82efcd83661d2 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
 @@ -155,7 +155,7 @@ public class RegionizedPlayerChunkLoader {
@@ -2824,6 +2824,19 @@ index bbb8b1933ef33a3b91f69545f69dd3cfb84b27f5..b23b76a598731da8feef53c370b34123
      }
  
      public static void registerCommands(final MinecraftServer server) {
+diff --git a/src/main/java/io/papermc/paper/command/subcommands/EntityCommand.java b/src/main/java/io/papermc/paper/command/subcommands/EntityCommand.java
+index 5f43aedc6596e2b1ac7af9711515714752c262e3..e71265c6f248a909aa3017a3cceacb8c0850d6e2 100644
+--- a/src/main/java/io/papermc/paper/command/subcommands/EntityCommand.java
++++ b/src/main/java/io/papermc/paper/command/subcommands/EntityCommand.java
+@@ -129,7 +129,7 @@ public final class EntityCommand implements PaperSubcommand {
+                         final int z = (e.getKey().z << 4) + 8;
+                         final Component message = text("  " + e.getValue() + ": " + e.getKey().x + ", " + e.getKey().z + (chunkProviderServer.isPositionTicking(e.getKey().toLong()) ? " (Ticking)" : " (Non-Ticking)"))
+                             .hoverEvent(HoverEvent.showText(text("Click to teleport to chunk", GREEN)))
+-                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/minecraft:execute as @s in " + world.getWorld().getKey() + " run tp " + x + " " + (world.getWorld().getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING) + 1) + " " + z));
++                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/minecraft:execute as @s in " + world.getWorld().getKey() + " run tp " + x + " " + (128) + " " + z)); // Folia - region threading - avoid sync load here
+                         sender.sendMessage(message);
+                     });
+             } else {
 diff --git a/src/main/java/io/papermc/paper/command/subcommands/HeapDumpCommand.java b/src/main/java/io/papermc/paper/command/subcommands/HeapDumpCommand.java
 index cd2e4d792e972b8bf1e07b8961594a670ae949cf..3ab8dbf2768a4ef8fb53af6f5431f7f6afe6d168 100644
 --- a/src/main/java/io/papermc/paper/command/subcommands/HeapDumpCommand.java
@@ -14617,7 +14630,7 @@ index 488a253e218409b5f0b4a872cee0928578fa7582..af35fd63b090aa3d89bc60cb9cb7694b
      }
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 18aac3da3c88f33b1a71a5920a8daa27e9723913..b126435b07572e7b8f41647a0179164b680e9e64 100644
+index 18aac3da3c88f33b1a71a5920a8daa27e9723913..f95f1d1bc08b3c8f331a4f760e3218238f74ff67 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -192,36 +192,35 @@ public class ServerLevel extends Level implements WorldGenLevel {
@@ -14725,8 +14738,8 @@ index 18aac3da3c88f33b1a71a5920a8daa27e9723913..b126435b07572e7b8f41647a0179164b
 +    public final io.papermc.paper.threadedregions.ThreadedRegionizer<io.papermc.paper.threadedregions.TickRegions.TickRegionData, io.papermc.paper.threadedregions.TickRegions.TickRegionSectionData> regioniser;
 +    {
 +        this.regioniser = new io.papermc.paper.threadedregions.ThreadedRegionizer<>(
-+            3*9,
-+            (2.0 / 3.0),
++            6,
++            (1.0 / 6.0),
 +            1,
 +            1,
 +            io.papermc.paper.threadedregions.TickRegions.getRegionChunkShift(),
@@ -21795,7 +21808,7 @@ index a8a26a0a37a08b6bbeb5a1fde417d6f448d3c79f..4825a74ce4893dafdb70ae1badf3d2e1
                  flag = true;
              } else if (HopperBlockEntity.canMergeItems(itemstack1, stack)) {
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
-index dfcc141dec0ff6e7704af8852a65783558398a67..c1109fce0bdbeb5ff935abdf5c7c9a7f618fdc31 100644
+index 8b2a02f85085c91c51b61760de967a859bf5e4de..eb8099e463eaae6268c4cb349ba88c111ccfc1be 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
 @@ -35,9 +35,9 @@ public class SculkCatalystBlockEntity extends BlockEntity implements GameEventLi
@@ -23074,7 +23087,7 @@ index 1d7c663fa0e550bd0cfb9a4b83ccd7e2968666f0..f3df9c9b6cff85565514f990597f3fe5
          LevelChunkTicks<T> levelChunkTicks = this.allContainers.get(l);
          if (levelChunkTicks == null) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 9987df6c0ef96a2600298d2be4e57137ee201c1c..e35777b6501fa8290176b757b08893490322dd25 100644
+index edb26528b943f13aa45aba6bcaf63f5403f2f897..29b5427316b23ea36e035330b303a41a2ba46f47 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -309,6 +309,82 @@ public final class CraftServer implements Server {
@@ -23160,7 +23173,7 @@ index 9987df6c0ef96a2600298d2be4e57137ee201c1c..e35777b6501fa8290176b757b0889349
      public CraftServer(DedicatedServer console, PlayerList playerList) {
          this.console = console;
          this.playerList = (DedicatedPlayerList) playerList;
-@@ -879,6 +955,9 @@ public final class CraftServer implements Server {
+@@ -883,6 +959,9 @@ public final class CraftServer implements Server {
  
      // NOTE: Should only be called from DedicatedServer.ah()
      public boolean dispatchServerCommand(CommandSender sender, ConsoleInput serverCommand) {
@@ -23170,7 +23183,7 @@ index 9987df6c0ef96a2600298d2be4e57137ee201c1c..e35777b6501fa8290176b757b0889349
          if (sender instanceof Conversable) {
              Conversable conversable = (Conversable) sender;
  
-@@ -898,12 +977,44 @@ public final class CraftServer implements Server {
+@@ -902,12 +981,44 @@ public final class CraftServer implements Server {
          }
      }
  
@@ -23215,7 +23228,7 @@ index 9987df6c0ef96a2600298d2be4e57137ee201c1c..e35777b6501fa8290176b757b0889349
          // Paper Start
          if (!org.spigotmc.AsyncCatcher.shuttingDown && !Bukkit.isPrimaryThread()) {
              final CommandSender fSender = sender;
-@@ -2964,7 +3075,7 @@ public final class CraftServer implements Server {
+@@ -2968,7 +3079,7 @@ public final class CraftServer implements Server {
  
      @Override
      public int getCurrentTick() {
@@ -24039,10 +24052,10 @@ index 733158b6f2c2bd03fbe798562ff7bc33280548dc..f001d811e930230f729b0340fb54f083
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 03bb444705916ffe0b9eb4b7496524dc3459ebe0..a7611e16b884b6f6d0fa2486057b5c0cbffc7c6c 100644
+index 59c00045ec903a635966f16cf33e5b4110262953..5e362b1b7b95c908b0ea13a355c85386582b3f98 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -570,7 +570,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -574,7 +574,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
  
      @Override
      public void kickPlayer(String message) {
@@ -24051,7 +24064,7 @@ index 03bb444705916ffe0b9eb4b7496524dc3459ebe0..a7611e16b884b6f6d0fa2486057b5c0c
          if (this.getHandle().connection == null) return;
  
          this.getHandle().connection.disconnect(message == null ? "" : message, org.bukkit.event.player.PlayerKickEvent.Cause.PLUGIN); // Paper - kick event cause
-@@ -1278,6 +1278,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1291,6 +1291,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
  
      @Override
      public boolean teleport(Location location, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
@@ -24063,7 +24076,7 @@ index 03bb444705916ffe0b9eb4b7496524dc3459ebe0..a7611e16b884b6f6d0fa2486057b5c0c
          java.util.Set<net.minecraft.world.entity.RelativeMovement> relativeArguments;
          java.util.Set<io.papermc.paper.entity.TeleportFlag> allFlags;
          if (flags.length == 0) {
-@@ -1806,7 +1811,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1819,7 +1824,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
      private void unregisterEntity(Entity other) {
          // Paper end
          ChunkMap tracker = ((ServerLevel) this.getHandle().level()).getChunkSource().chunkMap;
@@ -24072,7 +24085,7 @@ index 03bb444705916ffe0b9eb4b7496524dc3459ebe0..a7611e16b884b6f6d0fa2486057b5c0c
          if (entry != null) {
              entry.removePlayer(this.getHandle());
          }
-@@ -1890,7 +1895,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1903,7 +1908,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
              this.getHandle().connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(otherPlayer)));
          }
  
