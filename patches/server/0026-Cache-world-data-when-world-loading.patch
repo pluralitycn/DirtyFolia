@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Mon, 19 Jun 2023 22:19:28 +0800
+Date: Mon, 19 Jun 2023 22:35:27 +0800
 Subject: [PATCH] Cache world data when world loading
 
 
 diff --git a/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java b/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java
-index ee9f5e1f3387998cddbeb1dc6dc6e2b1ea7cd670..af932596fa5455d0408155d9ae059d1d8ecda89d 100644
+index ee9f5e1f3387998cddbeb1dc6dc6e2b1ea7cd670..a16948f585e7c9abcf38e59dd41be625aae487b9 100644
 --- a/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java
 +++ b/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java
 @@ -3,6 +3,7 @@ package io.papermc.paper.threadedregions;
@@ -20,13 +20,13 @@ index ee9f5e1f3387998cddbeb1dc6dc6e2b1ea7cd670..af932596fa5455d0408155d9ae059d1d
          tickThreadRunner.currentTickingRegion = region;
          if (region != null) {
              tickThreadRunner.currentTickingWorldRegionizedData = region.regioniser.world.worldRegionData.get();
-+            CachedWorldData.update(region.regioniser.world.getWorld().getName(), tickThreadRunner.currentTickingWorldRegionizedData);
-+            MinecraftServer.LOGGER.info("Cached World " + region.regioniser.world.getWorld().getName() + " data when initializing it");
++            //CachedWorldData.update(region.regioniser.world.getWorld().getName(), tickThreadRunner.currentTickingWorldRegionizedData);
++            //MinecraftServer.LOGGER.info("Cached World " + region.regioniser.world.getWorld().getName() + " data when initializing it");
          } else {
              tickThreadRunner.currentTickingWorldRegionizedData = null;
          }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e..b766ef074c69f005597971802c6bf9813676eb2d 100644
+index d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e..501036ae2827018b4d01aa1aea5e122b3aba152b 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -99,6 +99,7 @@ import net.minecraft.world.level.validation.ContentValidationException;
@@ -45,7 +45,7 @@ index d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e..b766ef074c69f005597971802c6bf981
 +        for (ServerLevel level : this.getAllLevels()) {
 +            for (Chunk chunk : level.getWorld().getLoadedChunks()) {
 +                Bukkit.getRegionScheduler().run(new FakePlugin(), level.getWorld(), chunk.getX(), chunk.getZ(), scheduledTask -> {
-+                    level.getCurrentWorldData();
++                    CachedWorldData.update(level.getWorld().getName(), level.worldRegionData.get());
 +                });
 +            }
 +            MinecraftServer.LOGGER.info("World " + level.getWorld().getName() + " data status: " + (CachedWorldData.get(level.getWorld().getName()) == null ? "(Unavailable)" : "(Cached)"));
