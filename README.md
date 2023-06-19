@@ -8,6 +8,21 @@
 - **DirtyFolia** is a project to make **Original Folia** support more **Only Bukkit-API** plugins
 - We will never support plugins that work based on NMS (Unsafe)
 - All plugin compatible work needs to be based on whether the original Folia related API is available
+
+### Unstable Options
+```
+folia.disable-thread-check
+```
+- **Turn it on to disable all thread checks**
+- **This action may cause some problems**
+
+```
+folia.force-load-all-plugins
+```
+- **Turn it on to disable plugin compatibility check**
+- **It is recommended to enable this option when using the DirtyFolia feature**
+
+
 ## About Folia ↓
 
 ## Overview

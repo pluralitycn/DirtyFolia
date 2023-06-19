@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Mon, 19 Jun 2023 21:13:38 +0800
+Subject: [PATCH] Add an option to turn off checks
+
+
+diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
+index f80c5aed3d88655adf8f2fcb6005e847366b0bd7..8d461a980165d2998ce33e0ed2945a2f98d8470f 100644
+--- a/src/main/java/io/papermc/paper/util/TickThread.java
++++ b/src/main/java/io/papermc/paper/util/TickThread.java
+@@ -23,11 +23,15 @@ import java.util.concurrent.atomic.AtomicInteger;
+ public class TickThread extends Thread {
+ 
+     public static final boolean STRICT_THREAD_CHECKS = Boolean.getBoolean("paper.strict-thread-checks");
++    public static final boolean DISABLE_CHECKS = Boolean.getBoolean("folia.disable-thread-check");
+ 
+     static {
+         if (STRICT_THREAD_CHECKS) {
+             MinecraftServer.LOGGER.warn("Strict thread checks enabled - performance may suffer");
+         }
++        if (DISABLE_CHECKS) {
++            MinecraftServer.LOGGER.warn("Disable all thread checks, the server will run in an unstable environment - This action may cause some problems");
++        }
+     }
+ 
+     /**
+@@ -136,6 +140,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final int chunkX, final int chunkZ) {
++        if (DISABLE_CHECKS) {
++            return true;
++        }
++        // DirtyFolia - Unstable action
+         if (world.chunkTaskScheduler.isHalted()) { //As soon as we halt the activity, it's the global tick thread's propriety
+             return RegionizedServer.isGlobalTickThread() || isShutdownThread();
+         }
+@@ -178,6 +186,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final int fromChunkX, final int fromChunkZ, final int toChunkX, final int toChunkZ) {
++        if (DISABLE_CHECKS) {
++            return true;
++        }
++        // DirtyFolia - Unstable action
+         final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
+             TickRegionScheduler.getCurrentRegion();
+         if (region == null) {
+@@ -209,6 +221,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final Entity entity) {
++        if (DISABLE_CHECKS) {
++            return true;
++        }
++        // DirtyFolia - Unstable action
+         if (entity == null) {
+             return true;
+         }
