@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Fri, 30 Jun 2023 20:30:03 +0800
+Date: Fri, 30 Jun 2023 20:34:22 +0800
 Subject: [PATCH] Cache world data when world loading
 
 
@@ -26,7 +26,7 @@ index ee9f5e1f3387998cddbeb1dc6dc6e2b1ea7cd670..70cc11031e5ed5d9c4c5e68aca9a1b79
              tickThreadRunner.currentTickingWorldRegionizedData = null;
          }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e..ed6642bcc96eb8c274ef7f22474f17f168c3f570 100644
+index d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e..d6affe652df308b329865424e55d27fb8687f3d4 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1,5 +1,6 @@
@@ -50,7 +50,7 @@ index d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e..ed6642bcc96eb8c274ef7f22474f17f1
                          region.world.checkInitialised.set(ServerLevel.WORLD_INIT_CHECKED);
 +                        // DirtyFolia - Start
 +                        CachedWorldData.update(region.world.getWorld().getName(), region.world.getCurrentWorldData());
-+                        MinecraftServer.LOGGER.info("World " + region.world.getWorld().getName() + " data status: " + (CachedWorldData.get(level.getWorld().getName()) == null ? "(Unavailable)" : "(Cached)"));
++                        MinecraftServer.LOGGER.info("World " + region.world.getWorld().getName() + " data status: " + (CachedWorldData.get(region.world.getWorld().getName()) == null ? "(Unavailable)" : "(Cached)"));
 +                        // DirtyFolia - End
                          LOGGER.info("Initialised world '" + region.world.getWorld().getName() + "'");
                      } // else: must be checked
