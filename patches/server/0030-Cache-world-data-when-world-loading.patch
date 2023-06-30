@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Fri, 30 Jun 2023 19:52:22 +0800
+Date: Fri, 30 Jun 2023 20:15:07 +0800
 Subject: [PATCH] Cache world data when world loading
 
 
@@ -26,10 +26,17 @@ index ee9f5e1f3387998cddbeb1dc6dc6e2b1ea7cd670..70cc11031e5ed5d9c4c5e68aca9a1b79
              tickThreadRunner.currentTickingWorldRegionizedData = null;
          }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e..437aaac16390796499ca0042219006a7d7909ba1 100644
+index d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e..b5f23cf41f837ee16eb1e16096e9cca71ba48fc1 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -99,6 +99,7 @@ import net.minecraft.world.level.validation.ContentValidationException;
+@@ -1,5 +1,6 @@
+ package net.minecraft.server;
+ 
++import ca.spottedleaf.concurrentutil.executor.standard.PrioritisedExecutor;
+ import co.aikar.timings.MinecraftTimings;
+ import com.google.common.base.Preconditions;
+ import com.google.common.base.Splitter;
+@@ -99,6 +100,7 @@ import net.minecraft.world.level.validation.ContentValidationException;
  import net.minecraft.world.phys.Vec2;
  import net.minecraft.world.phys.Vec3;
  import org.bukkit.Bukkit;
@@ -37,25 +44,19 @@ index d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e..437aaac16390796499ca0042219006a7
  import org.bukkit.command.ConsoleCommandSender;
  import org.bukkit.event.server.ServerLoadEvent;
  import org.slf4j.Logger;
-@@ -614,6 +615,23 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -614,6 +616,17 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              collideTeam.setSeeFriendlyInvisibles(false); // Because we want to mimic them not being on a team at all
          }
          // Paper end
 +        // DirtyFolia start
 +        for (ServerLevel level : this.getAllLevels()) {
-+
-+            Chunk[] chunks = level.getWorld().getLoadedChunks();
-+            if (chunks.length == 0) {
-+                level.getWorld().loadChunk(0, 0);
-+                Chunk loadChunk = level.getWorld().getChunkAt(0,0);
-+                chunks = new Chunk[]{loadChunk};
-+            }
-+            for (Chunk chunk : chunks) {
-+                Bukkit.getRegionScheduler().run(new FakePlugin(), level.getWorld(), chunk.getX(), chunk.getZ(), scheduledTask -> {
++            BlockPos blockPos = new BlockPos(0, 0, 0);
++            level.loadChunksAsync(blockPos, 15, PrioritisedExecutor.Priority.HIGHEST, chunkAccesses -> {
++                Bukkit.getRegionScheduler().run(new FakePlugin(), level.getWorld(), 0, 0, scheduledTask -> {
 +                    CachedWorldData.update(level.getWorld().getName(), level.worldRegionData.get());
 +                });
-+            }
-+            MinecraftServer.LOGGER.info("World " + level.getWorld().getName() + " data status: " + (CachedWorldData.get(level.getWorld().getName()) == null ? "(Unavailable)" : "(Cached)"));
++                MinecraftServer.LOGGER.info("World " + level.getWorld().getName() + " data status: " + (CachedWorldData.get(level.getWorld().getName()) == null ? "(Unavailable)" : "(Cached)"));
++            });
 +        }
 +        // DirtyFolia end
  
