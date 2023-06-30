@@ -5,7 +5,7 @@ Subject: [PATCH] Bad idea to remove thread check and restore entityMap
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java b/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
-index 7b664f32868028758d0c6ee1eaa82efcd83661d2..490caf5cdd416b95bba5f1d16cad5baed5aa65c5 100644
+index c5df121d6194a97b20dc390698991b9c72dba538..64e51ea4f42d603cb2025fc10037de1a5bc71235 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
 @@ -124,7 +124,7 @@ public class RegionizedPlayerChunkLoader {
@@ -44,7 +44,7 @@ index 7b664f32868028758d0c6ee1eaa82efcd83661d2..490caf5cdd416b95bba5f1d16cad5bae
              if (this.removed) {
                  throw new IllegalStateException("Ticking removed player chunk loader");
              }
-@@ -876,7 +876,7 @@ public class RegionizedPlayerChunkLoader {
+@@ -890,7 +890,7 @@ public class RegionizedPlayerChunkLoader {
          }
  
          void add() {
@@ -53,7 +53,7 @@ index 7b664f32868028758d0c6ee1eaa82efcd83661d2..490caf5cdd416b95bba5f1d16cad5bae
              if (this.removed) {
                  throw new IllegalStateException("Adding removed player chunk loader");
              }
-@@ -922,7 +922,7 @@ public class RegionizedPlayerChunkLoader {
+@@ -936,7 +936,7 @@ public class RegionizedPlayerChunkLoader {
          }
  
          void update() {
@@ -62,7 +62,7 @@ index 7b664f32868028758d0c6ee1eaa82efcd83661d2..490caf5cdd416b95bba5f1d16cad5bae
              if (this.removed) {
                  throw new IllegalStateException("Updating removed player chunk loader");
              }
-@@ -1071,7 +1071,7 @@ public class RegionizedPlayerChunkLoader {
+@@ -1085,7 +1085,7 @@ public class RegionizedPlayerChunkLoader {
          }
  
          void remove() {
@@ -72,10 +72,10 @@ index 7b664f32868028758d0c6ee1eaa82efcd83661d2..490caf5cdd416b95bba5f1d16cad5bae
                  throw new IllegalStateException("Removing removed player chunk loader");
              }
 diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-index 6d98e6a29f12c57031ba951c013501f5ec3c876d..55d6b86195d7055a92c8246a6309306d08e6be01 100644
+index 75a044f9da03e0d92e7863915fcec439ae3c19d8..5d76162700ec9209a6ee6049a579957d0445937e 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-@@ -233,7 +233,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -235,7 +235,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
  
      public void entityStatusChange(final Entity entity, final ChunkEntitySlices slices, final Visibility oldVisibility, final Visibility newVisibility, final boolean moved,
                                     final boolean created, final boolean destroyed) {
@@ -84,7 +84,7 @@ index 6d98e6a29f12c57031ba951c013501f5ec3c876d..55d6b86195d7055a92c8246a6309306d
  
          if (entity.updatingSectionStatus) {
              // recursive status update
-@@ -419,7 +419,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -454,7 +454,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
          final int sectionX = entity.sectionX;
          final int sectionY = entity.sectionY;
          final int sectionZ = entity.sectionZ;
@@ -93,7 +93,7 @@ index 6d98e6a29f12c57031ba951c013501f5ec3c876d..55d6b86195d7055a92c8246a6309306d
          if (!entity.isRemoved()) {
              throw new IllegalStateException("Only call Entity#setRemoved to remove an entity");
          }
-@@ -450,7 +450,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -485,7 +485,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
  
      private ChunkEntitySlices moveEntity(final Entity entity) {
          // ensure we own the entity
@@ -102,7 +102,7 @@ index 6d98e6a29f12c57031ba951c013501f5ec3c876d..55d6b86195d7055a92c8246a6309306d
  
          final BlockPos newPos = entity.blockPosition();
          final int newSectionX = newPos.getX() >> 4;
-@@ -462,10 +462,10 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -497,10 +497,10 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
          }
  
          // ensure the new section is owned by this tick thread
@@ -115,7 +115,7 @@ index 6d98e6a29f12c57031ba951c013501f5ec3c876d..55d6b86195d7055a92c8246a6309306d
  
          final ChunkEntitySlices old = this.getChunk(entity.sectionX, entity.sectionZ);
          final ChunkEntitySlices slices = this.getOrCreateChunk(newSectionX, newSectionZ);
-@@ -683,7 +683,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -718,7 +718,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
      }
  
      public void entitySectionLoad(final int chunkX, final int chunkZ, final ChunkEntitySlices slices) {
@@ -124,7 +124,7 @@ index 6d98e6a29f12c57031ba951c013501f5ec3c876d..55d6b86195d7055a92c8246a6309306d
          synchronized (this) {
              final ChunkEntitySlices curr = this.getChunk(chunkX, chunkZ);
              if (curr != null) {
-@@ -699,7 +699,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -734,7 +734,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
      }
  
      public void entitySectionUnload(final int chunkX, final int chunkZ) {
@@ -147,7 +147,7 @@ index d72041aa814ff179e6e29a45dcd359a91d426d47..47dc96a9971798a4dc1f2e88ec2860f9
              return;
          }
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
-index d5b1b14ad00019052b5d51f230a6b29d03a0919a..9083f848aa682ea044392dc3efa7e13f8fbcc344 100644
+index 793dd089426a180ed35880e4cbc21b273074f9fa..ae9b199bf36dd98a8e30ea679b79127184dc7d19 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
 @@ -245,7 +245,7 @@ public final class ChunkHolderManager {
@@ -159,7 +159,7 @@ index d5b1b14ad00019052b5d51f230a6b29d03a0919a..9083f848aa682ea044392dc3efa7e13f
          if (first && halt) { // Folia - region threading
              LOGGER.info("Waiting 60s for chunk system to halt for world '" + this.world.getWorld().getName() + "'");
              if (!this.taskScheduler.halt(true, TimeUnit.SECONDS.toNanos(60L))) {
-@@ -964,7 +964,7 @@ public final class ChunkHolderManager {
+@@ -982,7 +982,7 @@ public final class ChunkHolderManager {
      private final AtomicLong entityLoadCounter = new AtomicLong();
  
      public ChunkEntitySlices getOrCreateEntityChunk(final int chunkX, final int chunkZ, final boolean transientChunk) {
@@ -168,7 +168,7 @@ index d5b1b14ad00019052b5d51f230a6b29d03a0919a..9083f848aa682ea044392dc3efa7e13f
          ChunkEntitySlices ret;
  
          NewChunkHolder current = this.getChunkHolder(chunkX, chunkZ);
-@@ -1051,7 +1051,7 @@ public final class ChunkHolderManager {
+@@ -1069,7 +1069,7 @@ public final class ChunkHolderManager {
      private final AtomicLong poiLoadCounter = new AtomicLong();
  
      public PoiChunk loadPoiChunk(final int chunkX, final int chunkZ) {
@@ -177,7 +177,7 @@ index d5b1b14ad00019052b5d51f230a6b29d03a0919a..9083f848aa682ea044392dc3efa7e13f
          PoiChunk ret;
  
          NewChunkHolder current = this.getChunkHolder(chunkX, chunkZ);
-@@ -1191,7 +1191,7 @@ public final class ChunkHolderManager {
+@@ -1209,7 +1209,7 @@ public final class ChunkHolderManager {
  
      // note: never call while inside the chunk system, this will absolutely break everything
      public void processUnloads() {
@@ -186,7 +186,7 @@ index d5b1b14ad00019052b5d51f230a6b29d03a0919a..9083f848aa682ea044392dc3efa7e13f
  
          if (BLOCK_TICKET_UPDATES.get() == Boolean.TRUE) {
              throw new IllegalStateException("Cannot unload chunks recursively");
-@@ -1466,7 +1466,7 @@ public final class ChunkHolderManager {
+@@ -1484,7 +1484,7 @@ public final class ChunkHolderManager {
      }
  
      private boolean processTicketUpdates(final boolean checkLocks, final boolean processFullUpdates, List<ChunkProgressionTask> scheduledTasks) {
@@ -196,7 +196,7 @@ index d5b1b14ad00019052b5d51f230a6b29d03a0919a..9083f848aa682ea044392dc3efa7e13f
              throw new IllegalStateException("Cannot update ticket level while unloading chunks or updating entity manager");
          }
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
-index a68d3ab3aa5c02d23545db4c9388e361835e3099..55439417227a2af745505dede5ddd74a41f864fe 100644
+index c88e0fb3efc500f53bf224c84760893e2be5f634..bad8312c5acb57f03e89e56fecbcd5f9302fffd6 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 @@ -75,7 +75,7 @@ public final class NewChunkHolder {
@@ -253,7 +253,7 @@ index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..0b3bd5abbcd40ffc2c374cff92833a76
          (this.tickingBlockEntities ? this.pendingBlockEntityTickers : this.blockEntityTickers).add(ticker);
      }
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index 916bfdfb13d8f8093e1908a7c35344b83d0ee0ac..fbe2aa3c0fef01e5207d7d4c4d908eb63fa89fcc 100644
+index 25fe439c8d1e88a86e85ac9a4761425d98ee6c4f..e44f661c5c524eabc5acd679ce1a46f0e72c6efd 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
 @@ -148,7 +148,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
@@ -323,7 +323,7 @@ index 364229c0a2945cf093bc448b7c3d9fafebab418f..9159d89d14ac80dd9b08d2a63a74c09a
          io.papermc.paper.chunk.system.scheduling.NewChunkHolder chunkHolder = this.level.chunkTaskScheduler.chunkHolderManager.getChunkHolder(chunkX, chunkZ);
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index 193aa56945c04a9d44d1a2da84e4bb2ae52643d5..e93e101247d6e24d899c7f7a3dd1bbf0c3c8efe8 100644
+index 2e858160c648cf0fd9b85ca66c80e0b5470b4620..2b4c1fe155b2dadd6e9ee513fa054a5284fbd56e 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -1237,7 +1237,7 @@ public class ServerPlayer extends Player {
@@ -345,7 +345,7 @@ index 193aa56945c04a9d44d1a2da84e4bb2ae52643d5..e93e101247d6e24d899c7f7a3dd1bbf0
          if (this.level().getTypeKey() == LevelStem.END) {
              if (!this.canPortalAsync(false)) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index e5ad67a783c13d61850cb668e3895eb399a2787f..e3ca8aa1b813c84b7af8de71dec956bed8287dcd 100644
+index 705975067d73846384dadf32b888eac558a95f1a..5c2b671a0a62837420765b19913071f2bb380e0b 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -1030,7 +1030,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
@@ -375,7 +375,7 @@ index e5ad67a783c13d61850cb668e3895eb399a2787f..e3ca8aa1b813c84b7af8de71dec956be
  
          EntityTreeNode root = new EntityTreeNode(null, this);
          java.util.ArrayDeque<EntityTreeNode> queue = new java.util.ArrayDeque<>();
-@@ -3794,7 +3794,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3801,7 +3801,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      public final boolean teleportAsync(ServerLevel destination, Vec3 pos, Float yaw, Float pitch, Vec3 speedDirectionUpdate,
                                         org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, long teleportFlags,
                                         java.util.function.Consumer<Entity> teleportComplete) {
@@ -384,7 +384,7 @@ index e5ad67a783c13d61850cb668e3895eb399a2787f..e3ca8aa1b813c84b7af8de71dec956be
  
          if (!ServerLevel.isInSpawnableBounds(new BlockPos(io.papermc.paper.util.CoordinateUtils.getBlockX(pos), io.papermc.paper.util.CoordinateUtils.getBlockY(pos), io.papermc.paper.util.CoordinateUtils.getBlockZ(pos)))) {
              return false;
-@@ -3910,7 +3910,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3917,7 +3917,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected boolean tryEndPortal() {
@@ -393,7 +393,7 @@ index e5ad67a783c13d61850cb668e3895eb399a2787f..e3ca8aa1b813c84b7af8de71dec956be
          BlockPos pos = this.portalBlock;
          ServerLevel world = this.portalWorld;
          this.portalBlock = null;
-@@ -3928,7 +3928,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3935,7 +3935,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected boolean tryNetherPortal() {
@@ -402,7 +402,7 @@ index e5ad67a783c13d61850cb668e3895eb399a2787f..e3ca8aa1b813c84b7af8de71dec956be
  
          int portalWaitTime = this.getPortalWaitTime();
  
-@@ -3951,7 +3951,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3958,7 +3958,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      public boolean endPortalLogicAsync() {
@@ -411,7 +411,7 @@ index e5ad67a783c13d61850cb668e3895eb399a2787f..e3ca8aa1b813c84b7af8de71dec956be
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.END ? Level.OVERWORLD : Level.END);
          EntityPortalReadyEvent event = new io.papermc.paper.event.entity.EntityPortalReadyEvent(this.getBukkitEntity(), destination == null ? null : destination.getWorld(), org.bukkit.PortalType.ENDER);
-@@ -3969,7 +3969,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3976,7 +3976,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      public boolean netherPortalLogicAsync() {
@@ -420,7 +420,7 @@ index e5ad67a783c13d61850cb668e3895eb399a2787f..e3ca8aa1b813c84b7af8de71dec956be
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.NETHER ? Level.OVERWORLD : Level.NETHER);
          EntityPortalReadyEvent event = new io.papermc.paper.event.entity.EntityPortalReadyEvent(this.getBukkitEntity(), destination == null ? null : destination.getWorld(), org.bukkit.PortalType.NETHER);
-@@ -4196,7 +4196,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4203,7 +4203,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
      protected boolean portalToAsync(ServerLevel destination, boolean takePassengers,
                                      PortalType type, java.util.function.Consumer<Entity> teleportComplete) {
@@ -429,7 +429,7 @@ index e5ad67a783c13d61850cb668e3895eb399a2787f..e3ca8aa1b813c84b7af8de71dec956be
          if (!this.canPortalAsync(takePassengers)) {
              return false;
          }
-@@ -5440,7 +5440,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -5447,7 +5447,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      @Override
      public final void setRemoved(Entity.RemovalReason reason) {
          // Paper start - rewrite chunk system

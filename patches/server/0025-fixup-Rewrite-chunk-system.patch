@@ -5,7 +5,7 @@ Subject: [PATCH] fixup! Rewrite chunk system
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-index b9095f559472dd92375ea719886913f606f0374c..fdbd2e442d983ab17ba0d805a12c59acbe8dd2ec 100644
+index 6d98e6a29f12c57031ba951c013501f5ec3c876d..75a044f9da03e0d92e7863915fcec439ae3c19d8 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 @@ -17,6 +17,7 @@ import net.minecraft.util.AbortableIterationConsumer;
@@ -104,10 +104,10 @@ index 0b78d1eb90500e0123b7281d722805dc65d551d0..8a48238fac0949cfddcdd9ccf179d16b
              }
  
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
-index f1c68d9850ece7532a8607db955eaa4fc3a4bf05..08075b8895f816420c2a940bf551dfada3c0cd9e 100644
+index a68d3ab3aa5c02d23545db4c9388e361835e3099..c88e0fb3efc500f53bf224c84760893e2be5f634 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
-@@ -115,7 +115,7 @@ public final class NewChunkHolder {
+@@ -117,7 +117,7 @@ public final class NewChunkHolder {
              if (entityChunk != null) {
                  final List<Entity> entities = EntityStorage.readEntities(this.world, entityChunk);
  
@@ -139,10 +139,10 @@ index 916bfdfb13d8f8093e1908a7c35344b83d0ee0ac..25fe439c8d1e88a86e85ac9a4761425d
          }
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index f95f1d1bc08b3c8f331a4f760e3218238f74ff67..042ca6b3faae5249210567f2c26dff404974e1ff 100644
+index cb33fbdc2fc3312c0f4d4eaf5fd4481102889bf0..70e0389d3417a63110e2d88affde677e88d8eb52 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -2638,12 +2638,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -2589,12 +2589,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
          return this.entityLookup; // Paper - rewrite chunk system
      }
  
@@ -160,7 +160,7 @@ index f95f1d1bc08b3c8f331a4f760e3218238f74ff67..042ca6b3faae5249210567f2c26dff40
  
      public void startTickingChunk(LevelChunk chunk) {
 diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
-index 035b06d00aadc67eb247efd7b25aea92ba0532a2..97533c4a31ab6137072b79dc4377fd602fef9ea8 100644
+index ca0f22a215f2f5d9b3ce384d5c677f8d0a3bb072..0303e3331d2448ce4b9451f18b8daeaa27446554 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 @@ -678,7 +678,7 @@ public class ChunkSerializer {

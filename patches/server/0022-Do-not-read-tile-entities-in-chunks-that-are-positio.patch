@@ -10,7 +10,7 @@ which would cause a crash on Folia but would appear to function
 fine on Paper.
 
 diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
-index bc938c2a4cb30f3151b600ab88ca5c4e9734f326..035b06d00aadc67eb247efd7b25aea92ba0532a2 100644
+index cd0c27d4c0c3ba97bc08a6429f3ebc03eee06047..ca0f22a215f2f5d9b3ce384d5c677f8d0a3bb072 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 @@ -381,6 +381,13 @@ public class ChunkSerializer {

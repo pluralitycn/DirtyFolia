@@ -1074,7 +1074,7 @@ index 82ffef34b596a98faa245ba401e67add9d9ac7d0..ea195e0fbcbc15a1b8a77a8e64573147
              this.server.processQueue.add(new Runnable() {
                  @Override
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 6f0ba8991078f242b1323aa25f186d421c87178e..e5ad67a783c13d61850cb668e3895eb399a2787f 100644
+index 42deb0c263496fceecf9e74548eb53a4d29a885e..705975067d73846384dadf32b888eac558a95f1a 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -1,35 +1,12 @@
@@ -1236,7 +1236,7 @@ index 6f0ba8991078f242b1323aa25f186d421c87178e..e5ad67a783c13d61850cb668e3895eb3
  // CraftBukkit end
  
  public abstract class Entity implements Nameable, EntityAccess, CommandSource {
-@@ -4325,9 +4278,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4332,9 +4285,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      @Nullable
      public Entity teleportTo(ServerLevel worldserver, PositionImpl location) {
          // Folia start - region threading
@@ -1250,7 +1250,7 @@ index 6f0ba8991078f242b1323aa25f186d421c87178e..e5ad67a783c13d61850cb668e3895eb3
          // CraftBukkit end
          // Paper start - fix bad state entities causing dupes
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 3094a7d70ac4f8925e901287224778760f2f8cf4..dcc9c94b6ac36477003cfe5a91b91e47e612d944 100644
+index a852cffd7d91315c7c59c36b83a84023e9ac9711..0fe541ac8a827c5f16823d2460520263ec919972 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -1,6 +1,7 @@
@@ -1394,7 +1394,7 @@ index 3094a7d70ac4f8925e901287224778760f2f8cf4..dcc9c94b6ac36477003cfe5a91b91e47
  
  public abstract class LivingEntity extends Entity implements Attackable {
  
-@@ -1137,7 +1085,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -1145,7 +1093,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
      }
  
      public boolean addEffect(MobEffectInstance mobeffect, @Nullable Entity entity, EntityPotionEffectEvent.Cause cause) {

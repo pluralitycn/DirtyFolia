@@ -344,7 +344,7 @@ index b9095f559472dd92375ea719886913f606f0374c..6d98e6a29f12c57031ba951c013501f5
          if (entity.isRemoved()) {
              LOGGER.warn("Refusing to add removed entity: " + entity);
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
-index d496ea6a583f71ddfc17ada1424c8c7a026fdf4d..d5b1b14ad00019052b5d51f230a6b29d03a0919a 100644
+index 40411b335e99f67d6a82e70db6e5e4c0372102ec..793dd089426a180ed35880e4cbc21b273074f9fa 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
 @@ -48,6 +48,7 @@ import java.util.List;
@@ -355,7 +355,7 @@ index d496ea6a583f71ddfc17ada1424c8c7a026fdf4d..d5b1b14ad00019052b5d51f230a6b29d
  import java.util.concurrent.atomic.AtomicLong;
  import java.util.concurrent.atomic.AtomicReference;
  import java.util.concurrent.locks.LockSupport;
-@@ -339,16 +340,16 @@ public final class ChunkHolderManager {
+@@ -357,16 +358,16 @@ public final class ChunkHolderManager {
  
          final DecimalFormat format = new DecimalFormat("#0.00");
  
@@ -377,7 +377,7 @@ index d496ea6a583f71ddfc17ada1424c8c7a026fdf4d..d5b1b14ad00019052b5d51f230a6b29d
  
          for (int i = 0, len = holders.size(); i < len; ++i) {
              final NewChunkHolder holder = holders.get(i);
-@@ -359,34 +360,35 @@ public final class ChunkHolderManager {
+@@ -377,34 +378,35 @@ public final class ChunkHolderManager {
              }
              // Folia end - region threading
              try {
@@ -429,7 +429,7 @@ index d496ea6a583f71ddfc17ada1424c8c7a026fdf4d..d5b1b14ad00019052b5d51f230a6b29d
                  }
              }
          }
-@@ -401,7 +403,7 @@ public final class ChunkHolderManager {
+@@ -419,7 +421,7 @@ public final class ChunkHolderManager {
              }
          }
          if (logProgress) {
@@ -678,7 +678,7 @@ index b930bd722caf6ecc6e2d584535cdd7a8924d9e08..3cf2cd8e77cb408391253efdf59fd66a
      }
      // Folia end
 diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
-index 8e31c6ee9ee16aff699e124a9b0554eaafa5c1ac..71970f34679a26c013b45f12413675b76f7c7545 100644
+index 00d79c8095ec689b4a30648665c8fc0843783fd9..7d620ac3b071415d55518fcea3fa634eb8e07967 100644
 --- a/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
 +++ b/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
 @@ -55,9 +55,16 @@ public final class RegionizedServer {
@@ -996,7 +996,7 @@ index f95f1d1bc08b3c8f331a4f760e3218238f74ff67..51e155d90c839b73c481cdca8fba1f70
  
          public void onTickingStart(Entity entity) {
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index d58e8211fc765c61548ac2a180de87dd2934ba37..193aa56945c04a9d44d1a2da84e4bb2ae52643d5 100644
+index 817f79bfca1aec161cb4635b9c7a8e21b14db7eb..2e858160c648cf0fd9b85ca66c80e0b5470b4620 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -1549,9 +1549,10 @@ public class ServerPlayer extends Player {
@@ -1066,7 +1066,7 @@ index d4620ddfcd06a037f647ab0a8938797405e001b2..4d704a0275d73ed3f68cd8f08bf998db
              final PlayerTeam team = scoreboard.getPlayersTeam(this.collideRuleTeamName);
              if (team != null) scoreboard.removePlayerTeam(team);
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index deaf4b65b6c9f3dbab6578c25fb78ca84507f70b..6f0ba8991078f242b1323aa25f186d421c87178e 100644
+index 27b57db24587337ccdce29e492052ca419863323..42deb0c263496fceecf9e74548eb53a4d29a885e 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
@@ -1101,7 +1101,7 @@ index deaf4b65b6c9f3dbab6578c25fb78ca84507f70b..6f0ba8991078f242b1323aa25f186d42
          // Folia end - region threading
          if (!this.level().paperConfig().scoreboards.allowNonPlayerEntitiesOnScoreboards && !(this instanceof Player)) { return null; } // Paper
          return this.level().getScoreboard().getPlayersTeam(this.getScoreboardName());
-@@ -3868,6 +3872,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3875,6 +3879,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
              }
          }
  
@@ -1114,7 +1114,7 @@ index deaf4b65b6c9f3dbab6578c25fb78ca84507f70b..6f0ba8991078f242b1323aa25f186d42
          // TODO any events that can modify go HERE
  
          // check for same region
-@@ -3991,8 +4001,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3998,8 +4008,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.END ? Level.OVERWORLD : Level.END);
@@ -1129,7 +1129,7 @@ index deaf4b65b6c9f3dbab6578c25fb78ca84507f70b..6f0ba8991078f242b1323aa25f186d42
              return false;
          }
  
-@@ -4003,8 +4019,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4010,8 +4026,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.NETHER ? Level.OVERWORLD : Level.NETHER);
@@ -1145,10 +1145,10 @@ index deaf4b65b6c9f3dbab6578c25fb78ca84507f70b..6f0ba8991078f242b1323aa25f186d42
          }
  
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 511ec694f3336a5d7276d171dd2345ed2ea1acac..3094a7d70ac4f8925e901287224778760f2f8cf4 100644
+index f185aac0a944d561d394aa6a3907ec4999996686..a852cffd7d91315c7c59c36b83a84023e9ac9711 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -857,7 +857,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -865,7 +865,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
          this.hurtTime = nbt.getShort("HurtTime");
          this.deathTime = nbt.getShort("DeathTime"); this.broadcastedDeath = false; // Folia - region threading
          this.lastHurtByMobTimestamp = nbt.getInt("HurtByTimestamp");
