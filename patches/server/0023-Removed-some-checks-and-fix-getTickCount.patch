@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Sat, 17 Jun 2023 12:56:13 +0800
+Date: Sun, 2 Jul 2023 14:33:16 +0800
 Subject: [PATCH] Removed some checks and fix getTickCount
 
 
@@ -100,7 +100,7 @@ index 38441121cf7cdc1d64ef9fc17ae76dc16fbf96f2..4b6cb48fa0450c903be4a43f36779534
      }
  
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index efb86f755890c26947e238b826706abf85ea7c7d..d5d05bcbbbc883d9ff6d545af9f72ac58f09fb0e 100644
+index 8429fd4a60c11b294fb65236eae566588c80d07c..746f9550d8b5d6f927cf0ff8b759d63e12a22d33 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1,11 +1,9 @@
@@ -784,7 +784,7 @@ index 51e155d90c839b73c481cdca8fba1f700d4b5759..cb33fbdc2fc3312c0f4d4eaf5fd44811
          ChunkPos chunkcoordintpair = new ChunkPos(x, z);
          long k = chunkcoordintpair.toLong();
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 82ffef34b596a98faa245ba401e67add9d9ac7d0..ea195e0fbcbc15a1b8a77a8e645731477a0631c2 100644
+index ace5e9900eb4e08ace4fb24ffa66c6d6d03ab82a..71d75af2cd9a604da779181aa45d1214b304f5c7 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -4,37 +4,15 @@ import com.google.common.collect.Lists;
@@ -1250,156 +1250,15 @@ index 42deb0c263496fceecf9e74548eb53a4d29a885e..705975067d73846384dadf32b888eac5
          // CraftBukkit end
          // Paper start - fix bad state entities causing dupes
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index a852cffd7d91315c7c59c36b83a84023e9ac9711..0fe541ac8a827c5f16823d2460520263ec919972 100644
+index d18f9e40f22111068ef49dcf8c66e5ce0ad2f818..ea9709f17efe38c597ee1d300acf5c287e7a799c 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -1,6 +1,7 @@
- package net.minecraft.world.entity;
- 
--import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent; // Paper
-+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
-+import com.google.common.base.Function;
- import com.google.common.base.Objects;
- import com.google.common.collect.ImmutableList;
- import com.google.common.collect.ImmutableMap;
-@@ -10,15 +11,6 @@ import com.mojang.datafixers.util.Pair;
- import com.mojang.logging.LogUtils;
- import com.mojang.serialization.DataResult;
- import com.mojang.serialization.Dynamic;
--import java.util.Collection;
--import java.util.ConcurrentModificationException;
--import java.util.Iterator;
--import java.util.List;
--import java.util.Map;
--import java.util.Optional;
--import java.util.UUID;
--import java.util.function.Predicate;
--import javax.annotation.Nullable;
- import net.minecraft.BlockUtil;
- import net.minecraft.advancements.CriteriaTriggers;
- import net.minecraft.commands.arguments.EntityAnchorArgument;
-@@ -29,19 +21,8 @@ import net.minecraft.core.NonNullList;
- import net.minecraft.core.particles.BlockParticleOption;
- import net.minecraft.core.particles.ItemParticleOption;
- import net.minecraft.core.particles.ParticleTypes;
--import net.minecraft.nbt.CompoundTag;
--import net.minecraft.nbt.FloatTag;
--import net.minecraft.nbt.IntTag;
--import net.minecraft.nbt.ListTag;
--import net.minecraft.nbt.NbtOps;
--import net.minecraft.nbt.Tag;
--import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
--import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
--import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
--import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
--import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
--import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket;
--import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
-+import net.minecraft.nbt.*;
-+import net.minecraft.network.protocol.game.*;
- import net.minecraft.network.syncher.EntityDataAccessor;
- import net.minecraft.network.syncher.EntityDataSerializers;
- import net.minecraft.network.syncher.SynchedEntityData;
-@@ -53,12 +34,7 @@ import net.minecraft.sounds.SoundEvent;
- import net.minecraft.sounds.SoundEvents;
- import net.minecraft.sounds.SoundSource;
- import net.minecraft.stats.Stats;
--import net.minecraft.tags.BlockTags;
--import net.minecraft.tags.DamageTypeTags;
--import net.minecraft.tags.EntityTypeTags;
--import net.minecraft.tags.FluidTags;
--import net.minecraft.tags.ItemTags;
--import net.minecraft.tags.TagKey;
-+import net.minecraft.tags.*;
- import net.minecraft.util.Mth;
- import net.minecraft.util.RandomSource;
- import net.minecraft.world.Difficulty;
-@@ -71,13 +47,7 @@ import net.minecraft.world.effect.MobEffectInstance;
- import net.minecraft.world.effect.MobEffectUtil;
- import net.minecraft.world.effect.MobEffects;
- import net.minecraft.world.entity.ai.Brain;
--import net.minecraft.world.entity.ai.attributes.Attribute;
--import net.minecraft.world.entity.ai.attributes.AttributeInstance;
--import net.minecraft.world.entity.ai.attributes.AttributeMap;
--import net.minecraft.world.entity.ai.attributes.AttributeModifier;
--import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
--import net.minecraft.world.entity.ai.attributes.Attributes;
--import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
-+import net.minecraft.world.entity.ai.attributes.*;
- import net.minecraft.world.entity.ai.targeting.TargetingConditions;
- import net.minecraft.world.entity.animal.Animal;
- import net.minecraft.world.entity.animal.FlyingAnimal;
-@@ -86,13 +56,7 @@ import net.minecraft.world.entity.boss.wither.WitherBoss;
- import net.minecraft.world.entity.item.ItemEntity;
- import net.minecraft.world.entity.projectile.AbstractArrow;
- import net.minecraft.world.food.FoodProperties;
--import net.minecraft.world.item.AxeItem;
--import net.minecraft.world.item.ElytraItem;
--import net.minecraft.world.item.Equipable;
--import net.minecraft.world.item.Item;
--import net.minecraft.world.item.ItemStack;
--import net.minecraft.world.item.Items;
--import net.minecraft.world.item.UseAnim;
-+import net.minecraft.world.item.*;
- import net.minecraft.world.item.alchemy.PotionUtils;
- import net.minecraft.world.item.enchantment.EnchantmentHelper;
- import net.minecraft.world.item.enchantment.Enchantments;
-@@ -100,13 +64,7 @@ import net.minecraft.world.item.enchantment.FrostWalkerEnchantment;
- import net.minecraft.world.level.ClipContext;
- import net.minecraft.world.level.GameRules;
- import net.minecraft.world.level.Level;
--import net.minecraft.world.level.block.BedBlock;
--import net.minecraft.world.level.block.Blocks;
--import net.minecraft.world.level.block.HoneyBlock;
--import net.minecraft.world.level.block.LadderBlock;
--import net.minecraft.world.level.block.PowderSnowBlock;
--import net.minecraft.world.level.block.SoundType;
--import net.minecraft.world.level.block.TrapDoorBlock;
-+import net.minecraft.world.level.block.*;
- import net.minecraft.world.level.block.state.BlockState;
- import net.minecraft.world.level.entity.EntityTypeTest;
- import net.minecraft.world.level.gameevent.GameEvent;
-@@ -121,29 +79,19 @@ import net.minecraft.world.phys.EntityHitResult;
- import net.minecraft.world.phys.HitResult;
- import net.minecraft.world.phys.Vec3;
- import net.minecraft.world.scores.PlayerTeam;
--import org.slf4j.Logger;
--
--// CraftBukkit start
--import java.util.ArrayList;
--import java.util.HashSet;
--import java.util.Set;
--import com.google.common.base.Function;
- import org.bukkit.Location;
- import org.bukkit.craftbukkit.attribute.CraftAttributeMap;
- import org.bukkit.craftbukkit.event.CraftEventFactory;
- import org.bukkit.craftbukkit.inventory.CraftItemStack;
- import org.bukkit.entity.Player;
--import org.bukkit.event.entity.ArrowBodyCountChangeEvent;
--import org.bukkit.event.entity.EntityDamageEvent;
-+import org.bukkit.event.entity.*;
- import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
--import org.bukkit.event.entity.EntityPotionEffectEvent;
--import org.bukkit.event.entity.EntityRegainHealthEvent;
--import org.bukkit.event.entity.EntityResurrectEvent;
--import org.bukkit.event.entity.EntityTeleportEvent;
- import org.bukkit.event.player.PlayerItemConsumeEvent;
--// CraftBukkit end
-+import org.slf4j.Logger;
- 
--import co.aikar.timings.MinecraftTimings; // Paper
-+import javax.annotation.Nullable;
-+import java.util.*;
-+import java.util.function.Predicate;
- 
- public abstract class LivingEntity extends Entity implements Attackable {
- 
-@@ -1145,7 +1093,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -1145,7 +1145,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
      }
  
      public boolean addEffect(MobEffectInstance mobeffect, @Nullable Entity entity, EntityPotionEffectEvent.Cause cause) {
--        io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot add effects to entities asynchronously"); // Folia - region threading
-+        //io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot add effects to entities asynchronously"); // Folia - region threading // DirtyFolia - Removed Check
+-        if (!this.hasNullCallback()) io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot add effects to entities asynchronously"); // Folia - region threading
++        if (!this.hasNullCallback()); //io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot add effects to entities asynchronously"); // Folia - region threading // DirtyFolia - Removed check
          if (this.isTickingEffects) {
              this.effectsToProcess.add(new ProcessableEffect(mobeffect, cause));
              return true;

@@ -787,7 +787,7 @@ index 681cd79ce24fe5d952e987d46e2fd8df07a0f8a1..7dcf4e791b8d16fccc42450380bf35b2
          TellRawCommand.register(this.dispatcher);
          TimeCommand.register(this.dispatcher);
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 11ff1bc559316da426070867f045720ebd8c1962..efb86f755890c26947e238b826706abf85ea7c7d 100644
+index d307826380c4bd47ee4602813737a11339cb8357..8429fd4a60c11b294fb65236eae566588c80d07c 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -14,6 +14,9 @@ import com.mojang.authlib.GameProfileRepository;
@@ -1145,7 +1145,7 @@ index 27b57db24587337ccdce29e492052ca419863323..42deb0c263496fceecf9e74548eb53a4
          }
  
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index f185aac0a944d561d394aa6a3907ec4999996686..a852cffd7d91315c7c59c36b83a84023e9ac9711 100644
+index 414c72d630b1464ed4f3bc294ae0a3b265ecd3e8..d18f9e40f22111068ef49dcf8c66e5ce0ad2f818 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -865,7 +865,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
@@ -1823,7 +1823,7 @@ index 6d3325436a77153438bc40aa86819562e65e6a9e..d15ae696d2b4d4699b3f2dfc12b137ab
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 76bcfda336e9cfa039d80ea3ccbebbc3d2b13f7f..698fa57404d6655ba684aeb263d8543715f57ce2 100644
+index bcb85a4253b5e44b78cbadfb16c3bf0d47d7369e..a313b173eedec4c9dfb9151c33e22be584d2b21b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
