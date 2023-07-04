@@ -1,24 +1,26 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Tue, 4 Jul 2023 11:12:04 +0800
+Date: Tue, 4 Jul 2023 13:09:39 +0800
 Subject: [PATCH] Recover currentTick field
 
 
-diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
-index d76e391f80d3aa2227c39d099316936e4933c6fe..283fc7fd7d94d3da5db8c809395053c54c427a13 100644
---- a/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
-+++ b/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
-@@ -325,6 +325,10 @@ public final class RegionizedServer {
+diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
+index ae9b199bf36dd98a8e30ea679b79127184dc7d19..6135ff463327a4753bf06d2481fdff5ae5b99d61 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
++++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
+@@ -904,6 +904,12 @@ public final class ChunkHolderManager {
+             }
+         }
  
-         // player list
-         MinecraftServer.getServer().getPlayerList().tick();
++        if (region.getData().world.serverLevelData.getLevelName().equalsIgnoreCase("world")) {
++            // DirtyFolia - update currentTick
++            MinecraftServer.currentTick = (int) region.getData().getCurrentTick();
++            MinecraftServer.currentTickLong = region.getData().getCurrentTick();
++        }
 +
-+        // DirtyFolia - update currentTick
-+        MinecraftServer.currentTick = (int) RegionizedServer.getCurrentTick();
-+        MinecraftServer.currentTickLong = RegionizedServer.getCurrentTick();
+         this.processTicketUpdates();
      }
  
-     private void tickPlayerSample() {
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
 index 6b259a38522c4d09319eba3d73a4863e8b69794f..a0b28cc311f996f48cdd632a1512c7cc06d2db59 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
