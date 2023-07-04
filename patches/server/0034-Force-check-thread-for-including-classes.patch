@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Tue, 4 Jul 2023 16:13:17 +0800
+Date: Tue, 4 Jul 2023 21:14:28 +0800
 Subject: [PATCH] Force check thread for including classes
 
 
@@ -18,7 +18,7 @@ index 70cc11031e5ed5d9c4c5e68aca9a1b795f4912ab..c3a2f62cbb87d23f9ed21eabd9eb4397
          } else {
              tickThreadRunner.currentTickingWorldRegionizedData = null;
 diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
-index 8d461a980165d2998ce33e0ed2945a2f98d8470f..c3784b50d0cd8e191b68ed874f6e0cd2c0ce4e4d 100644
+index 8d461a980165d2998ce33e0ed2945a2f98d8470f..f023f5802ad0a06e92edf36409da1b17810158b9 100644
 --- a/src/main/java/io/papermc/paper/util/TickThread.java
 +++ b/src/main/java/io/papermc/paper/util/TickThread.java
 @@ -18,12 +18,15 @@ import net.minecraft.world.level.Level;
@@ -43,7 +43,7 @@ index 8d461a980165d2998ce33e0ed2945a2f98d8470f..c3784b50d0cd8e191b68ed874f6e0cd2
      public static boolean isTickThreadFor(final ServerLevel world, final int chunkX, final int chunkZ) {
 -        if (DISABLE_CHECKS) {
 +        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
-+        if (DISABLE_CHECKS && includePackages.stream().noneMatch(s -> s.startsWith(caller.getName()))) {
++        if (DISABLE_CHECKS && includePackages.stream().noneMatch(s -> caller.getName().startsWith(s))) {
              return true;
          }
 -        // DirtyFolia - Unstable action
