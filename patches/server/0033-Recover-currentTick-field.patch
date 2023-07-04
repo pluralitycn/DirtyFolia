@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Tue, 4 Jul 2023 11:12:04 +0800
+Subject: [PATCH] Recover currentTick field
+
+
+diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
+index d76e391f80d3aa2227c39d099316936e4933c6fe..283fc7fd7d94d3da5db8c809395053c54c427a13 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
++++ b/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
+@@ -325,6 +325,10 @@ public final class RegionizedServer {
+ 
+         // player list
+         MinecraftServer.getServer().getPlayerList().tick();
++
++        // DirtyFolia - update currentTick
++        MinecraftServer.currentTick = (int) RegionizedServer.getCurrentTick();
++        MinecraftServer.currentTickLong = RegionizedServer.getCurrentTick();
+     }
+ 
+     private void tickPlayerSample() {
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 6b259a38522c4d09319eba3d73a4863e8b69794f..a0b28cc311f996f48cdd632a1512c7cc06d2db59 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -231,7 +231,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     public org.bukkit.command.ConsoleCommandSender console;
+     public org.bukkit.command.RemoteConsoleCommandSender remoteConsole;
+     //public ConsoleReader reader; // Paper
+-    //public static int currentTick = 0; // Paper - Further improve tick loop // Folia - region threading
++    public static int currentTick = 0; // Paper - Further improve tick loop // Folia - region threading // DirtyFolia - Recover API
+     public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
+     public int autosavePeriod;
+     public Commands vanillaCommandDispatcher;
+@@ -244,7 +244,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     public final double[] recentTps = new double[ 3 ];
+     // Spigot end
+     public final io.papermc.paper.configuration.PaperConfigurations paperConfigurations;
+-    //public static long currentTickLong = 0L; // Paper // Folia - threaded regions
++    public static long currentTickLong = 0L; // Paper // Folia - threaded regions // DirtyFolia - Recover API
+ 
+     public volatile Thread shutdownThread; // Paper
+     public volatile boolean abnormalExit = false; // Paper
