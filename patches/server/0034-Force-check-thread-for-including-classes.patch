@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Tue, 4 Jul 2023 16:13:17 +0800
+Subject: [PATCH] Force check thread for including classes
+
+
+diff --git a/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java b/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java
+index 70cc11031e5ed5d9c4c5e68aca9a1b795f4912ab..c3a2f62cbb87d23f9ed21eabd9eb43973c85cb7f 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java
++++ b/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java
+@@ -67,7 +67,7 @@ public final class TickRegionScheduler {
+         tickThreadRunner.currentTickingRegion = region;
+         if (region != null) {
+             tickThreadRunner.currentTickingWorldRegionizedData = region.regioniser.world.worldRegionData.get();
+-            CachedWorldData.update(region.regioniser.world.getWorld().getName(), tickThreadRunner.currentTickingWorldRegionizedData);
++            CachedWorldData.update(region.getData().world.serverLevelData.getLevelName(), tickThreadRunner.currentTickingWorldRegionizedData);
+             //MinecraftServer.LOGGER.info("Cached World " + region.regioniser.world.getWorld().getName() + " data when initializing it");
+         } else {
+             tickThreadRunner.currentTickingWorldRegionizedData = null;
+diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
+index 8d461a980165d2998ce33e0ed2945a2f98d8470f..c3784b50d0cd8e191b68ed874f6e0cd2c0ce4e4d 100644
+--- a/src/main/java/io/papermc/paper/util/TickThread.java
++++ b/src/main/java/io/papermc/paper/util/TickThread.java
+@@ -18,12 +18,15 @@ import net.minecraft.world.level.Level;
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.Vec3;
+ import org.bukkit.Bukkit;
++
++import java.util.List;
+ import java.util.concurrent.atomic.AtomicInteger;
+ 
+ public class TickThread extends Thread {
+ 
+     public static final boolean STRICT_THREAD_CHECKS = Boolean.getBoolean("paper.strict-thread-checks");
+     public static final boolean DISABLE_CHECKS = Boolean.getBoolean("folia.disable-thread-check");
++    public static final List<String> includePackages = List.of(System.getProperty("folia.force-check-include-packages", "org.bukkit.craftbukkit,io.papermc,net.minecraft,com.destroystokyo.paper").split(","));
+ 
+     static {
+         if (STRICT_THREAD_CHECKS) {
+@@ -140,10 +143,11 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final int chunkX, final int chunkZ) {
+-        if (DISABLE_CHECKS) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && includePackages.stream().noneMatch(s -> s.startsWith(caller.getName()))) {
+             return true;
+         }
+-        // DirtyFolia - Unstable action
++        // DirtyFolia - Unstable action (Added an option to force check thread for a package)
+         if (world.chunkTaskScheduler.isHalted()) { //As soon as we halt the activity, it's the global tick thread's propriety
+             return RegionizedServer.isGlobalTickThread() || isShutdownThread();
+         }
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index a0b28cc311f996f48cdd632a1512c7cc06d2db59..6b69cdc72a9fe347055e4e6b34774b772108b8aa 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1456,7 +1456,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                         this.initWorld(region.world, region.world.serverLevelData, worldData, region.world.serverLevelData.worldGenOptions()); // Folia - delayed until first tick of world
+                         region.world.checkInitialised.set(ServerLevel.WORLD_INIT_CHECKED);
+                         // DirtyFolia - Start
+-                        CachedWorldData.update(region.world.getWorld().getName(), region.world.getCurrentWorldData());
++                        CachedWorldData.update(region.world.serverLevelData.getLevelName(), region.world.getCurrentWorldData());
+                         MinecraftServer.LOGGER.info("World " + region.world.getWorld().getName() + " data status: " + (CachedWorldData.get(region.world.getWorld().getName()) == null ? "(Unavailable)" : "(Cached)"));
+                         // DirtyFolia - End
+                         LOGGER.info("Initialised world '" + region.world.getWorld().getName() + "'");
+@@ -1655,7 +1655,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                     regionManager.recalculateRegions();
+                 }
+                 Bukkit.getRegionScheduler().run(new FakePlugin(), worldserver.getWorld(), 0, 0, scheduledTask -> { // Folia (Third Party)
+-                    CachedWorldData.update(worldserver.getWorld().getName(), worldserver.getCurrentWorldData());
++                    CachedWorldData.update(region.world.serverLevelData.getLevelName(), worldserver.getCurrentWorldData());
+                 });
+                 // Paper end
+                 worldserver.timings.doTick.stopTiming(); // Spigot
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index 98b69acf7691c79bfae86d7415b30916c9370261..fdd0c830179e3b24437f2052627492cbe38b96c9 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -252,9 +252,12 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+     public io.papermc.paper.threadedregions.RegionizedWorldData getCurrentWorldData() {
+         final io.papermc.paper.threadedregions.RegionizedWorldData ret = io.papermc.paper.threadedregions.TickRegionScheduler.getCurrentRegionizedWorldData();
+         if (ret == null) {
+-            return CachedWorldData.get(world.getName()); // DirtyFolia - cache world data
++            if (this instanceof ServerLevel serverLevel) {
++                return CachedWorldData.get(serverLevel.serverLevelData.getLevelName());
++            }
++            return ret; // DirtyFolia - cache world data
+         }
+-        CachedWorldData.update(world.getName(), ret);
++        CachedWorldData.update(ret.world.serverLevelData.getLevelName(), ret);
+         Level world = ret.world;
+         if (world != this) {
+             throw new IllegalStateException("World mismatch: expected " + this.getWorld().getName() + " but got " + world.getWorld().getName());
