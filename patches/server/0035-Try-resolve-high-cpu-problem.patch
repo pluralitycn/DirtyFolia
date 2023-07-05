@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Wed, 5 Jul 2023 17:53:21 +0800
+Date: Wed, 5 Jul 2023 18:07:26 +0800
 Subject: [PATCH] Try resolve high cpu problem
 
 
@@ -25,3 +25,42 @@ index 9533fb470a4d42d4de644f2837ee2243bfedabfc..85515235d59669db0dc189438af85759
      }
  
      public static RegionizedWorldData get(String world) {
+diff --git a/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java b/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java
+index c3a2f62cbb87d23f9ed21eabd9eb43973c85cb7f..4042062f6303a02448e6548bc61ba11b64178539 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java
++++ b/src/main/java/io/papermc/paper/threadedregions/TickRegionScheduler.java
+@@ -67,7 +67,7 @@ public final class TickRegionScheduler {
+         tickThreadRunner.currentTickingRegion = region;
+         if (region != null) {
+             tickThreadRunner.currentTickingWorldRegionizedData = region.regioniser.world.worldRegionData.get();
+-            CachedWorldData.update(region.getData().world.serverLevelData.getLevelName(), tickThreadRunner.currentTickingWorldRegionizedData);
++            //CachedWorldData.update(region.getData().world.serverLevelData.getLevelName(), tickThreadRunner.currentTickingWorldRegionizedData);
+             //MinecraftServer.LOGGER.info("Cached World " + region.regioniser.world.getWorld().getName() + " data when initializing it");
+         } else {
+             tickThreadRunner.currentTickingWorldRegionizedData = null;
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 6b69cdc72a9fe347055e4e6b34774b772108b8aa..a211e0a584349268dc7b0cf588bf4a567cdf22e7 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1500,8 +1500,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             }
+             // now tick connections
+             region.world.getCurrentWorldData().tickConnections(); // Folia - region threading
+-            // DirtyFolia cache work data
+-            CachedWorldData.update(region.world.serverLevelData.getLevelName(), region.world.getCurrentWorldData());
+         }
+         // Folia end - region threading
+ 
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index 2b07f9ad69f07f3c8a0bb10d577d7b80f3e92507..e999c76d5cd2743bfbadc8a40c28b652f00af7b6 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -262,8 +262,6 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+             if (this instanceof ServerLevel serverLevel) {
+                 ret = CachedWorldData.get(serverLevel.serverLevelData.getLevelName());
+             }
+-        } else {
+-            CachedWorldData.update(ret.world.serverLevelData.getLevelName(), ret);
+         }
+         if (world != this) {
+             throw new IllegalStateException("World mismatch: expected " + this.getWorld().getName() + " but got " + world.getWorld().getName());
