@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Tue, 4 Jul 2023 23:12:02 +0800
+Date: Wed, 5 Jul 2023 12:36:45 +0800
 Subject: [PATCH] Force check thread for including classes
 
 
@@ -18,10 +18,10 @@ index 70cc11031e5ed5d9c4c5e68aca9a1b795f4912ab..c3a2f62cbb87d23f9ed21eabd9eb4397
          } else {
              tickThreadRunner.currentTickingWorldRegionizedData = null;
 diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
-index 8d461a980165d2998ce33e0ed2945a2f98d8470f..ae6e59b6a35ef94cbdc375456fec9f48d76a9858 100644
+index 8d461a980165d2998ce33e0ed2945a2f98d8470f..a5ec668c6242ffbc74235ae2de54499490211d76 100644
 --- a/src/main/java/io/papermc/paper/util/TickThread.java
 +++ b/src/main/java/io/papermc/paper/util/TickThread.java
-@@ -18,12 +18,15 @@ import net.minecraft.world.level.Level;
+@@ -18,12 +18,16 @@ import net.minecraft.world.level.Level;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.Vec3;
  import org.bukkit.Bukkit;
@@ -34,26 +34,30 @@ index 8d461a980165d2998ce33e0ed2945a2f98d8470f..ae6e59b6a35ef94cbdc375456fec9f48
      public static final boolean STRICT_THREAD_CHECKS = Boolean.getBoolean("paper.strict-thread-checks");
      public static final boolean DISABLE_CHECKS = Boolean.getBoolean("folia.disable-thread-check");
 +    public static final List<String> includePackages = List.of(System.getProperty("folia.force-check-include-packages", "org.bukkit.craftbukkit,io.papermc,net.minecraft,com.destroystokyo.paper").split(","));
++    public static final List<String> excludeClasses = List.of(System.getProperty("folia.force-check-bypass-classes", "").split(","));
  
      static {
          if (STRICT_THREAD_CHECKS) {
-@@ -31,6 +34,9 @@ public class TickThread extends Thread {
+@@ -31,6 +35,12 @@ public class TickThread extends Thread {
          }
          if (DISABLE_CHECKS) {
              MinecraftServer.LOGGER.warn("Disable all thread checks, the server will run in an unstable environment - This action may cause some problems");
 +            if (includePackages.size() != 0) {
 +                MinecraftServer.LOGGER.warn("This packages will excluded: " + System.getProperty("folia.force-check-include-packages"));
 +            }
++            if (excludeClasses.size() != 0) {
++                MinecraftServer.LOGGER.warn("This classes will included: " + System.getProperty("folia.force-check-bypass-classes"));
++            }
          }
      }
  
-@@ -140,10 +146,11 @@ public class TickThread extends Thread {
+@@ -140,10 +150,11 @@ public class TickThread extends Thread {
      }
  
      public static boolean isTickThreadFor(final ServerLevel world, final int chunkX, final int chunkZ) {
 -        if (DISABLE_CHECKS) {
 +        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
-+        if (DISABLE_CHECKS && includePackages.stream().noneMatch(s -> caller.getName().startsWith(s))) {
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
              return true;
          }
 -        // DirtyFolia - Unstable action
@@ -61,23 +65,23 @@ index 8d461a980165d2998ce33e0ed2945a2f98d8470f..ae6e59b6a35ef94cbdc375456fec9f48
          if (world.chunkTaskScheduler.isHalted()) { //As soon as we halt the activity, it's the global tick thread's propriety
              return RegionizedServer.isGlobalTickThread() || isShutdownThread();
          }
-@@ -186,7 +193,8 @@ public class TickThread extends Thread {
+@@ -186,7 +197,8 @@ public class TickThread extends Thread {
      }
  
      public static boolean isTickThreadFor(final ServerLevel world, final int fromChunkX, final int fromChunkZ, final int toChunkX, final int toChunkZ) {
 -        if (DISABLE_CHECKS) {
 +        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
-+        if (DISABLE_CHECKS && includePackages.stream().noneMatch(s -> caller.getName().startsWith(s))) {
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
              return true;
          }
          // DirtyFolia - Unstable action
-@@ -221,7 +229,8 @@ public class TickThread extends Thread {
+@@ -221,7 +233,8 @@ public class TickThread extends Thread {
      }
  
      public static boolean isTickThreadFor(final Entity entity) {
 -        if (DISABLE_CHECKS) {
 +        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
-+        if (DISABLE_CHECKS && includePackages.stream().noneMatch(s -> caller.getName().startsWith(s))) {
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
              return true;
          }
          // DirtyFolia - Unstable action
@@ -104,12 +108,15 @@ index a0b28cc311f996f48cdd632a1512c7cc06d2db59..6b69cdc72a9fe347055e4e6b34774b77
                  // Paper end
                  worldserver.timings.doTick.stopTiming(); // Spigot
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 98b69acf7691c79bfae86d7415b30916c9370261..fdd0c830179e3b24437f2052627492cbe38b96c9 100644
+index 98b69acf7691c79bfae86d7415b30916c9370261..2b07f9ad69f07f3c8a0bb10d577d7b80f3e92507 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
-@@ -252,9 +252,12 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -250,12 +250,21 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+     public final java.util.concurrent.ConcurrentHashMap.KeySetView<net.minecraft.server.level.ChunkHolder, Boolean> needsChangeBroadcasting = java.util.concurrent.ConcurrentHashMap.newKeySet();
+ 
      public io.papermc.paper.threadedregions.RegionizedWorldData getCurrentWorldData() {
-         final io.papermc.paper.threadedregions.RegionizedWorldData ret = io.papermc.paper.threadedregions.TickRegionScheduler.getCurrentRegionizedWorldData();
+-        final io.papermc.paper.threadedregions.RegionizedWorldData ret = io.papermc.paper.threadedregions.TickRegionScheduler.getCurrentRegionizedWorldData();
++        io.papermc.paper.threadedregions.RegionizedWorldData ret = io.papermc.paper.threadedregions.TickRegionScheduler.getCurrentRegionizedWorldData();
          if (ret == null) {
 -            return CachedWorldData.get(world.getName()); // DirtyFolia - cache world data
 +            if (this instanceof ServerLevel serverLevel) {
@@ -118,7 +125,14 @@ index 98b69acf7691c79bfae86d7415b30916c9370261..fdd0c830179e3b24437f2052627492cb
 +            return ret; // DirtyFolia - cache world data
          }
 -        CachedWorldData.update(world.getName(), ret);
-+        CachedWorldData.update(ret.world.serverLevelData.getLevelName(), ret);
          Level world = ret.world;
++        if (world != this) {
++            if (this instanceof ServerLevel serverLevel) {
++                ret = CachedWorldData.get(serverLevel.serverLevelData.getLevelName());
++            }
++        } else {
++            CachedWorldData.update(ret.world.serverLevelData.getLevelName(), ret);
++        }
          if (world != this) {
              throw new IllegalStateException("World mismatch: expected " + this.getWorld().getName() + " but got " + world.getWorld().getName());
+         }
