@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Wed, 5 Jul 2023 17:53:21 +0800
+Subject: [PATCH] Try resolve high cpu problem
+
+
+diff --git a/src/main/java/dev/rgbmc/folia/CachedWorldData.java b/src/main/java/dev/rgbmc/folia/CachedWorldData.java
+index 9533fb470a4d42d4de644f2837ee2243bfedabfc..85515235d59669db0dc189438af85759c3f3b81e 100644
+--- a/src/main/java/dev/rgbmc/folia/CachedWorldData.java
++++ b/src/main/java/dev/rgbmc/folia/CachedWorldData.java
+@@ -7,14 +7,10 @@ import java.util.Map;
+ import java.util.concurrent.CompletableFuture;
+ 
+ public class CachedWorldData {
+-    private static Map<String, RegionizedWorldData> cachedData = new HashMap<>();
++    private static final Map<String, RegionizedWorldData> cachedData = new HashMap<>();
+ 
+     public static void update(String world, RegionizedWorldData data) {
+-        CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
+-            cachedData.put(world, data);
+-            return null;
+-        });
+-        future.thenAcceptAsync(v -> {});
++        cachedData.put(world, data);
+     }
+ 
+     public static RegionizedWorldData get(String world) {
