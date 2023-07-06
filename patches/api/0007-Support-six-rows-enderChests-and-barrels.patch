@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Thu, 6 Jul 2023 15:14:17 +0800
+Subject: [PATCH] Support six rows enderChests and barrels
+
+
+diff --git a/src/main/java/org/bukkit/event/inventory/InventoryType.java b/src/main/java/org/bukkit/event/inventory/InventoryType.java
+index daddb12947e61ee69c100b422f6d07d49f76d724..e0931cc57a77c043d2d2f50853db90387a1c6c30 100644
+--- a/src/main/java/org/bukkit/event/inventory/InventoryType.java
++++ b/src/main/java/org/bukkit/event/inventory/InventoryType.java
+@@ -152,7 +152,13 @@ public enum InventoryType {
+     SMITHING_NEW(4, "Upgrade Gear"),
+     ;
+ 
+-    private final int size;
++    private int size;
++
++    public void setDefaultSize(int size) {
++        this.size = size;
++    }
++    // DirtyFolia (Purpur) - allow inventory resize
++
+     private final String title;
+     private final boolean isCreatable;
+ 
