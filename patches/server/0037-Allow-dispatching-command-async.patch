@@ -1,0 +1,105 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Fri, 7 Jul 2023 13:04:47 +0800
+Subject: [PATCH] Allow dispatching command async
+
+
+diff --git a/src/main/java/dev/rgbmc/folia/CachedRegionData.java b/src/main/java/dev/rgbmc/folia/CachedRegionData.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d8431243d64e490d5c7c54a4a98a3e94fea58b3
+--- /dev/null
++++ b/src/main/java/dev/rgbmc/folia/CachedRegionData.java
+@@ -0,0 +1,39 @@
++package dev.rgbmc.folia;
++
++import io.papermc.paper.threadedregions.RegionizedWorldData;
++import io.papermc.paper.threadedregions.ThreadedRegionizer;
++import io.papermc.paper.threadedregions.TickRegions;
++
++import java.util.HashMap;
++import java.util.Map;
++
++public class CachedRegionData {
++    private static final Map<Long, ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData>> cachedData = new HashMap<>();
++    private static final Map<String, ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData>> worldCachedData = new HashMap<>();
++
++    public static void update(long id, ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> data) {
++        cachedData.put(id, data);
++    }
++
++    public static void updateWorld(String world, ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> data) {
++        worldCachedData.put(world, data);
++    }
++
++    public static boolean isCached(long id) {
++        return cachedData.containsKey(id);
++    }
++
++    public static boolean isCachedWorld(String world) {
++        return worldCachedData.containsKey(world);
++    }
++
++    public static ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> get(long id) {
++        return cachedData.get(id);
++    }
++
++    public static ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> getWorld(String world) {
++        return worldCachedData.get(world);
++    }
++
++
++}
+diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+index 9159d89d14ac80dd9b08d2a63a74c09a12928abe..1dee8d897981b56d243f74caba3c82873f204672 100644
+--- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
++++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
+ import com.google.common.collect.Lists;
+ import com.mojang.datafixers.DataFixer;
+ import com.mojang.datafixers.util.Either;
++import dev.rgbmc.folia.CachedRegionData;
++import io.papermc.paper.threadedregions.*;
+ import net.minecraft.Util;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.SectionPos;
+@@ -828,14 +830,25 @@ public class ServerChunkCache extends ChunkSource {
+         // CraftBukkit start - process pending Chunk loadCallback() and unloadCallback() after each run task
+         public boolean pollTask() {
+             // Folia start - region threading
+-            if (ServerChunkCache.this.level != io.papermc.paper.threadedregions.TickRegionScheduler.getCurrentRegionizedWorldData().world) {
++            RegionizedWorldData regionizedData = io.papermc.paper.threadedregions.TickRegionScheduler.getCurrentRegionizedWorldData();
++            if (regionizedData != null && ServerChunkCache.this.level != regionizedData.world) {
+                 throw new IllegalStateException("Polling tasks from non-owned region");
+             }
+             // Folia end - region threading
+             if (ServerChunkCache.this.runDistanceManagerUpdates()) {
+                 return true;
+             }
+-            return io.papermc.paper.threadedregions.TickRegionScheduler.getCurrentRegion().getData().getTaskQueueData().executeChunkTask(); // Paper - rewrite chunk system // Folia - region threading
++            // DirtyFolia
++            ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> data = TickRegionScheduler.getCurrentRegion();
++            if (data != null && CachedRegionData.isCached(data.id)) {
++                CachedRegionData.update(data.id, data);
++                if (!CachedRegionData.isCachedWorld(ServerChunkCache.this.level.serverLevelData.getLevelName())) {
++                    CachedRegionData.updateWorld(ServerChunkCache.this.level.serverLevelData.getLevelName(), data);
++                }
++            } else if (data == null) {
++                return CachedRegionData.getWorld(ServerChunkCache.this.level.serverLevelData.getLevelName()).getData().getTaskQueueData().executeChunkTask();
++            }
++            return data.getData().getTaskQueueData().executeChunkTask(); // Paper - rewrite chunk system // Folia - region threading
+         }
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index cad65858e2e9e09da93d9eee462d5360a1cdfa0c..74c32658ee848820ae9d9e4b7332acc001689c17 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1012,7 +1012,7 @@ public final class CraftServer implements Server {
+         if ((sender instanceof Entity entity)) {
+             //io.papermc.paper.util.TickThread.ensureTickThread(((org.bukkit.craftbukkit.entity.CraftEntity)entity).getHandle(), "Dispatching command async");
+         } else if (sender instanceof ConsoleCommandSender console) {
+-            io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Dispatching command async");
++            //io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Dispatching command async"); // DirtyFolia - Allow dispatching command async
+         } else {
+             // huh?
+             throw new UnsupportedOperationException("Dispatching command for " + sender);
