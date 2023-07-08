@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Sat, 8 Jul 2023 11:07:58 +0800
+Date: Sat, 8 Jul 2023 12:21:13 +0800
 Subject: [PATCH] Fix BukkitScheduler#runTaskTimer
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
-index 1b24396d007ef845c85e320a26b46b0925c505bf..f9e3c20b952b4d5fcb12d8907adf29ad6902c6a0 100644
+index 1b24396d007ef845c85e320a26b46b0925c505bf..16aea96d2a907654f353b91b1cd35eb44205f3c8 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
 @@ -543,17 +543,30 @@ public class CraftScheduler implements BukkitScheduler {
@@ -25,7 +25,7 @@ index 1b24396d007ef845c85e320a26b46b0925c505bf..f9e3c20b952b4d5fcb12d8907adf29ad
 +                if (repeat) {
 +                    scheduledTask = Bukkit.getAsyncScheduler().runAtFixedRate(owner, stask -> {
 +                        task.run();
-+                    }, 0, (long) (task.getPeriod() / 20.0 * 1000.0), TimeUnit.MILLISECONDS);
++                    }, 1, (long) (task.getPeriod() / 20.0 * 1000.0), TimeUnit.MILLISECONDS);
 +                } else {
 +                    scheduledTask = Bukkit.getAsyncScheduler().runNow(owner, stask -> {
 +                        task.run();
@@ -57,7 +57,7 @@ index 1b24396d007ef845c85e320a26b46b0925c505bf..f9e3c20b952b4d5fcb12d8907adf29ad
 +            if (repeat) {
 +                scheduledTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(owner, stask -> {
 +                    task.run();
-+                }, delay, task.getPeriod());
++                }, 1L, task.getPeriod());
 +            } else {
 +                scheduledTask = Bukkit.getGlobalRegionScheduler().run(owner, stask -> {
 +                    task.run();
