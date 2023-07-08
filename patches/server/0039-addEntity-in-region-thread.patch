@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Sat, 8 Jul 2023 13:22:56 +0800
+Subject: [PATCH] addEntity in region thread
+
+
+diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
+index 0493629eecac1a9540707f322f5b82cb47356f5c..0795f8cc079803155b007caab6b3ecda6f34bac4 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
++++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
+@@ -2,6 +2,7 @@ package io.papermc.paper.chunk.system.entity;
+ 
+ import com.destroystokyo.paper.util.maplist.EntityList;
+ import com.mojang.logging.LogUtils;
++import dev.rgbmc.folia.FakePlugin;
+ import io.papermc.paper.util.CoordinateUtils;
+ import io.papermc.paper.util.TickThread;
+ import io.papermc.paper.util.WorldUtil;
+@@ -26,6 +27,7 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
+ import net.minecraft.world.level.entity.Visibility;
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.Bukkit;
+ import org.jetbrains.annotations.NotNull;
+ import org.jetbrains.annotations.Nullable;
+ import org.slf4j.Logger;
+@@ -435,7 +437,9 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+ 
+         entity.setLevelCallback(new EntityCallback(entity));
+ 
+-        this.world.getCurrentWorldData().addEntity(entity); // Folia - region threading
++        Bukkit.getRegionScheduler().run(new FakePlugin(), entity.getBukkitEntity().getWorld(), entity.chunkPosition().x, entity.chunkPosition().z, stask -> {
++            this.world.getCurrentWorldData().addEntity(entity); // Folia - region threading
++        });
+ 
+         this.entityStatusChange(entity, slices, Visibility.HIDDEN, getEntityStatus(entity), false, !fromDisk, false);
+ 
