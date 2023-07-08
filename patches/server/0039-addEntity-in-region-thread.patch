@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Sat, 8 Jul 2023 13:22:56 +0800
+Date: Sat, 8 Jul 2023 13:41:22 +0800
 Subject: [PATCH] addEntity in region thread
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-index 0493629eecac1a9540707f322f5b82cb47356f5c..0795f8cc079803155b007caab6b3ecda6f34bac4 100644
+index 0493629eecac1a9540707f322f5b82cb47356f5c..01d7a231d346dc12cccd349f67868bb9a45d5dcc 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 @@ -2,6 +2,7 @@ package io.papermc.paper.chunk.system.entity;
@@ -24,14 +24,18 @@ index 0493629eecac1a9540707f322f5b82cb47356f5c..0795f8cc079803155b007caab6b3ecda
  import org.jetbrains.annotations.NotNull;
  import org.jetbrains.annotations.Nullable;
  import org.slf4j.Logger;
-@@ -435,7 +437,9 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -435,7 +437,13 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
  
          entity.setLevelCallback(new EntityCallback(entity));
  
 -        this.world.getCurrentWorldData().addEntity(entity); // Folia - region threading
-+        Bukkit.getRegionScheduler().run(new FakePlugin(), entity.getBukkitEntity().getWorld(), entity.chunkPosition().x, entity.chunkPosition().z, stask -> {
++        if (TickThread.isTickThreadFor(this.world, entity.chunkPosition())) {
 +            this.world.getCurrentWorldData().addEntity(entity); // Folia - region threading
-+        });
++        } else {
++            Bukkit.getRegionScheduler().run(new FakePlugin(), this.world.getWorld(), entity.chunkPosition().x, entity.chunkPosition().z, stask -> {
++                this.world.getCurrentWorldData().addEntity(entity); // Folia - region threading
++            });
++        }
  
          this.entityStatusChange(entity, slices, Visibility.HIDDEN, getEntityStatus(entity), false, !fromDisk, false);
  
