@@ -86,7 +86,7 @@ index 8d461a980165d2998ce33e0ed2945a2f98d8470f..a5ec668c6242ffbc74235ae2de544994
          }
          // DirtyFolia - Unstable action
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index a0b28cc311f996f48cdd632a1512c7cc06d2db59..6b69cdc72a9fe347055e4e6b34774b772108b8aa 100644
+index 635126af6eca3465c8ffc7a970ff3bacc18c70c9..19bbd89d168ca6b1d50d58c828f20b03a09e6c17 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1456,7 +1456,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa

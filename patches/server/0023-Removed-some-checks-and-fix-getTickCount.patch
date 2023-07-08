@@ -100,7 +100,7 @@ index 38441121cf7cdc1d64ef9fc17ae76dc16fbf96f2..4b6cb48fa0450c903be4a43f36779534
      }
  
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 8429fd4a60c11b294fb65236eae566588c80d07c..746f9550d8b5d6f927cf0ff8b759d63e12a22d33 100644
+index 01e00f9cf7a00660a283710d70f7f96f2c5b9bee..67223e0dd26bc64f915327832c568f96f4cb99b8 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1,11 +1,9 @@
@@ -784,7 +784,7 @@ index 51e155d90c839b73c481cdca8fba1f700d4b5759..cb33fbdc2fc3312c0f4d4eaf5fd44811
          ChunkPos chunkcoordintpair = new ChunkPos(x, z);
          long k = chunkcoordintpair.toLong();
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index ace5e9900eb4e08ace4fb24ffa66c6d6d03ab82a..71d75af2cd9a604da779181aa45d1214b304f5c7 100644
+index 3c5b412ac6b09c667b05d9c44f341d4e8506c4cc..28aad969916c0e26971f9ab725c8569e74cb27fc 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -4,37 +4,15 @@ import com.google.common.collect.Lists;
@@ -1055,7 +1055,7 @@ index ace5e9900eb4e08ace4fb24ffa66c6d6d03ab82a..71d75af2cd9a604da779181aa45d1214
  // CraftBukkit end
  
  public class ServerGamePacketListenerImpl implements ServerPlayerConnection, TickablePacketListener, ServerGamePacketListener {
-@@ -2514,7 +2371,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -2515,7 +2372,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
      public void handleCommand(String s) { // Paper - private -> public
          // Paper Start
          if (!org.spigotmc.AsyncCatcher.shuttingDown && !org.bukkit.Bukkit.isPrimaryThread()) {
@@ -1064,7 +1064,7 @@ index ace5e9900eb4e08ace4fb24ffa66c6d6d03ab82a..71d75af2cd9a604da779181aa45d1214
              LOGGER.error("Command Dispatched Async: " + s);
              LOGGER.error("Please notify author of plugin causing this execution to fix this bug! see: http://bit.ly/1oSiM6C", new Throwable());
              Waitable<Void> wait = new Waitable<>() {
-@@ -2575,7 +2432,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -2576,7 +2433,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
          if (s.isEmpty()) {
              ServerGamePacketListenerImpl.LOGGER.warn(this.player.getScoreboardName() + " tried to send an empty message");
          } else if (this.getCraftPlayer().isConversing()) {
@@ -1074,7 +1074,7 @@ index ace5e9900eb4e08ace4fb24ffa66c6d6d03ab82a..71d75af2cd9a604da779181aa45d1214
              this.server.processQueue.add(new Runnable() {
                  @Override
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 42deb0c263496fceecf9e74548eb53a4d29a885e..705975067d73846384dadf32b888eac558a95f1a 100644
+index ad0fff286e660102898a7e67fb5512c1079ee7f4..c6cc979b4528b63615e680b5a09d5be16be87cf7 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -1,35 +1,12 @@
@@ -1236,7 +1236,7 @@ index 42deb0c263496fceecf9e74548eb53a4d29a885e..705975067d73846384dadf32b888eac5
  // CraftBukkit end
  
  public abstract class Entity implements Nameable, EntityAccess, CommandSource {
-@@ -4332,9 +4285,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4311,9 +4264,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      @Nullable
      public Entity teleportTo(ServerLevel worldserver, PositionImpl location) {
          // Folia start - region threading
@@ -1250,10 +1250,10 @@ index 42deb0c263496fceecf9e74548eb53a4d29a885e..705975067d73846384dadf32b888eac5
          // CraftBukkit end
          // Paper start - fix bad state entities causing dupes
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index d18f9e40f22111068ef49dcf8c66e5ce0ad2f818..ea9709f17efe38c597ee1d300acf5c287e7a799c 100644
+index 125526a6ba4230c7b252c5a7df83ce4c7d9d5371..ec9589650527d4ffd3cef4613ab3bb0898bda1fd 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -1145,7 +1145,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -1144,7 +1144,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
      }
  
      public boolean addEffect(MobEffectInstance mobeffect, @Nullable Entity entity, EntityPotionEffectEvent.Cause cause) {
@@ -1473,7 +1473,7 @@ index f3df9c9b6cff85565514f990597f3fe53652812c..b09b32d56bed38f3bb4c552331f02965
          LevelChunkTicks<T> levelChunkTicks = this.allContainers.get(l);
          if (levelChunkTicks == null) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 23b8dde3cd185b372d4adc97201a422cebbbe804..519aa325ac5e3af7664fb0b843e7bc49ff08f429 100644
+index 723ae4b75c84fe952377c02d42cf7a710f7047ea..677e4f83dab1a78ea4b09abf98313dbdbc456367 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -327,7 +327,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
@@ -1549,10 +1549,10 @@ index 23b8dde3cd185b372d4adc97201a422cebbbe804..519aa325ac5e3af7664fb0b843e7bc49
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 43c899d466bfffec4ea5ce1a4ed988f9ce4ecf42..d103ae4db914ab993c4809532f57d7687acf9972 100644
+index 66f4e0578e7682d732ba4b36f5c3344d1d0e3d68..24583488ee0e15c9017549a13d190e9f3f1b8686 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -27,6 +27,7 @@ import java.util.UUID;
+@@ -29,6 +29,7 @@ import java.util.UUID;
  import java.util.WeakHashMap;
  import java.util.logging.Level;
  import java.util.logging.Logger;
@@ -1560,7 +1560,7 @@ index 43c899d466bfffec4ea5ce1a4ed988f9ce4ecf42..d103ae4db914ab993c4809532f57d768
  import javax.annotation.Nullable;
  import net.minecraft.advancements.AdvancementProgress;
  import net.minecraft.core.BlockPos;
-@@ -37,7 +38,6 @@ import net.minecraft.nbt.CompoundTag;
+@@ -39,7 +40,6 @@ import net.minecraft.nbt.CompoundTag;
  import net.minecraft.network.FriendlyByteBuf;
  import net.minecraft.network.chat.Component;
  import net.minecraft.network.chat.PlayerChatMessage;
@@ -1568,7 +1568,7 @@ index 43c899d466bfffec4ea5ce1a4ed988f9ce4ecf42..d103ae4db914ab993c4809532f57d768
  import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
  import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
  import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
-@@ -1292,9 +1292,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1298,9 +1298,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
      @Override
      public boolean teleport(Location location, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
          // Folia start - region threading

@@ -5,10 +5,10 @@ Subject: [PATCH] Support six rows enderChests and barrels
 
 
 diff --git a/src/main/java/org/bukkit/event/inventory/InventoryType.java b/src/main/java/org/bukkit/event/inventory/InventoryType.java
-index daddb12947e61ee69c100b422f6d07d49f76d724..e0931cc57a77c043d2d2f50853db90387a1c6c30 100644
+index cbce826add9dc2b3187c7bea00c27b785d7517df..539b596d00a4d3e0577c1e156655fd0f8c791640 100644
 --- a/src/main/java/org/bukkit/event/inventory/InventoryType.java
 +++ b/src/main/java/org/bukkit/event/inventory/InventoryType.java
-@@ -152,7 +152,13 @@ public enum InventoryType {
+@@ -151,7 +151,13 @@ public enum InventoryType {
      SMITHING_NEW(4, "Upgrade Gear"),
      ;
  

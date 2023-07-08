@@ -5,7 +5,7 @@ Subject: [PATCH] Support six rows enderChests and barrels
 
 
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index 8bfdf080864ded6b70a6c7db7265181829a45410..8551b3e37bda4182f525ee61e8ee407ca1808914 100644
+index 18cd3e64317994c7bee8de9a5f5cb0ada3cd8a79..32b693ee0a8877189fdd122ffffa14714d803bf8 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 @@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
@@ -57,7 +57,7 @@ index 8bfdf080864ded6b70a6c7db7265181829a45410..8551b3e37bda4182f525ee61e8ee407c
  
      public Commands commands;
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 0dd234d5915fb3c096d6aab269162a1458181b23..d611b7953adda9b5be3a3a7085fba09991df4f67 100644
+index 188d37ce13d51e7e617e0337061f77c0855a0b10..05bd6f064ee6c1f5f46d87633e0b2af746c5abb8 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -27,6 +27,8 @@ import java.util.UUID;
@@ -260,7 +260,7 @@ index 416aa989ebb18a8741cc9d605a1180ab830f6643..4d3cb2d027af0681c5add79518aab693
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
-index 3075ba5f6d66316f27e618d8b279252e9520b9cb..026c29ff72e7a184f7e6f877f9e7577357c46237 100644
+index 081e6c7ce4a0185ba75e48bbb581fd531cdb10a8..30ce5770266c402a1791cb751a8928ababcf7952 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
 @@ -1,5 +1,6 @@
@@ -270,7 +270,7 @@ index 3075ba5f6d66316f27e618d8b279252e9520b9cb..026c29ff72e7a184f7e6f877f9e75773
  import net.minecraft.world.Container;
  import net.minecraft.world.entity.player.Player;
  import net.minecraft.world.inventory.AbstractContainerMenu;
-@@ -181,8 +182,20 @@ public class CraftContainer extends AbstractContainerMenu {
+@@ -180,8 +181,20 @@ public class CraftContainer extends AbstractContainerMenu {
              case PLAYER:
              case CHEST:
              case ENDER_CHEST:
@@ -293,7 +293,7 @@ index 3075ba5f6d66316f27e618d8b279252e9520b9cb..026c29ff72e7a184f7e6f877f9e75773
              case DISPENSER:
              case DROPPER:
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventory.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventory.java
-index df254c42b73cdb56f71781473cbf9d0f28dcfb08..ac2f186d81ea636891e487f18da9d3b110b42ec8 100644
+index 471ae4458e7ea7c29d7551b32cec98180fbccd4e..67ba6799392e660ec48e55e923d65352e870beb7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventory.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventory.java
 @@ -83,7 +83,7 @@ public class CraftInventory implements Inventory {

@@ -5,10 +5,10 @@ Subject: [PATCH] Recode DirtyFolia
 
 
 diff --git a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
-index 7bc31036a612df6088a7bb190ed16d0cdbfeaccc..d537d03055446fe4164726cfbb0bdcaf212d0eda 100644
+index 02ab82f6d0eb2a5afbb6b0ac4d738097c4986ad1..cff0773df89752cfedffec04e423193d85f897e1 100644
 --- a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
 +++ b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
-@@ -266,6 +266,9 @@ public final class PluginDescriptionFile implements io.papermc.paper.plugin.conf
+@@ -269,6 +269,9 @@ public final class PluginDescriptionFile implements io.papermc.paper.plugin.conf
       */
      @Override
      public boolean isFoliaSupported() {

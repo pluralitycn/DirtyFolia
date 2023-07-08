@@ -26,7 +26,7 @@ index ee9f5e1f3387998cddbeb1dc6dc6e2b1ea7cd670..70cc11031e5ed5d9c4c5e68aca9a1b79
              tickThreadRunner.currentTickingWorldRegionizedData = null;
          }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 746f9550d8b5d6f927cf0ff8b759d63e12a22d33..89d4ae824d7786402819abbd9084a0d9320a4023 100644
+index 67223e0dd26bc64f915327832c568f96f4cb99b8..e27e347b08cc62e11981686d3eb37a1766f322a2 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1,5 +1,6 @@

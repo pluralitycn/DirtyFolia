@@ -5,7 +5,7 @@ Subject: [PATCH] fixup! Rewrite chunk system
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-index 6d98e6a29f12c57031ba951c013501f5ec3c876d..75a044f9da03e0d92e7863915fcec439ae3c19d8 100644
+index fe461cc6aed9507b23f72ef1ebc856869888cfe6..c07cf8cdee4ec270a97535ee8626081d66226d3f 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 @@ -17,6 +17,7 @@ import net.minecraft.util.AbortableIterationConsumer;
@@ -24,7 +24,7 @@ index 6d98e6a29f12c57031ba951c013501f5ec3c876d..75a044f9da03e0d92e7863915fcec439
  import org.jetbrains.annotations.NotNull;
  import org.jetbrains.annotations.Nullable;
  import org.slf4j.Logger;
-@@ -314,22 +316,55 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -319,22 +321,55 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
          this.getChunk(x, z).updateStatus(newStatus, this);
      }
  

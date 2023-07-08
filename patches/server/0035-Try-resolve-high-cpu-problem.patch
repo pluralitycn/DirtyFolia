@@ -39,7 +39,7 @@ index c3a2f62cbb87d23f9ed21eabd9eb43973c85cb7f..4042062f6303a02448e6548bc61ba11b
          } else {
              tickThreadRunner.currentTickingWorldRegionizedData = null;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 6b69cdc72a9fe347055e4e6b34774b772108b8aa..a211e0a584349268dc7b0cf588bf4a567cdf22e7 100644
+index 19bbd89d168ca6b1d50d58c828f20b03a09e6c17..4f2043e24c7947be0f010ec13d789dfe07d2cc2a 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1500,8 +1500,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
