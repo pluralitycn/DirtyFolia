@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Sun, 9 Jul 2023 09:35:08 +0800
+Subject: [PATCH] bypass global tick thread check
+
+
+diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
+index d76e391f80d3aa2227c39d099316936e4933c6fe..b10a588f545203f3bc506f0b1e5898d1b678d474 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
++++ b/src/main/java/io/papermc/paper/threadedregions/RegionizedServer.java
+@@ -113,6 +113,11 @@ public final class RegionizedServer {
+     }
+ 
+     public static void ensureGlobalTickThread(final String reason) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (TickThread.DISABLE_CHECKS && (TickThread.excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || TickThread.includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return;
++        }
++        // DirtyFolia - Unstable action (Added an option to force check thread for a package)
+         if (!isGlobalTickThread()) {
+             throw new IllegalStateException(reason);
+         }
+diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
+index a5ec668c6242ffbc74235ae2de54499490211d76..80ca00c62e5c274fb3c815742c6b39bd14af10e8 100644
+--- a/src/main/java/io/papermc/paper/util/TickThread.java
++++ b/src/main/java/io/papermc/paper/util/TickThread.java
+@@ -35,11 +35,11 @@ public class TickThread extends Thread {
+         }
+         if (DISABLE_CHECKS) {
+             MinecraftServer.LOGGER.warn("Disable all thread checks, the server will run in an unstable environment - This action may cause some problems");
+-            if (includePackages.size() != 0) {
+-                MinecraftServer.LOGGER.warn("This packages will excluded: " + System.getProperty("folia.force-check-include-packages"));
++            if (includePackages.size() > 0) {
++                MinecraftServer.LOGGER.warn("This packages will excluded: " + System.getProperty("folia.force-check-include-packages", "org.bukkit.craftbukkit,io.papermc,net.minecraft,com.destroystokyo.paper"));
+             }
+-            if (excludeClasses.size() != 0) {
+-                MinecraftServer.LOGGER.warn("This classes will included: " + System.getProperty("folia.force-check-bypass-classes"));
++            if (excludeClasses.size() > 0) {
++                MinecraftServer.LOGGER.warn("This classes will included: " + System.getProperty("folia.force-check-bypass-classes", ""));
+             }
+         }
+     }
