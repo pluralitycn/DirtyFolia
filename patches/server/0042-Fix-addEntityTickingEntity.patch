@@ -1,0 +1,91 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Tue, 11 Jul 2023 11:07:16 +0800
+Subject: [PATCH] Fix addEntityTickingEntity
+
+
+diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
+index 0b3bd5abbcd40ffc2c374cff92833a760a1c0fd4..2976729d552940fdea63b342b3ee5130e27b8e5e 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
++++ b/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
+@@ -4,6 +4,7 @@ import com.destroystokyo.paper.util.maplist.ReferenceList;
+ import com.destroystokyo.paper.util.misc.PlayerAreaMap;
+ import com.destroystokyo.paper.util.misc.PooledLinkedHashSets;
+ import com.mojang.logging.LogUtils;
++import dev.rgbmc.folia.FakePlugin;
+ import io.papermc.paper.chunk.system.scheduling.ChunkHolderManager;
+ import io.papermc.paper.util.CoordinateUtils;
+ import io.papermc.paper.util.TickThread;
+@@ -42,6 +43,7 @@ import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
+ import net.minecraft.world.level.redstone.NeighborUpdater;
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.ticks.LevelTicks;
++import org.bukkit.Bukkit;
+ import org.bukkit.craftbukkit.block.CraftBlockState;
+ import org.bukkit.craftbukkit.util.UnsafeList;
+ import org.slf4j.Logger;
+@@ -518,7 +520,13 @@ public final class RegionizedWorldData {
+ 
+     public void addEntityTickingEntity(final Entity entity) {
+         if (!TickThread.isTickThreadFor(entity)) {
+-            throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
++            Bukkit.getRegionScheduler().run(new FakePlugin(), entity.level().getWorld(), entity.chunkPosition().x, entity.chunkPosition().z, scheduledTask -> {
++                RegionizedWorldData worldData = entity.level().getCurrentWorldData();
++                worldData.entityTickList.add(entity);
++                TickRegions.RegionStats.updateCurrentRegion();
++            });
++            //throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
++            return;
+         }
+         this.entityTickList.add(entity);
+         TickRegions.RegionStats.updateCurrentRegion();
+@@ -549,7 +557,17 @@ public final class RegionizedWorldData {
+ 
+     public void addEntity(final Entity entity) {
+         if (!TickThread.isTickThreadFor(this.world, entity.chunkPosition())) {
+-            throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
++            Bukkit.getRegionScheduler().run(new FakePlugin(), entity.level().getWorld(), entity.chunkPosition().x, entity.chunkPosition().z, scheduledTask -> {
++                RegionizedWorldData worldData = entity.level().getCurrentWorldData();
++                if (worldData.allEntities.add(entity)) {
++                    if (entity instanceof ServerPlayer player) {
++                        worldData.localPlayers.add(player);
++                    }
++                    TickRegions.RegionStats.updateCurrentRegion();
++                }
++            });
++            //throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
++            return;
+         }
+         if (this.allEntities.add(entity)) {
+             if (entity instanceof ServerPlayer player) {
+diff --git a/src/main/java/net/minecraft/server/commands/KickCommand.java b/src/main/java/net/minecraft/server/commands/KickCommand.java
+index bb629ec263959c8268de88ca807bddb62e9f877e..bc1d709bef948fc8a7690f06e6a7639458015fb9 100644
+--- a/src/main/java/net/minecraft/server/commands/KickCommand.java
++++ b/src/main/java/net/minecraft/server/commands/KickCommand.java
+@@ -2,12 +2,15 @@ package net.minecraft.server.commands;
+ 
+ import com.mojang.brigadier.CommandDispatcher;
+ import java.util.Collection;
++
++import io.papermc.paper.adventure.PaperAdventure;
+ import net.minecraft.commands.CommandSourceStack;
+ import net.minecraft.commands.Commands;
+ import net.minecraft.commands.arguments.EntityArgument;
+ import net.minecraft.commands.arguments.MessageArgument;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.server.level.ServerPlayer;
++import org.bukkit.event.player.PlayerKickEvent;
+ 
+ public class KickCommand {
+     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+@@ -22,7 +25,9 @@ public class KickCommand {
+ 
+     private static int kickPlayers(CommandSourceStack source, Collection<ServerPlayer> targets, Component reason) {
+         for(ServerPlayer serverPlayer : targets) {
+-            serverPlayer.connection.disconnect(reason, org.bukkit.event.player.PlayerKickEvent.Cause.KICK_COMMAND); // Paper - kick event cause
++            PlayerKickEvent playerKickEvent = new PlayerKickEvent(serverPlayer.getBukkitEntity(), PaperAdventure.asAdventure(reason), PaperAdventure.asAdventure(reason), org.bukkit.event.player.PlayerKickEvent.Cause.KICK_COMMAND);
++            playerKickEvent.callEvent();
++            serverPlayer.connection.connection.disconnect(reason); // Paper - kick event cause
+             source.sendSuccess(() -> {
+                 return Component.translatable("commands.kick.success", serverPlayer.getDisplayName(), reason);
+             }, true);
