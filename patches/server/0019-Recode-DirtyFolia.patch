@@ -5,7 +5,7 @@ Subject: [PATCH] Recode DirtyFolia
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
-index 58dc84b7b3b04c2d0b00fc5fac5303d3378b3467..aab323928f7838b2fc9a404e97956f5a64d84fdb 100644
+index cb60d58d4a7556dd896f31d0cd249f860bb3ef84..b6f5b3fc1c0fc42c9e9611ecd5867a6dde45e4f0 100644
 --- a/src/main/java/com/destroystokyo/paper/Metrics.java
 +++ b/src/main/java/com/destroystokyo/paper/Metrics.java
 @@ -41,7 +41,7 @@ public class Metrics {
@@ -1066,7 +1066,7 @@ index 39d404c278bdc1227cb806bb257492493d05a439..6d4407f0ff95036373bb96e024f70f97
              final PlayerTeam team = scoreboard.getPlayersTeam(this.collideRuleTeamName);
              if (team != null) scoreboard.removePlayerTeam(team);
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 52aa759db930c04a051686766c1b822a5131a20a..ad0fff286e660102898a7e67fb5512c1079ee7f4 100644
+index ee15661227754149164893d6acf678d13b2e1b27..a0e5f4caa054d6c4fea6500e47940f817f1c5346 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
@@ -1101,7 +1101,7 @@ index 52aa759db930c04a051686766c1b822a5131a20a..ad0fff286e660102898a7e67fb5512c1
          // Folia end - region threading
          if (!this.level().paperConfig().scoreboards.allowNonPlayerEntitiesOnScoreboards && !(this instanceof Player)) { return null; } // Paper
          return this.level().getScoreboard().getPlayersTeam(this.getScoreboardName());
-@@ -3854,6 +3858,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3858,6 +3862,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
              }
          }
  
@@ -1114,7 +1114,7 @@ index 52aa759db930c04a051686766c1b822a5131a20a..ad0fff286e660102898a7e67fb5512c1
          // TODO any events that can modify go HERE
  
          // check for same region
-@@ -3977,8 +3987,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3981,8 +3991,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.END ? Level.OVERWORLD : Level.END);
@@ -1129,7 +1129,7 @@ index 52aa759db930c04a051686766c1b822a5131a20a..ad0fff286e660102898a7e67fb5512c1
              return false;
          }
  
-@@ -3989,8 +4005,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3993,8 +4009,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.NETHER ? Level.OVERWORLD : Level.NETHER);

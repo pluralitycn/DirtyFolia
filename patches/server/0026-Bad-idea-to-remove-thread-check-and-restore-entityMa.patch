@@ -345,7 +345,7 @@ index 2e858160c648cf0fd9b85ca66c80e0b5470b4620..2b4c1fe155b2dadd6e9ee513fa054a52
          if (this.level().getTypeKey() == LevelStem.END) {
              if (!this.canPortalAsync(false)) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index c6cc979b4528b63615e680b5a09d5be16be87cf7..f709247ece3ca0b433ced219f394487677636487 100644
+index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a25adc485 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -1026,7 +1026,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
@@ -357,7 +357,7 @@ index c6cc979b4528b63615e680b5a09d5be16be87cf7..f709247ece3ca0b433ced219f3944876
          synchronized (this.posLock) {
              this.moveStartX = this.getX();
              this.moveStartY = this.getY();
-@@ -3572,7 +3572,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3576,7 +3576,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected EntityTreeNode makePassengerTree() {
@@ -366,7 +366,7 @@ index c6cc979b4528b63615e680b5a09d5be16be87cf7..f709247ece3ca0b433ced219f3944876
  
          EntityTreeNode root = new EntityTreeNode(null, this);
          java.util.ArrayDeque<EntityTreeNode> queue = new java.util.ArrayDeque<>();
-@@ -3598,7 +3598,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3602,7 +3602,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected EntityTreeNode detachPassengers() {
@@ -375,7 +375,7 @@ index c6cc979b4528b63615e680b5a09d5be16be87cf7..f709247ece3ca0b433ced219f3944876
  
          EntityTreeNode root = new EntityTreeNode(null, this);
          java.util.ArrayDeque<EntityTreeNode> queue = new java.util.ArrayDeque<>();
-@@ -3780,7 +3780,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3784,7 +3784,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      public final boolean teleportAsync(ServerLevel destination, Vec3 pos, Float yaw, Float pitch, Vec3 speedDirectionUpdate,
                                         org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, long teleportFlags,
                                         java.util.function.Consumer<Entity> teleportComplete) {
@@ -384,7 +384,7 @@ index c6cc979b4528b63615e680b5a09d5be16be87cf7..f709247ece3ca0b433ced219f3944876
  
          if (!ServerLevel.isInSpawnableBounds(new BlockPos(io.papermc.paper.util.CoordinateUtils.getBlockX(pos), io.papermc.paper.util.CoordinateUtils.getBlockY(pos), io.papermc.paper.util.CoordinateUtils.getBlockZ(pos)))) {
              return false;
-@@ -3896,7 +3896,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3900,7 +3900,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected boolean tryEndPortal() {
@@ -393,7 +393,7 @@ index c6cc979b4528b63615e680b5a09d5be16be87cf7..f709247ece3ca0b433ced219f3944876
          BlockPos pos = this.portalBlock;
          ServerLevel world = this.portalWorld;
          this.portalBlock = null;
-@@ -3914,7 +3914,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3918,7 +3918,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected boolean tryNetherPortal() {
@@ -402,7 +402,7 @@ index c6cc979b4528b63615e680b5a09d5be16be87cf7..f709247ece3ca0b433ced219f3944876
  
          int portalWaitTime = this.getPortalWaitTime();
  
-@@ -3937,7 +3937,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3941,7 +3941,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      public boolean endPortalLogicAsync() {
@@ -411,7 +411,7 @@ index c6cc979b4528b63615e680b5a09d5be16be87cf7..f709247ece3ca0b433ced219f3944876
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.END ? Level.OVERWORLD : Level.END);
          EntityPortalReadyEvent event = new io.papermc.paper.event.entity.EntityPortalReadyEvent(this.getBukkitEntity(), destination == null ? null : destination.getWorld(), org.bukkit.PortalType.ENDER);
-@@ -3955,7 +3955,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3959,7 +3959,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      public boolean netherPortalLogicAsync() {
@@ -420,7 +420,7 @@ index c6cc979b4528b63615e680b5a09d5be16be87cf7..f709247ece3ca0b433ced219f3944876
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.NETHER ? Level.OVERWORLD : Level.NETHER);
          EntityPortalReadyEvent event = new io.papermc.paper.event.entity.EntityPortalReadyEvent(this.getBukkitEntity(), destination == null ? null : destination.getWorld(), org.bukkit.PortalType.NETHER);
-@@ -4182,7 +4182,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4186,7 +4186,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
      protected boolean portalToAsync(ServerLevel destination, boolean takePassengers,
                                      PortalType type, java.util.function.Consumer<Entity> teleportComplete) {
@@ -429,7 +429,7 @@ index c6cc979b4528b63615e680b5a09d5be16be87cf7..f709247ece3ca0b433ced219f3944876
          if (!this.canPortalAsync(takePassengers)) {
              return false;
          }
-@@ -5426,7 +5426,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -5430,7 +5430,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      @Override
      public final void setRemoved(Entity.RemovalReason reason) {
          // Paper start - rewrite chunk system

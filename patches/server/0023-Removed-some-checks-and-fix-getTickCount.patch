@@ -784,7 +784,7 @@ index 51e155d90c839b73c481cdca8fba1f700d4b5759..cb33fbdc2fc3312c0f4d4eaf5fd44811
          ChunkPos chunkcoordintpair = new ChunkPos(x, z);
          long k = chunkcoordintpair.toLong();
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 3c5b412ac6b09c667b05d9c44f341d4e8506c4cc..28aad969916c0e26971f9ab725c8569e74cb27fc 100644
+index b2feaea169fa9d3977c3dfdfdf3dea9283f5d854..8c132b05d816f99a2bf77ee7b3cd1386c0040198 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -4,37 +4,15 @@ import com.google.common.collect.Lists;
@@ -1055,7 +1055,7 @@ index 3c5b412ac6b09c667b05d9c44f341d4e8506c4cc..28aad969916c0e26971f9ab725c8569e
  // CraftBukkit end
  
  public class ServerGamePacketListenerImpl implements ServerPlayerConnection, TickablePacketListener, ServerGamePacketListener {
-@@ -2515,7 +2372,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -2523,7 +2380,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
      public void handleCommand(String s) { // Paper - private -> public
          // Paper Start
          if (!org.spigotmc.AsyncCatcher.shuttingDown && !org.bukkit.Bukkit.isPrimaryThread()) {
@@ -1064,7 +1064,7 @@ index 3c5b412ac6b09c667b05d9c44f341d4e8506c4cc..28aad969916c0e26971f9ab725c8569e
              LOGGER.error("Command Dispatched Async: " + s);
              LOGGER.error("Please notify author of plugin causing this execution to fix this bug! see: http://bit.ly/1oSiM6C", new Throwable());
              Waitable<Void> wait = new Waitable<>() {
-@@ -2576,7 +2433,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -2584,7 +2441,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
          if (s.isEmpty()) {
              ServerGamePacketListenerImpl.LOGGER.warn(this.player.getScoreboardName() + " tried to send an empty message");
          } else if (this.getCraftPlayer().isConversing()) {
@@ -1074,7 +1074,7 @@ index 3c5b412ac6b09c667b05d9c44f341d4e8506c4cc..28aad969916c0e26971f9ab725c8569e
              this.server.processQueue.add(new Runnable() {
                  @Override
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index ad0fff286e660102898a7e67fb5512c1079ee7f4..c6cc979b4528b63615e680b5a09d5be16be87cf7 100644
+index a0e5f4caa054d6c4fea6500e47940f817f1c5346..b71e3cbb8d9c14e383d73bff8d69975fe7a03790 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -1,35 +1,12 @@
@@ -1236,7 +1236,7 @@ index ad0fff286e660102898a7e67fb5512c1079ee7f4..c6cc979b4528b63615e680b5a09d5be1
  // CraftBukkit end
  
  public abstract class Entity implements Nameable, EntityAccess, CommandSource {
-@@ -4311,9 +4264,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4315,9 +4268,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      @Nullable
      public Entity teleportTo(ServerLevel worldserver, PositionImpl location) {
          // Folia start - region threading
