@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Thu, 13 Jul 2023 13:13:38 +0800
+Subject: [PATCH] Brand DirtyFolia
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+index b6f5b3fc1c0fc42c9e9611ecd5867a6dde45e4f0..0ca71e5d0777cdd4d85ef2482d7605c820623391 100644
+--- a/src/main/java/com/destroystokyo/paper/Metrics.java
++++ b/src/main/java/com/destroystokyo/paper/Metrics.java
+@@ -141,7 +141,7 @@ public class Metrics {
+         // OS specific data
+         String osName = System.getProperty("os.name");
+         osName += " (Using DirtyFolia)";
+-        String osArch = System.getProperty("os.arch");
++        String osArch = System.getProperty("os.arch") + "_dirty";
+         String osVersion = System.getProperty("os.version");
+         int coreCount = Runtime.getRuntime().availableProcessors();
+ 
+@@ -616,7 +616,7 @@ public class Metrics {
+                 final String implVersion = org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion();
+                 if (implVersion != null) {
+                     final String buildOrHash = implVersion.substring(implVersion.lastIndexOf('-') + 1);
+-                    paperVersion = "git-Folia-%s-%s".formatted(Bukkit.getServer().getMinecraftVersion(), buildOrHash); // Folia - we have our own bstats page
++                    paperVersion = "git-DirtyFolia-%s-%s".formatted(Bukkit.getServer().getMinecraftVersion(), buildOrHash); // Folia - we have our own bstats page
+                 } else {
+                     paperVersion = "unknown";
+                 }
