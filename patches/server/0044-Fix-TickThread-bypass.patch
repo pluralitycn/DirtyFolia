@@ -1,0 +1,179 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Mon, 24 Jul 2023 19:07:19 +0800
+Subject: [PATCH] Fix TickThread bypass
+
+
+diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
+index 80ca00c62e5c274fb3c815742c6b39bd14af10e8..1dbd866e982652cca72730ccc3a28232c5308984 100644
+--- a/src/main/java/io/papermc/paper/util/TickThread.java
++++ b/src/main/java/io/papermc/paper/util/TickThread.java
+@@ -36,10 +36,10 @@ public class TickThread extends Thread {
+         if (DISABLE_CHECKS) {
+             MinecraftServer.LOGGER.warn("Disable all thread checks, the server will run in an unstable environment - This action may cause some problems");
+             if (includePackages.size() > 0) {
+-                MinecraftServer.LOGGER.warn("This packages will excluded: " + System.getProperty("folia.force-check-include-packages", "org.bukkit.craftbukkit,io.papermc,net.minecraft,com.destroystokyo.paper"));
++                MinecraftServer.LOGGER.warn("This packages will excluded: " + String.join(", ", includePackages));
+             }
+             if (excludeClasses.size() > 0) {
+-                MinecraftServer.LOGGER.warn("This classes will included: " + System.getProperty("folia.force-check-bypass-classes", ""));
++                MinecraftServer.LOGGER.warn("This classes will included: " + String.join(", ", excludeClasses));
+             }
+         }
+     }
+@@ -52,6 +52,10 @@ public class TickThread extends Thread {
+         if (!STRICT_THREAD_CHECKS) {
+             return;
+         }
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return;
++        }
+         ensureTickThread(reason);
+     }
+ 
+@@ -60,6 +64,10 @@ public class TickThread extends Thread {
+      */
+     @Deprecated
+     public static void ensureTickThread(final String reason) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return;
++        }
+         if (!isTickThread()) {
+             MinecraftServer.LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread check: " + reason, new Throwable());
+             throw new IllegalStateException(reason);
+@@ -67,6 +75,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static void ensureTickThread(final ServerLevel world, final BlockPos pos, final String reason) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return;
++        }
+         if (!isTickThreadFor(world, pos)) {
+             MinecraftServer.LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread check: " + reason, new Throwable());
+             throw new IllegalStateException(reason);
+@@ -74,6 +86,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static void ensureTickThread(final ServerLevel world, final ChunkPos pos, final String reason) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return;
++        }
+         if (!isTickThreadFor(world, pos)) {
+             MinecraftServer.LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread check: " + reason, new Throwable());
+             throw new IllegalStateException(reason);
+@@ -81,6 +97,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static void ensureTickThread(final ServerLevel world, final int chunkX, final int chunkZ, final String reason) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return;
++        }
+         if (!isTickThreadFor(world, chunkX, chunkZ)) {
+             MinecraftServer.LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread check: " + reason, new Throwable());
+             throw new IllegalStateException(reason);
+@@ -88,6 +108,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static void ensureTickThread(final Entity entity, final String reason) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return;
++        }
+         if (!isTickThreadFor(entity)) {
+             MinecraftServer.LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread check: " + reason, new Throwable());
+             throw new IllegalStateException(reason);
+@@ -95,6 +119,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static void ensureTickThread(final ServerLevel world, final AABB aabb, final String reason) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return;
++        }
+         if (!isTickThreadFor(world, aabb)) {
+             MinecraftServer.LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread check: " + reason, new Throwable());
+             throw new IllegalStateException(reason);
+@@ -102,6 +130,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static void ensureTickThread(final ServerLevel world, final double blockX, final double blockZ, final String reason) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return;
++        }
+         if (!isTickThreadFor(world, blockX, blockZ)) {
+             MinecraftServer.LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread check: " + reason, new Throwable());
+             throw new IllegalStateException(reason);
+@@ -138,14 +170,26 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final BlockPos pos) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return true;
++        }
+         return isTickThreadFor(world, pos.getX() >> 4, pos.getZ() >> 4);
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final ChunkPos pos) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return true;
++        }
+         return isTickThreadFor(world, pos.x, pos.z);
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final Vec3 pos) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return true;
++        }
+         return isTickThreadFor(world, Mth.floor(pos.x) >> 4, Mth.floor(pos.z) >> 4);
+     }
+ 
+@@ -168,6 +212,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final AABB aabb) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return true;
++        }
+         return isTickThreadFor(
+             world,
+             CoordinateUtils.getChunkCoordinate(aabb.minX), CoordinateUtils.getChunkCoordinate(aabb.minZ),
+@@ -176,10 +224,18 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final double blockX, final double blockZ) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return true;
++        }
+         return isTickThreadFor(world, CoordinateUtils.getChunkCoordinate(blockX), CoordinateUtils.getChunkCoordinate(blockZ));
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final Vec3 position, final Vec3 deltaMovement, final int buffer) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return true;
++        }
+         final int fromChunkX = CoordinateUtils.getChunkX(position);
+         final int fromChunkZ = CoordinateUtils.getChunkZ(position);
+ 
+@@ -229,6 +285,10 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final int chunkX, final int chunkZ, final int radius) {
++        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
++        if (DISABLE_CHECKS && (excludeClasses.stream().anyMatch(s -> caller.getName().equals(s)) || includePackages.stream().noneMatch(s -> caller.getName().startsWith(s)))) {
++            return true;
++        }
+         return isTickThreadFor(world, chunkX - radius, chunkZ - radius, chunkX + radius, chunkZ + radius);
+     }
+ 
