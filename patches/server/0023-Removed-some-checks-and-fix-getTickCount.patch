@@ -598,7 +598,7 @@ index 9d0321d8f2f2c1903b77647017dfb88da314f733..364229c0a2945cf093bc448b7c3d9faf
              super.doRunTask(task);
          }
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 51e155d90c839b73c481cdca8fba1f700d4b5759..cb33fbdc2fc3312c0f4d4eaf5fd4481102889bf0 100644
+index 311eaae2b59cee8e4a9a9ec600dee837172d5260..650478ee465df684e8ba653efaa3c8be9cd43695 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -1,7 +1,7 @@
@@ -765,7 +765,7 @@ index 51e155d90c839b73c481cdca8fba1f700d4b5759..cb33fbdc2fc3312c0f4d4eaf5fd44811
  
  public class ServerLevel extends Level implements WorldGenLevel {
  
-@@ -1337,7 +1287,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1362,7 +1312,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
  
      public void tickNonPassenger(Entity entity) {
          // Paper start - log detailed entity tick information
@@ -774,7 +774,7 @@ index 51e155d90c839b73c481cdca8fba1f700d4b5759..cb33fbdc2fc3312c0f4d4eaf5fd44811
          try {
              if (currentlyTickingEntity.get() == null) {
                  currentlyTickingEntity.lazySet(entity);
-@@ -2243,7 +2193,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -2268,7 +2218,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
      }
  
      public boolean setChunkForced(int x, int z, boolean forced) {

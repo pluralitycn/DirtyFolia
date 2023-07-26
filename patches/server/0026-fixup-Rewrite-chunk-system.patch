@@ -139,10 +139,10 @@ index 916bfdfb13d8f8093e1908a7c35344b83d0ee0ac..25fe439c8d1e88a86e85ac9a4761425d
          }
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index cb33fbdc2fc3312c0f4d4eaf5fd4481102889bf0..70e0389d3417a63110e2d88affde677e88d8eb52 100644
+index d4a66df65372d839462a0700db4dd62372804663..e44818e61371a52f049ba58667846641d7a8e441 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -2589,12 +2589,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -2616,12 +2616,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
          return this.entityLookup; // Paper - rewrite chunk system
      }
  

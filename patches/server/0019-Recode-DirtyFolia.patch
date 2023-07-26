@@ -957,7 +957,7 @@ index af35fd63b090aa3d89bc60cb9cb7694b5f502681..9d0321d8f2f2c1903b77647017dfb88d
  
      @Nullable
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index f95f1d1bc08b3c8f331a4f760e3218238f74ff67..51e155d90c839b73c481cdca8fba1f700d4b5759 100644
+index bb07ad1bb895297356b88dfc4cd17e5e93795c38..311eaae2b59cee8e4a9a9ec600dee837172d5260 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -222,6 +222,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
@@ -968,7 +968,7 @@ index f95f1d1bc08b3c8f331a4f760e3218238f74ff67..51e155d90c839b73c481cdca8fba1f70
      public static Throwable getAddToWorldStackTrace(Entity entity) {
          final Throwable thr = new Throwable(entity + " Added to world at " + new java.util.Date());
          io.papermc.paper.util.StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(thr);
-@@ -2650,6 +2651,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -2675,6 +2676,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
          chunk.unpackTicks(this.getRedstoneGameTime()); // Folia - region threading
      }
  
@@ -986,7 +986,7 @@ index f95f1d1bc08b3c8f331a4f760e3218238f74ff67..51e155d90c839b73c481cdca8fba1f70
      public void onStructureStartsAvailable(ChunkAccess chunk) {
          // Folia start - region threading
          // no longer needs to be on main
-@@ -2732,7 +2744,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -2757,7 +2769,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
          public void onCreated(Entity entity) {}
  
          public void onDestroyed(Entity entity) {
@@ -996,10 +996,10 @@ index f95f1d1bc08b3c8f331a4f760e3218238f74ff67..51e155d90c839b73c481cdca8fba1f70
  
          public void onTickingStart(Entity entity) {
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index 817f79bfca1aec161cb4635b9c7a8e21b14db7eb..2e858160c648cf0fd9b85ca66c80e0b5470b4620 100644
+index febd0ba72922462364eb65243640dcb693129e21..83f1ccaf21a6ea9971cffad5f587540274d9f93a 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-@@ -1549,9 +1549,10 @@ public class ServerPlayer extends Player {
+@@ -1607,9 +1607,10 @@ public class ServerPlayer extends Player {
      @Nullable
      public Entity changeDimension(ServerLevel worldserver, PlayerTeleportEvent.TeleportCause cause) {
          // Folia start - region threading

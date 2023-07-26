@@ -323,10 +323,10 @@ index 364229c0a2945cf093bc448b7c3d9fafebab418f..9159d89d14ac80dd9b08d2a63a74c09a
          io.papermc.paper.chunk.system.scheduling.NewChunkHolder chunkHolder = this.level.chunkTaskScheduler.chunkHolderManager.getChunkHolder(chunkX, chunkZ);
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index 2e858160c648cf0fd9b85ca66c80e0b5470b4620..2b4c1fe155b2dadd6e9ee513fa054a5284fbd56e 100644
+index 83f1ccaf21a6ea9971cffad5f587540274d9f93a..3ff4ac43933c4a4cb951eaa6e08bf83beb1735c8 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-@@ -1237,7 +1237,7 @@ public class ServerPlayer extends Player {
+@@ -1295,7 +1295,7 @@ public class ServerPlayer extends Player {
      }
  
      private void respawn(java.util.function.Consumer<ServerPlayer> respawnComplete, boolean alive) {
@@ -335,7 +335,7 @@ index 2e858160c648cf0fd9b85ca66c80e0b5470b4620..2b4c1fe155b2dadd6e9ee513fa054a52
  
          this.getBukkitEntity(); // force bukkit entity to be created before TPing
  
-@@ -1513,7 +1513,7 @@ public class ServerPlayer extends Player {
+@@ -1571,7 +1571,7 @@ public class ServerPlayer extends Player {
  
      @Override
      public boolean endPortalLogicAsync() {
