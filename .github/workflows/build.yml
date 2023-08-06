@@ -2,7 +2,7 @@ name: Patch and Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "ver/1.20" ]
   pull_request:
 
 jobs:
