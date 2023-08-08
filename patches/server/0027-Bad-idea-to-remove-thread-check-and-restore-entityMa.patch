@@ -323,7 +323,7 @@ index 364229c0a2945cf093bc448b7c3d9fafebab418f..9159d89d14ac80dd9b08d2a63a74c09a
          io.papermc.paper.chunk.system.scheduling.NewChunkHolder chunkHolder = this.level.chunkTaskScheduler.chunkHolderManager.getChunkHolder(chunkX, chunkZ);
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index 83f1ccaf21a6ea9971cffad5f587540274d9f93a..3ff4ac43933c4a4cb951eaa6e08bf83beb1735c8 100644
+index bb20cdb61044c218492c57435495437caaa604bc..6c0bf6232fafb8e00c13a9c42d891a83bccab2e1 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -1295,7 +1295,7 @@ public class ServerPlayer extends Player {
@@ -335,7 +335,7 @@ index 83f1ccaf21a6ea9971cffad5f587540274d9f93a..3ff4ac43933c4a4cb951eaa6e08bf83b
  
          this.getBukkitEntity(); // force bukkit entity to be created before TPing
  
-@@ -1571,7 +1571,7 @@ public class ServerPlayer extends Player {
+@@ -1570,7 +1570,7 @@ public class ServerPlayer extends Player {
  
      @Override
      public boolean endPortalLogicAsync() {

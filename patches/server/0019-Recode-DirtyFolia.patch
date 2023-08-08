@@ -996,10 +996,10 @@ index bb07ad1bb895297356b88dfc4cd17e5e93795c38..311eaae2b59cee8e4a9a9ec600dee837
  
          public void onTickingStart(Entity entity) {
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index febd0ba72922462364eb65243640dcb693129e21..83f1ccaf21a6ea9971cffad5f587540274d9f93a 100644
+index c0ad878cd29e2f72b7899d9539031b15ccbf6193..bb20cdb61044c218492c57435495437caaa604bc 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-@@ -1607,9 +1607,10 @@ public class ServerPlayer extends Player {
+@@ -1606,9 +1606,10 @@ public class ServerPlayer extends Player {
      @Nullable
      public Entity changeDimension(ServerLevel worldserver, PlayerTeleportEvent.TeleportCause cause) {
          // Folia start - region threading
