@@ -52,7 +52,7 @@ index 19bbd89d168ca6b1d50d58c828f20b03a09e6c17..4f2043e24c7947be0f010ec13d789dfe
          // Folia end - region threading
  
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 2b07f9ad69f07f3c8a0bb10d577d7b80f3e92507..e999c76d5cd2743bfbadc8a40c28b652f00af7b6 100644
+index 486b580746ca086430548f4f2c44af00e373bd94..9bef693f40c2b6b73e9f35307742f809268c3803 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -262,8 +262,6 @@ public abstract class Level implements LevelAccessor, AutoCloseable {

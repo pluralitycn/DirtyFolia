@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Sun, 18 Jun 2023 18:07:37 +0800
+Date: Fri, 11 Aug 2023 08:42:04 +0800
 Subject: [PATCH] Bad idea to remove thread check and restore entityMap
 
 
@@ -72,7 +72,7 @@ index c5df121d6194a97b20dc390698991b9c72dba538..64e51ea4f42d603cb2025fc10037de1a
                  throw new IllegalStateException("Removing removed player chunk loader");
              }
 diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-index c07cf8cdee4ec270a97535ee8626081d66226d3f..0493629eecac1a9540707f322f5b82cb47356f5c 100644
+index 90ff9a00dc287bfb60d16100c2cca32d60ac7534..d232093e26259157066e56f384dfa471896822a1 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 @@ -240,7 +240,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
@@ -84,7 +84,7 @@ index c07cf8cdee4ec270a97535ee8626081d66226d3f..0493629eecac1a9540707f322f5b82cb
  
          if (entity.updatingSectionStatus) {
              // recursive status update
-@@ -459,7 +459,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -470,7 +470,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
          final int sectionX = entity.sectionX;
          final int sectionY = entity.sectionY;
          final int sectionZ = entity.sectionZ;
@@ -93,7 +93,7 @@ index c07cf8cdee4ec270a97535ee8626081d66226d3f..0493629eecac1a9540707f322f5b82cb
          if (!entity.isRemoved()) {
              throw new IllegalStateException("Only call Entity#setRemoved to remove an entity");
          }
-@@ -490,7 +490,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -504,7 +504,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
  
      private ChunkEntitySlices moveEntity(final Entity entity) {
          // ensure we own the entity
@@ -102,7 +102,7 @@ index c07cf8cdee4ec270a97535ee8626081d66226d3f..0493629eecac1a9540707f322f5b82cb
  
          final BlockPos newPos = entity.blockPosition();
          final int newSectionX = newPos.getX() >> 4;
-@@ -502,10 +502,10 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -516,10 +516,10 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
          }
  
          // ensure the new section is owned by this tick thread
@@ -115,7 +115,7 @@ index c07cf8cdee4ec270a97535ee8626081d66226d3f..0493629eecac1a9540707f322f5b82cb
  
          final ChunkEntitySlices old = this.getChunk(entity.sectionX, entity.sectionZ);
          final ChunkEntitySlices slices = this.getOrCreateChunk(newSectionX, newSectionZ);
-@@ -723,7 +723,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -737,7 +737,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
      }
  
      public void entitySectionLoad(final int chunkX, final int chunkZ, final ChunkEntitySlices slices) {
@@ -124,7 +124,7 @@ index c07cf8cdee4ec270a97535ee8626081d66226d3f..0493629eecac1a9540707f322f5b82cb
          synchronized (this) {
              final ChunkEntitySlices curr = this.getChunk(chunkX, chunkZ);
              if (curr != null) {
-@@ -739,7 +739,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+@@ -753,7 +753,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
      }
  
      public void entitySectionUnload(final int chunkX, final int chunkZ) {
@@ -253,7 +253,7 @@ index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..0b3bd5abbcd40ffc2c374cff92833a76
          (this.tickingBlockEntities ? this.pendingBlockEntityTickers : this.blockEntityTickers).add(ticker);
      }
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index 25fe439c8d1e88a86e85ac9a4761425d98ee6c4f..e44f661c5c524eabc5acd679ce1a46f0e72c6efd 100644
+index f1f52f9d9f8eafd65b50e3c06c92bcd8fda64286..b485af434d376cd79edfe44740def7aed8ec5cca 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
 @@ -148,7 +148,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
@@ -323,7 +323,7 @@ index 364229c0a2945cf093bc448b7c3d9fafebab418f..9159d89d14ac80dd9b08d2a63a74c09a
          io.papermc.paper.chunk.system.scheduling.NewChunkHolder chunkHolder = this.level.chunkTaskScheduler.chunkHolderManager.getChunkHolder(chunkX, chunkZ);
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index bb20cdb61044c218492c57435495437caaa604bc..6c0bf6232fafb8e00c13a9c42d891a83bccab2e1 100644
+index cbb6bd505b0cd87f38bd55fd933ae1ce1edea6ed..5c7e917abff8781cfa28c9474114412a6cf55ce2 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -1295,7 +1295,7 @@ public class ServerPlayer extends Player {
@@ -345,10 +345,10 @@ index bb20cdb61044c218492c57435495437caaa604bc..6c0bf6232fafb8e00c13a9c42d891a83
          if (this.level().getTypeKey() == LevelStem.END) {
              if (!this.canPortalAsync(false)) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a25adc485 100644
+index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4ae9b7cba1 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -1026,7 +1026,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -1025,7 +1025,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
      public void move(MoverType movementType, Vec3 movement) {
          // Paper start - detailed watchdog information
@@ -357,7 +357,7 @@ index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a
          synchronized (this.posLock) {
              this.moveStartX = this.getX();
              this.moveStartY = this.getY();
-@@ -3576,7 +3576,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3575,7 +3575,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected EntityTreeNode makePassengerTree() {
@@ -366,7 +366,7 @@ index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a
  
          EntityTreeNode root = new EntityTreeNode(null, this);
          java.util.ArrayDeque<EntityTreeNode> queue = new java.util.ArrayDeque<>();
-@@ -3602,7 +3602,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3601,7 +3601,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected EntityTreeNode detachPassengers() {
@@ -375,7 +375,7 @@ index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a
  
          EntityTreeNode root = new EntityTreeNode(null, this);
          java.util.ArrayDeque<EntityTreeNode> queue = new java.util.ArrayDeque<>();
-@@ -3784,7 +3784,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3783,7 +3783,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      public final boolean teleportAsync(ServerLevel destination, Vec3 pos, Float yaw, Float pitch, Vec3 speedDirectionUpdate,
                                         org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, long teleportFlags,
                                         java.util.function.Consumer<Entity> teleportComplete) {
@@ -384,7 +384,7 @@ index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a
  
          if (!ServerLevel.isInSpawnableBounds(new BlockPos(io.papermc.paper.util.CoordinateUtils.getBlockX(pos), io.papermc.paper.util.CoordinateUtils.getBlockY(pos), io.papermc.paper.util.CoordinateUtils.getBlockZ(pos)))) {
              return false;
-@@ -3900,7 +3900,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3899,7 +3899,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected boolean tryEndPortal() {
@@ -393,7 +393,7 @@ index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a
          BlockPos pos = this.portalBlock;
          ServerLevel world = this.portalWorld;
          this.portalBlock = null;
-@@ -3918,7 +3918,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3917,7 +3917,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected boolean tryNetherPortal() {
@@ -402,7 +402,7 @@ index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a
  
          int portalWaitTime = this.getPortalWaitTime();
  
-@@ -3941,7 +3941,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3940,7 +3940,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      public boolean endPortalLogicAsync() {
@@ -411,7 +411,7 @@ index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.END ? Level.OVERWORLD : Level.END);
          EntityPortalReadyEvent event = new io.papermc.paper.event.entity.EntityPortalReadyEvent(this.getBukkitEntity(), destination == null ? null : destination.getWorld(), org.bukkit.PortalType.ENDER);
-@@ -3959,7 +3959,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3958,7 +3958,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      public boolean netherPortalLogicAsync() {
@@ -420,7 +420,7 @@ index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.NETHER ? Level.OVERWORLD : Level.NETHER);
          EntityPortalReadyEvent event = new io.papermc.paper.event.entity.EntityPortalReadyEvent(this.getBukkitEntity(), destination == null ? null : destination.getWorld(), org.bukkit.PortalType.NETHER);
-@@ -4186,7 +4186,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4185,7 +4185,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
      protected boolean portalToAsync(ServerLevel destination, boolean takePassengers,
                                      PortalType type, java.util.function.Consumer<Entity> teleportComplete) {
@@ -429,14 +429,14 @@ index b71e3cbb8d9c14e383d73bff8d69975fe7a03790..84b63e2a544fef9484ef42aa1618646a
          if (!this.canPortalAsync(takePassengers)) {
              return false;
          }
-@@ -5430,7 +5430,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -5434,7 +5434,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      @Override
      public final void setRemoved(Entity.RemovalReason reason) {
          // Paper start - rewrite chunk system
 -        io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot remove entity off-main");
 +        //io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot remove entity off-main");
-         if (this.updatingSectionStatus) {
-             LOGGER.warn("Entity " + this + " is currently prevented from being added/removed to world since it is processing section status updates", new Throwable());
+         if (!((ServerLevel)this.level).getEntityLookup().canRemoveEntity(this)) {
+             LOGGER.warn("Entity " + this + " is currently prevented from being removed from the world since it is processing section status updates", new Throwable());
              return;
 diff --git a/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java b/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java
 index 5150d447c9dc2f539446749c8bee102050bab4ed..bd068146c3e90512ca176ee33531d856621d955a 100644
@@ -514,10 +514,10 @@ index 3698bae85063baec031a61d24ef3286703a9d04c..bf997ee6950e8771cd73fd805275532f
          // Folia end
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 6df19ac5944f1925aea4b9068399f7d0567dceab..a24a1db34f02a85e0bdad01af0d2758e6f1f706d 100644
+index fd5887fc9f3c8fe5f21a5f7b69ed4a5e374329a1..2aebb9be55af22746ea62e0531bfbf1742064d2f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1013,7 +1013,7 @@ public final class CraftServer implements Server {
+@@ -1014,7 +1014,7 @@ public final class CraftServer implements Server {
  
          // Folia start - region threading
          if ((sender instanceof Entity entity)) {

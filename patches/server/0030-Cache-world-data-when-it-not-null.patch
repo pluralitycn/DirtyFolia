@@ -5,7 +5,7 @@ Subject: [PATCH] Cache world data when it not null
 
 
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index b2e23a398fa53de1e40b406379a959244d4200dc..98b69acf7691c79bfae86d7415b30916c9370261 100644
+index 9e0d086c5fd8094b0c5cb377c5521711881f09b2..bb0e11bd907a062dbfd977fe3c792c2e8299586a 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -254,6 +254,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {

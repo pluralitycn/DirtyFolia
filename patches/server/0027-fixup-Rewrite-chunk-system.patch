@@ -5,7 +5,7 @@ Subject: [PATCH] fixup! Rewrite chunk system
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-index fe461cc6aed9507b23f72ef1ebc856869888cfe6..c07cf8cdee4ec270a97535ee8626081d66226d3f 100644
+index ea8858288102b0a0aafea7a6f57e2ca08c8c9777..90ff9a00dc287bfb60d16100c2cca32d60ac7534 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 @@ -17,6 +17,7 @@ import net.minecraft.util.AbortableIterationConsumer;
@@ -117,7 +117,7 @@ index a68d3ab3aa5c02d23545db4c9388e361835e3099..c88e0fb3efc500f53bf224c84760893e
          }
  
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index 916bfdfb13d8f8093e1908a7c35344b83d0ee0ac..25fe439c8d1e88a86e85ac9a4761425d98ee6c4f 100644
+index 779c03f17769039cbaaa1210bd0e95163c9386b1..f1f52f9d9f8eafd65b50e3c06c92bcd8fda64286 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
 @@ -597,7 +597,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider

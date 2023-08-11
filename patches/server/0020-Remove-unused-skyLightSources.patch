@@ -45,7 +45,7 @@ index 8b96d1b7548d354fbcabe6d1b5e9d6c3e2a5cb9d..e8fb179c5f443efd70293f31cdf00ca2
  
      public static record TicksToSave(SerializableTickContainer<Block> blocks, SerializableTickContainer<Fluid> fluids) {
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index 3fb7e51638720ef9635b1d695ac809d504fcd69b..0483a86e4053c73245724035ef0b2d83efc71117 100644
+index 868daf500cf5f8e23ac5cf86ec626e525376ab27..8bb5ec2699212b2b36c1003ad078d84a088af790 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -306,7 +306,7 @@ public class LevelChunk extends ChunkAccess {
@@ -57,7 +57,7 @@ index 3fb7e51638720ef9635b1d695ac809d504fcd69b..0483a86e4053c73245724035ef0b2d83
          this.setLightCorrect(protoChunk.isLightCorrect());
          this.unsaved = true;
          this.needsDecoration = true; // CraftBukkit
-@@ -497,7 +497,7 @@ public class LevelChunk extends ChunkAccess {
+@@ -498,7 +498,7 @@ public class LevelChunk extends ChunkAccess {
                      ProfilerFiller gameprofilerfiller = this.level.getProfiler();
  
                      gameprofilerfiller.push("updateSkyLightSources");

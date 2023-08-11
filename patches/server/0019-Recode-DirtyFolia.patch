@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: killerprojecte <admin@fastmcmirror.org>
-Date: Sat, 8 Jul 2023 10:44:32 +0800
+Date: Fri, 11 Aug 2023 08:05:32 +0800
 Subject: [PATCH] Recode DirtyFolia
 
 
@@ -331,7 +331,7 @@ index 0000000000000000000000000000000000000000..f245258c456f44543752d8fbb01b3715
 +    }
 +}
 diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-index a295f7a7c59f0a291aec4f9f1a08f6b2798689f6..fe461cc6aed9507b23f72ef1ebc856869888cfe6 100644
+index 26d1e1af418f980b61a57479cbc64b5bc59e0864..ea8858288102b0a0aafea7a6f57e2ca08c8c9777 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 @@ -354,7 +354,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
@@ -613,7 +613,7 @@ index f1c68d9850ece7532a8607db955eaa4fc3a4bf05..a68d3ab3aa5c02d23545db4c9388e361
  
      static final class AsyncChunkSerializeTask implements Runnable {
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index 6b495ac21a8ad4a810997c10cdf528e1762fabc1..18cd3e64317994c7bee8de9a5f5cb0ada3cd8a79 100644
+index 6f42d7dd68621e124a11698afaa82d3adea70910..d2271e586dd24d7a44108a80f450dc3273e597b8 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 @@ -24,8 +24,10 @@ public class GlobalConfiguration extends ConfigurationPart {
@@ -627,7 +627,7 @@ index 6b495ac21a8ad4a810997c10cdf528e1762fabc1..18cd3e64317994c7bee8de9a5f5cb0ad
      }
  
      @Setting(Configuration.VERSION_FIELD)
-@@ -270,6 +272,7 @@ public class GlobalConfiguration extends ConfigurationPart {
+@@ -278,6 +280,7 @@ public class GlobalConfiguration extends ConfigurationPart {
          public boolean lagCompensateBlockBreaking = true;
          public boolean useDimensionTypeForCustomSpawners = false;
          public boolean strictAdvancementDimensionCheck = false;
@@ -996,7 +996,7 @@ index bb07ad1bb895297356b88dfc4cd17e5e93795c38..311eaae2b59cee8e4a9a9ec600dee837
  
          public void onTickingStart(Entity entity) {
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index c0ad878cd29e2f72b7899d9539031b15ccbf6193..bb20cdb61044c218492c57435495437caaa604bc 100644
+index cf18ea69915fd195e1ea4b8840d528a643ff8b8a..cbb6bd505b0cd87f38bd55fd933ae1ce1edea6ed 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -1606,9 +1606,10 @@ public class ServerPlayer extends Player {
@@ -1013,7 +1013,7 @@ index c0ad878cd29e2f72b7899d9539031b15ccbf6193..bb20cdb61044c218492c57435495437c
          // CraftBukkit end
          if (this.isSleeping()) return this; // CraftBukkit - SPIGOT-3154
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 39d404c278bdc1227cb806bb257492493d05a439..6d4407f0ff95036373bb96e024f70f9754766827 100644
+index 92b30f5b61d1025d526c8bd7b820f83037fe8510..b3f759046df3500e4b1da23c1424620bd867826a 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -377,7 +377,7 @@ public abstract class PlayerList {
@@ -1066,7 +1066,7 @@ index 39d404c278bdc1227cb806bb257492493d05a439..6d4407f0ff95036373bb96e024f70f97
              final PlayerTeam team = scoreboard.getPlayersTeam(this.collideRuleTeamName);
              if (team != null) scoreboard.removePlayerTeam(team);
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index ee15661227754149164893d6acf678d13b2e1b27..a0e5f4caa054d6c4fea6500e47940f817f1c5346 100644
+index 8b28f6fed78cbad95b7943efb05099edd9eeed57..f630badc621f6df3f6f144e059921a1b21ac8a00 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
@@ -1077,7 +1077,7 @@ index ee15661227754149164893d6acf678d13b2e1b27..a0e5f4caa054d6c4fea6500e47940f81
  import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
  import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
  import java.util.Arrays;
-@@ -3022,7 +3023,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3021,7 +3022,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
                  this.portalEntrancePos = pos.immutable();
              }
  
@@ -1088,7 +1088,7 @@ index ee15661227754149164893d6acf678d13b2e1b27..a0e5f4caa054d6c4fea6500e47940f81
          }
      }
  
-@@ -3221,9 +3224,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3220,9 +3223,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      @Nullable
      public Team getTeam() {
          // Folia start - region threading
@@ -1101,7 +1101,7 @@ index ee15661227754149164893d6acf678d13b2e1b27..a0e5f4caa054d6c4fea6500e47940f81
          // Folia end - region threading
          if (!this.level().paperConfig().scoreboards.allowNonPlayerEntitiesOnScoreboards && !(this instanceof Player)) { return null; } // Paper
          return this.level().getScoreboard().getPlayersTeam(this.getScoreboardName());
-@@ -3858,6 +3862,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3857,6 +3861,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
              }
          }
  
@@ -1114,7 +1114,7 @@ index ee15661227754149164893d6acf678d13b2e1b27..a0e5f4caa054d6c4fea6500e47940f81
          // TODO any events that can modify go HERE
  
          // check for same region
-@@ -3981,8 +3991,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3980,8 +3990,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.END ? Level.OVERWORLD : Level.END);
@@ -1129,7 +1129,7 @@ index ee15661227754149164893d6acf678d13b2e1b27..a0e5f4caa054d6c4fea6500e47940f81
              return false;
          }
  
-@@ -3993,8 +4009,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3992,8 +4008,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          io.papermc.paper.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.NETHER ? Level.OVERWORLD : Level.NETHER);
@@ -1158,7 +1158,7 @@ index f636bdf1075fa784ce7ee25478d4d94bacb05677..125526a6ba4230c7b252c5a7df83ce4c
              PlayerTeam scoreboardteam = this.level().getScoreboard().getPlayerTeam(s);
              if (!this.level().paperConfig().scoreboards.allowNonPlayerEntitiesOnScoreboards && !(this instanceof net.minecraft.world.entity.player.Player)) { scoreboardteam = null; } // Paper
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 8cf4428d8140fd03f0ad8fa1d148a04d8caefda8..55f3dba63383d2c714d8cd742505f93e525b4f05 100644
+index 4338b948a53d32cac5c780cbd43c6ca1cc5d11e5..449ee90a97f01e7794c96d989b84ff91268a7d84 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -15,6 +15,8 @@ import java.util.function.Consumer;
@@ -1180,10 +1180,10 @@ index 8cf4428d8140fd03f0ad8fa1d148a04d8caefda8..55f3dba63383d2c714d8cd742505f93e
          Level world = ret.world;
          if (world != this) {
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index 7a3b7f2466f4a1ed107497d99c8509a6e9ba3624..3fb7e51638720ef9635b1d695ac809d504fcd69b 100644
+index e270816f5bbdfcfeaaaf647beb2298a314569a93..868daf500cf5f8e23ac5cf86ec626e525376ab27 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-@@ -562,7 +562,7 @@ public class LevelChunk extends ChunkAccess {
+@@ -563,7 +563,7 @@ public class LevelChunk extends ChunkAccess {
      @Nullable
      public BlockEntity getBlockEntity(BlockPos pos, LevelChunk.EntityCreationType creationType) {
          // CraftBukkit start
@@ -1192,7 +1192,7 @@ index 7a3b7f2466f4a1ed107497d99c8509a6e9ba3624..3fb7e51638720ef9635b1d695ac809d5
          if (tileentity == null) {
              tileentity = (BlockEntity) this.blockEntities.get(pos);
          }
-@@ -612,7 +612,7 @@ public class LevelChunk extends ChunkAccess {
+@@ -613,7 +613,7 @@ public class LevelChunk extends ChunkAccess {
      }
  
      private boolean isInLevel() {
@@ -1201,7 +1201,7 @@ index 7a3b7f2466f4a1ed107497d99c8509a6e9ba3624..3fb7e51638720ef9635b1d695ac809d5
      }
  
      boolean isTicking(BlockPos pos) {
-@@ -905,7 +905,7 @@ public class LevelChunk extends ChunkAccess {
+@@ -906,7 +906,7 @@ public class LevelChunk extends ChunkAccess {
      @Override
      public boolean isUnsaved() {
          // Paper start - add dirty system to tick lists
@@ -1244,10 +1244,10 @@ index bc938c2a4cb30f3151b600ab88ca5c4e9734f326..cd0c27d4c0c3ba97bc08a6429f3ebc03
          nbt.put("block_ticks", tickSchedulers.blocks().save(i, (block) -> {
              return BuiltInRegistries.BLOCK.getKey(block).toString();
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 23556931a812ed9b2dac5b4b4712961c2d9aa025..6df19ac5944f1925aea4b9068399f7d0567dceab 100644
+index 9485d754ec6ce4031d88734e327abda240d9db90..fd5887fc9f3c8fe5f21a5f7b69ed4a5e374329a1 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -264,7 +264,7 @@ import javax.annotation.Nullable; // Paper
+@@ -265,7 +265,7 @@ import javax.annotation.Nullable; // Paper
  import javax.annotation.Nonnull; // Paper
  
  public final class CraftServer implements Server {
@@ -1256,7 +1256,7 @@ index 23556931a812ed9b2dac5b4b4712961c2d9aa025..6df19ac5944f1925aea4b9068399f7d0
      private final String serverVersion;
      private final String bukkitVersion = Versioning.getBukkitVersion();
      private final Logger logger = Logger.getLogger("Minecraft");
-@@ -1271,10 +1271,11 @@ public final class CraftServer implements Server {
+@@ -1284,10 +1284,11 @@ public final class CraftServer implements Server {
  
      @Override
      public World createWorld(WorldCreator creator) {
@@ -1269,7 +1269,7 @@ index 23556931a812ed9b2dac5b4b4712961c2d9aa025..6df19ac5944f1925aea4b9068399f7d0
  
          String name = creator.name();
          ChunkGenerator generator = creator.generator();
-@@ -1393,7 +1394,20 @@ public final class CraftServer implements Server {
+@@ -1406,7 +1407,20 @@ public final class CraftServer implements Server {
          }
  
          this.console.addLevel(internal); // Paper - move up
@@ -1291,7 +1291,7 @@ index 23556931a812ed9b2dac5b4b4712961c2d9aa025..6df19ac5944f1925aea4b9068399f7d0
  
          internal.setSpawnSettings(true, true);
          // Paper - move up
-@@ -1413,7 +1427,7 @@ public final class CraftServer implements Server {
+@@ -1426,7 +1440,7 @@ public final class CraftServer implements Server {
  
      @Override
      public boolean unloadWorld(World world, boolean save) {
@@ -1420,7 +1420,7 @@ index 5cf8ea3a7dd4e8ea96ca6061aa1aaefc7ac8fcce..2bd8a28dad2aeadbe025acc3b87725b1
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java
-index f67a9f77039c29daac80359e2793bee4baf3b3c4..9d0e4a876036a47812fa5ec5e165bf0239c91856 100644
+index fb5df44773c478c1418a63429b15b96e2efd5f9a..11edbeeb935ac8bfd5754f9144cab13e141878e7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAreaEffectCloud.java
 @@ -35,7 +35,7 @@ public class CraftAreaEffectCloud extends CraftEntity implements AreaEffectCloud
@@ -2149,7 +2149,7 @@ index a34608c74daced31ec45a96b643176a4d2ff72dc..50192f87b6779d683f66d17d40931766
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
-index 07347858bff8a764a140cb3fbd484301803cfa00..e34ef4917c00ccd82e1b80213b5582a24e3cf4fa 100644
+index 16cf9cd20b400cdadac89152bdafd64b4e207a5e..fb18ba70713f61377385226d2d5ab4c8eaeb5380 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
 @@ -300,7 +300,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
@@ -2955,7 +2955,7 @@ index dc09e141ba2b12f1955bec521f2170d2fe4ba113..d5681887bb9490df491e4c437e6f0b19
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftTextDisplay.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftTextDisplay.java
-index 616848bf66273048dfde1f8802582fb871f8a5bb..aa5f61e0e083b09062d131223c084e2a3e78d04a 100644
+index f973d6013eef71025fad3b74d6158561aafe508f..db95d87ddf902ba8efb907dd25475d287c7f7c2a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftTextDisplay.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftTextDisplay.java
 @@ -23,7 +23,7 @@ public class CraftTextDisplay extends CraftDisplay implements TextDisplay {
@@ -3348,7 +3348,7 @@ index 3f45bab0e9f7b3697e6d9d1092a1e6e579f7066f..393061574058772fbf8689770f5bb18d
  
      /**
 diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
-index 351667dea3882a71dbd14cc57692ffc3e7c4d43f..a5fe968d908d27e5eba8b01855ce944014d386cc 100644
+index f59e9e6dd21a7d034b5e3b6e7787458d3c3c7bbc..2271d378cd4c6638515681ca3110bfa6b097dad4 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
 @@ -43,7 +43,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
@@ -3363,7 +3363,7 @@ index 351667dea3882a71dbd14cc57692ffc3e7c4d43f..a5fe968d908d27e5eba8b01855ce9440
 @@ -199,7 +199,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
  
      @Override
-     public Team registerNewTeam(String name) throws IllegalArgumentException {
+     public Team registerNewTeam(String name) {
 -        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
 +        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet // DirtyFolia - Removed check
          Preconditions.checkArgument(name != null, "Team name cannot be null");
@@ -3372,14 +3372,288 @@ index 351667dea3882a71dbd14cc57692ffc3e7c4d43f..a5fe968d908d27e5eba8b01855ce9440
 @@ -227,7 +227,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
  
      @Override
-     public void clearSlot(DisplaySlot slot) throws IllegalArgumentException {
+     public void clearSlot(DisplaySlot slot) {
 -        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
 +        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet // DirtyFolia - Removed check
          Preconditions.checkArgument(slot != null, "Slot cannot be null");
          this.board.setDisplayObjective(CraftScoreboardTranslations.fromBukkitSlot(slot), null);
      }
+diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java.orig b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java.orig
+new file mode 100644
+index 0000000000000000000000000000000000000000..30aaf6f2060fc36d00b639092906b93a56e2fd67
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java.orig
+@@ -0,0 +1,268 @@
++package org.bukkit.craftbukkit.scoreboard;
++
++import com.google.common.base.Function;
++import com.google.common.base.Preconditions;
++import com.google.common.collect.ImmutableSet;
++import com.google.common.collect.Iterables;
++import net.minecraft.world.scores.PlayerTeam;
++import net.minecraft.world.scores.Scoreboard;
++import org.bukkit.Bukkit;
++import org.bukkit.OfflinePlayer;
++import org.bukkit.craftbukkit.util.CraftChatMessage;
++import org.bukkit.scoreboard.Criteria;
++import org.bukkit.scoreboard.DisplaySlot;
++import org.bukkit.scoreboard.Objective;
++import org.bukkit.scoreboard.RenderType;
++import org.bukkit.scoreboard.Score;
++import org.bukkit.scoreboard.Team;
++
++public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
++    final Scoreboard board;
++    boolean registeredGlobally = false; // Paper
++
++    CraftScoreboard(Scoreboard board) {
++        this.board = board;
++    }
++
++    @Override
++    public CraftObjective registerNewObjective(String name, String criteria) {
++        return this.registerNewObjective(name, criteria, name);
++    }
++    // Paper start - Adventure
++    @Override
++    public CraftObjective registerNewObjective(String name, String criteria, net.kyori.adventure.text.Component displayName) {
++        return this.registerNewObjective(name, CraftCriteria.getFromBukkit(criteria), displayName, RenderType.INTEGER);
++    }
++    @Override
++    public CraftObjective registerNewObjective(String name, String criteria, net.kyori.adventure.text.Component displayName, RenderType renderType) {
++        return this.registerNewObjective(name, CraftCriteria.getFromBukkit(criteria), displayName, renderType);
++    }
++    @Override
++    public CraftObjective registerNewObjective(String name, Criteria criteria, net.kyori.adventure.text.Component displayName) throws IllegalArgumentException {
++        return this.registerNewObjective(name, criteria, displayName, RenderType.INTEGER);
++    }
++    @Override
++    public CraftObjective registerNewObjective(String name, Criteria criteria, net.kyori.adventure.text.Component displayName, RenderType renderType) throws IllegalArgumentException {
++        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet // DirtyFolia - Removed check
++        if (displayName == null) {
++            displayName = net.kyori.adventure.text.Component.empty();
++        }
++        Preconditions.checkArgument(name != null, "Objective name cannot be null");
++        Preconditions.checkArgument(criteria != null, "Criteria cannot be null");
++        Preconditions.checkArgument(renderType != null, "RenderType cannot be null");
++        Preconditions.checkArgument(name.length() <= Short.MAX_VALUE, "The name '%s' is longer than the limit of 32767 characters (%s)", name, name.length());
++        Preconditions.checkArgument(this.board.getObjective(name) == null, "An objective of name '%s' already exists", name);
++        // Paper start - lazily track plugin scoreboards
++        if (((CraftCriteria) criteria).criteria != net.minecraft.world.scores.criteria.ObjectiveCriteria.DUMMY && !this.registeredGlobally) {
++            net.minecraft.server.MinecraftServer.getServer().server.getScoreboardManager().registerScoreboardForVanilla(this);
++            this.registeredGlobally = true;
++        }
++        // Paper end
++        net.minecraft.world.scores.Objective objective = this.board.addObjective(name, ((CraftCriteria) criteria).criteria, io.papermc.paper.adventure.PaperAdventure.asVanilla(displayName), CraftScoreboardTranslations.fromBukkitRender(renderType));
++        return new CraftObjective(this, objective);
++    }
++    // Paper end - Adventure
++
++    @Override
++    public CraftObjective registerNewObjective(String name, String criteria, String displayName) {
++        return this.registerNewObjective(name, CraftCriteria.getFromBukkit(criteria), displayName, RenderType.INTEGER);
++    }
++
++    @Override
++    public CraftObjective registerNewObjective(String name, String criteria, String displayName, RenderType renderType) {
++        return this.registerNewObjective(name, CraftCriteria.getFromBukkit(criteria), displayName, renderType);
++    }
++
++    @Override
++    public CraftObjective registerNewObjective(String name, Criteria criteria, String displayName) {
++        return this.registerNewObjective(name, criteria, displayName, RenderType.INTEGER);
++    }
++
++    @Override
++    public CraftObjective registerNewObjective(String name, Criteria criteria, String displayName, RenderType renderType) {
++        return this.registerNewObjective(name, criteria, net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(displayName), renderType); // Paper - Adventure
++    }
++
++    @Override
++    public Objective getObjective(String name) {
++        Preconditions.checkArgument(name != null, "Objective name cannot be null");
++        net.minecraft.world.scores.Objective nms = this.board.getObjective(name);
++        return nms == null ? null : new CraftObjective(this, nms);
++    }
++
++    @Override
++    public ImmutableSet<Objective> getObjectivesByCriteria(String criteria) {
++        Preconditions.checkArgument(criteria != null, "Criteria name cannot be null");
++
++        ImmutableSet.Builder<Objective> objectives = ImmutableSet.builder();
++        for (net.minecraft.world.scores.Objective netObjective : this.board.getObjectives()) {
++            CraftObjective objective = new CraftObjective(this, netObjective);
++            if (objective.getCriteria().equals(criteria)) {
++                objectives.add(objective);
++            }
++        }
++        return objectives.build();
++    }
++
++    @Override
++    public ImmutableSet<Objective> getObjectivesByCriteria(Criteria criteria) {
++        Preconditions.checkArgument(criteria != null, "Criteria cannot be null");
++
++        ImmutableSet.Builder<Objective> objectives = ImmutableSet.builder();
++        for (net.minecraft.world.scores.Objective netObjective : this.board.getObjectives()) {
++            CraftObjective objective = new CraftObjective(this, netObjective);
++            if (objective.getTrackedCriteria().equals(criteria)) {
++                objectives.add(objective);
++            }
++        }
++
++        return objectives.build();
++    }
++
++    @Override
++    public ImmutableSet<Objective> getObjectives() {
++        return ImmutableSet.copyOf(Iterables.transform(this.board.getObjectives(), (Function<net.minecraft.world.scores.Objective, Objective>) input -> new CraftObjective(CraftScoreboard.this, input)));
++    }
++
++    @Override
++    public Objective getObjective(DisplaySlot slot) {
++        Preconditions.checkArgument(slot != null, "Display slot cannot be null");
++        net.minecraft.world.scores.Objective objective = this.board.getDisplayObjective(CraftScoreboardTranslations.fromBukkitSlot(slot));
++        if (objective == null) {
++            return null;
++        }
++        return new CraftObjective(this, objective);
++    }
++
++    @Override
++    public ImmutableSet<Score> getScores(OfflinePlayer player) {
++        Preconditions.checkArgument(player != null, "OfflinePlayer cannot be null");
++
++        return this.getScores(player.getName());
++    }
++
++    @Override
++    public ImmutableSet<Score> getScores(String entry) {
++        Preconditions.checkArgument(entry != null, "Entry cannot be null");
++
++        ImmutableSet.Builder<Score> scores = ImmutableSet.builder();
++        for (net.minecraft.world.scores.Objective objective : this.board.getObjectives()) {
++            scores.add(new CraftScore(new CraftObjective(this, objective), entry));
++        }
++        return scores.build();
++    }
++
++    @Override
++    public void resetScores(OfflinePlayer player) {
++        Preconditions.checkArgument(player != null, "OfflinePlayer cannot be null");
++
++        this.resetScores(player.getName());
++    }
++
++    @Override
++    public void resetScores(String entry) {
++        Preconditions.checkArgument(entry != null, "Entry cannot be null");
++
++        for (net.minecraft.world.scores.Objective objective : this.board.getObjectives()) {
++            this.board.resetPlayerScore(entry, objective);
++        }
++    }
++
++    @Override
++    public Team getPlayerTeam(OfflinePlayer player) {
++        Preconditions.checkArgument(player != null, "OfflinePlayer cannot be null");
++
++        PlayerTeam team = this.board.getPlayersTeam(player.getName());
++        return team == null ? null : new CraftTeam(this, team);
++    }
++
++    @Override
++    public Team getEntryTeam(String entry) {
++        Preconditions.checkArgument(entry != null, "Entry cannot be null");
++
++        PlayerTeam team = this.board.getPlayersTeam(entry);
++        return team == null ? null : new CraftTeam(this, team);
++    }
++
++    @Override
++    public Team getTeam(String teamName) {
++        Preconditions.checkArgument(teamName != null, "Team name cannot be null");
++
++        PlayerTeam team = this.board.getPlayerTeam(teamName);
++        return team == null ? null : new CraftTeam(this, team);
++    }
++
++    @Override
++    public ImmutableSet<Team> getTeams() {
++        return ImmutableSet.copyOf(Iterables.transform(this.board.getPlayerTeams(), (Function<PlayerTeam, Team>) input -> new CraftTeam(CraftScoreboard.this, input)));
++    }
++
++    @Override
++<<<<<<< HEAD
++    public Team registerNewTeam(String name) {
++        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
++=======
++    public Team registerNewTeam(String name) throws IllegalArgumentException {
++        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet // DirtyFolia - Removed check
++>>>>>>> Recode DirtyFolia
++        Preconditions.checkArgument(name != null, "Team name cannot be null");
++        Preconditions.checkArgument(name.length() <= Short.MAX_VALUE, "Team name '%s' is longer than the limit of 32767 characters (%s)", name, name.length());
++        Preconditions.checkArgument(this.board.getPlayerTeam(name) == null, "Team name '%s' is already in use", name);
++
++        return new CraftTeam(this, this.board.addPlayerTeam(name));
++    }
++
++    @Override
++    public ImmutableSet<OfflinePlayer> getPlayers() {
++        ImmutableSet.Builder<OfflinePlayer> players = ImmutableSet.builder();
++        for (Object playerName : this.board.getTrackedPlayers()) {
++            players.add(Bukkit.getOfflinePlayer(playerName.toString()));
++        }
++        return players.build();
++    }
++
++    @Override
++    public ImmutableSet<String> getEntries() {
++        ImmutableSet.Builder<String> entries = ImmutableSet.builder();
++        for (Object entry : this.board.getTrackedPlayers()) {
++            entries.add(entry.toString());
++        }
++        return entries.build();
++    }
++
++    @Override
++<<<<<<< HEAD
++    public void clearSlot(DisplaySlot slot) {
++        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
++=======
++    public void clearSlot(DisplaySlot slot) throws IllegalArgumentException {
++        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet // DirtyFolia - Removed check
++>>>>>>> Recode DirtyFolia
++        Preconditions.checkArgument(slot != null, "Slot cannot be null");
++        this.board.setDisplayObjective(CraftScoreboardTranslations.fromBukkitSlot(slot), null);
++    }
++
++    // CraftBukkit method
++    public Scoreboard getHandle() {
++        return this.board;
++    }
++    // Paper start
++    @Override
++    public ImmutableSet<Score> getScoresFor(org.bukkit.entity.Entity entity) throws IllegalArgumentException {
++        Preconditions.checkArgument(entity != null, "Entity cannot be null");
++        return this.getScores(((org.bukkit.craftbukkit.entity.CraftEntity) entity).getHandle().getScoreboardName());
++    }
++
++    @Override
++    public void resetScoresFor(org.bukkit.entity.Entity entity) throws IllegalArgumentException {
++        Preconditions.checkArgument(entity != null, "Entity cannot be null");
++        this.resetScores(((org.bukkit.craftbukkit.entity.CraftEntity) entity).getHandle().getScoreboardName());
++    }
++
++    @Override
++    public Team getEntityTeam(org.bukkit.entity.Entity entity) throws IllegalArgumentException {
++        Preconditions.checkArgument(entity != null, "Entity cannot be null");
++        return this.getEntryTeam(((org.bukkit.craftbukkit.entity.CraftEntity) entity).getHandle().getScoreboardName());
++    }
++    // Paper end
++}
 diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
-index 92a2115035e2f13b2c3bd90bd5eed23e7a37bf62..47d19d2cdc733240502246c07cc1d715584b5140 100644
+index 7ab760a57d1305bc4dccec97526328972c2ddfc3..fe10368c5de2078d50999e98adea3d0746a3bab9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
 @@ -42,7 +42,7 @@ public final class CraftScoreboardManager implements ScoreboardManager {
@@ -3394,12 +3668,155 @@ index 92a2115035e2f13b2c3bd90bd5eed23e7a37bf62..47d19d2cdc733240502246c07cc1d715
 @@ -69,7 +69,7 @@ public final class CraftScoreboardManager implements ScoreboardManager {
  
      // CraftBukkit method
-     public void setPlayerBoard(CraftPlayer player, org.bukkit.scoreboard.Scoreboard bukkitScoreboard) throws IllegalArgumentException {
+     public void setPlayerBoard(CraftPlayer player, org.bukkit.scoreboard.Scoreboard bukkitScoreboard) {
 -        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
 +        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet // DirtyFolia - Removed check
          Preconditions.checkArgument(bukkitScoreboard instanceof CraftScoreboard, "Cannot set player scoreboard to an unregistered Scoreboard");
  
          CraftScoreboard scoreboard = (CraftScoreboard) bukkitScoreboard;
+diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java.orig b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java.orig
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4fe9d307909726c7c14ed407a0dc8959288c128
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java.orig
+@@ -0,0 +1,137 @@
++package org.bukkit.craftbukkit.scoreboard;
++
++import com.google.common.base.Preconditions;
++import java.util.Collection;
++import java.util.HashMap;
++import java.util.HashSet;
++import java.util.Iterator;
++import java.util.Map;
++import java.util.function.Consumer;
++import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
++import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
++import net.minecraft.server.MinecraftServer;
++import net.minecraft.server.ServerScoreboard;
++import net.minecraft.server.level.ServerPlayer;
++import net.minecraft.world.scores.Objective;
++import net.minecraft.world.scores.PlayerTeam;
++import net.minecraft.world.scores.Score;
++import net.minecraft.world.scores.Scoreboard;
++import net.minecraft.world.scores.criteria.ObjectiveCriteria;
++import org.bukkit.craftbukkit.entity.CraftPlayer;
++import org.bukkit.craftbukkit.util.WeakCollection;
++import org.bukkit.entity.Player;
++import org.bukkit.scoreboard.ScoreboardManager;
++
++public final class CraftScoreboardManager implements ScoreboardManager {
++    private final CraftScoreboard mainScoreboard;
++    private final MinecraftServer server;
++    private final Collection<CraftScoreboard> scoreboards = new WeakCollection<>();
++    private final Map<CraftPlayer, CraftScoreboard> playerBoards = new HashMap<>();
++
++    public CraftScoreboardManager(MinecraftServer minecraftserver, net.minecraft.world.scores.Scoreboard scoreboardServer) {
++        this.mainScoreboard = new CraftScoreboard(scoreboardServer);
++        mainScoreboard.registeredGlobally = true; // Paper
++        this.server = minecraftserver;
++        this.scoreboards.add(mainScoreboard);
++    }
++
++    @Override
++    public CraftScoreboard getMainScoreboard() {
++        return this.mainScoreboard;
++    }
++
++    @Override
++    public CraftScoreboard getNewScoreboard() {
++        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet // DirtyFolia - Removed check
++        org.spigotmc.AsyncCatcher.catchOp("scoreboard creation"); // Spigot
++        CraftScoreboard scoreboard = new CraftScoreboard(new ServerScoreboard(this.server));
++        // Paper start
++        if (io.papermc.paper.configuration.GlobalConfiguration.get().scoreboards.trackPluginScoreboards) {
++            scoreboard.registeredGlobally = true;
++            scoreboards.add(scoreboard);
++        }
++        // Paper end
++        return scoreboard;
++    }
++
++    // Paper start
++    public void registerScoreboardForVanilla(CraftScoreboard scoreboard) {
++        org.spigotmc.AsyncCatcher.catchOp("scoreboard registration");
++        scoreboards.add(scoreboard);
++    }
++    // Paper end
++
++    // CraftBukkit method
++    public CraftScoreboard getPlayerBoard(CraftPlayer player) {
++        CraftScoreboard board = this.playerBoards.get(player);
++        return board == null ? this.getMainScoreboard() : board;
++    }
++
++    // CraftBukkit method
++<<<<<<< HEAD
++    public void setPlayerBoard(CraftPlayer player, org.bukkit.scoreboard.Scoreboard bukkitScoreboard) {
++        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
++=======
++    public void setPlayerBoard(CraftPlayer player, org.bukkit.scoreboard.Scoreboard bukkitScoreboard) throws IllegalArgumentException {
++        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet // DirtyFolia - Removed check
++>>>>>>> Recode DirtyFolia
++        Preconditions.checkArgument(bukkitScoreboard instanceof CraftScoreboard, "Cannot set player scoreboard to an unregistered Scoreboard");
++
++        CraftScoreboard scoreboard = (CraftScoreboard) bukkitScoreboard;
++        net.minecraft.world.scores.Scoreboard oldboard = this.getPlayerBoard(player).getHandle();
++        net.minecraft.world.scores.Scoreboard newboard = scoreboard.getHandle();
++        ServerPlayer entityplayer = player.getHandle();
++
++        if (oldboard == newboard) {
++            return;
++        }
++
++        if (scoreboard == this.mainScoreboard) {
++            this.playerBoards.remove(player);
++        } else {
++            this.playerBoards.put(player, scoreboard);
++        }
++
++        // Old objective tracking
++        HashSet<Objective> removed = new HashSet<>();
++        for (int i = 0; i < 3; ++i) {
++            Objective scoreboardobjective = oldboard.getDisplayObjective(i);
++            if (scoreboardobjective != null && !removed.contains(scoreboardobjective)) {
++                entityplayer.connection.send(new ClientboundSetObjectivePacket(scoreboardobjective, 1));
++                removed.add(scoreboardobjective);
++            }
++        }
++
++        // Old team tracking
++        Iterator<?> iterator = oldboard.getPlayerTeams().iterator();
++        while (iterator.hasNext()) {
++            PlayerTeam scoreboardteam = (PlayerTeam) iterator.next();
++            entityplayer.connection.send(ClientboundSetPlayerTeamPacket.createRemovePacket(scoreboardteam));
++        }
++
++        // The above is the reverse of the below method.
++        this.server.getPlayerList().updateEntireScoreboard((ServerScoreboard) newboard, player.getHandle());
++    }
++
++    // CraftBukkit method
++    public void removePlayer(Player player) {
++        this.playerBoards.remove(player);
++    }
++
++    // CraftBukkit method
++    public void getScoreboardScores(ObjectiveCriteria criteria, String name, Consumer<Score> consumer) {
++        // Paper start - add timings for scoreboard search
++        // plugins leaking scoreboards will make this very expensive, let server owners debug it easily
++        co.aikar.timings.MinecraftTimings.scoreboardScoreSearch.startTimingIfSync();
++        try {
++        // Paper end - add timings for scoreboard search
++        for (CraftScoreboard scoreboard : this.scoreboards) {
++            Scoreboard board = scoreboard.board;
++            board.forAllObjectives(criteria, name, (score) -> consumer.accept(score));
++        }
++        } finally { // Paper start - add timings for scoreboard search
++            co.aikar.timings.MinecraftTimings.scoreboardScoreSearch.stopTimingIfSync();
++        }
++        // Paper end - add timings for scoreboard search
++    }
++}
 diff --git a/src/main/java/org/spigotmc/Metrics.java b/src/main/java/org/spigotmc/Metrics.java
 index 8f15af52d2ed734732134bf011ccdd4b7856a284..58cd6351a7caca210434a9d1023904cc428b6182 100644
 --- a/src/main/java/org/spigotmc/Metrics.java
