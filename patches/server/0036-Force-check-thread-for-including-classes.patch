@@ -86,10 +86,10 @@ index 8d461a980165d2998ce33e0ed2945a2f98d8470f..a5ec668c6242ffbc74235ae2de544994
          }
          // DirtyFolia - Unstable action
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 635126af6eca3465c8ffc7a970ff3bacc18c70c9..19bbd89d168ca6b1d50d58c828f20b03a09e6c17 100644
+index f0b7d802951d901c23d221a7787bfddfd28f3a56..53ea21e04529a6f2cabfaa5c46b1d39d566f4859 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1456,7 +1456,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1455,7 +1455,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                          this.initWorld(region.world, region.world.serverLevelData, worldData, region.world.serverLevelData.worldGenOptions()); // Folia - delayed until first tick of world
                          region.world.checkInitialised.set(ServerLevel.WORLD_INIT_CHECKED);
                          // DirtyFolia - Start
@@ -98,7 +98,7 @@ index 635126af6eca3465c8ffc7a970ff3bacc18c70c9..19bbd89d168ca6b1d50d58c828f20b03
                          MinecraftServer.LOGGER.info("World " + region.world.getWorld().getName() + " data status: " + (CachedWorldData.get(region.world.getWorld().getName()) == null ? "(Unavailable)" : "(Cached)"));
                          // DirtyFolia - End
                          LOGGER.info("Initialised world '" + region.world.getWorld().getName() + "'");
-@@ -1655,7 +1655,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1654,7 +1654,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                      regionManager.recalculateRegions();
                  }
                  Bukkit.getRegionScheduler().run(new FakePlugin(), worldserver.getWorld(), 0, 0, scheduledTask -> { // Folia (Third Party)

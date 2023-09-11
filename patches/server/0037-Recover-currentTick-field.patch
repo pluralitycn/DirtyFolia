@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: killerprojecte <admin@fastmcmirror.org>
-Date: Tue, 4 Jul 2023 13:09:39 +0800
+From: FlyTeam <81072191+killerprojecte@users.noreply.github.com>
+Date: Mon, 11 Sep 2023 10:53:09 +0000
 Subject: [PATCH] Recover currentTick field
 
 
@@ -22,19 +22,19 @@ index ae9b199bf36dd98a8e30ea679b79127184dc7d19..6135ff463327a4753bf06d2481fdff5a
      }
  
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 1bfdfb1dd51517a067b068d50d8b6ab5e4da915c..635126af6eca3465c8ffc7a970ff3bacc18c70c9 100644
+index 53ea21e04529a6f2cabfaa5c46b1d39d566f4859..0358f7d026c3fd519b9871515f55b1965f43fd93 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -231,7 +231,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -230,7 +230,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     public OptionSet options;
      public org.bukkit.command.ConsoleCommandSender console;
-     public org.bukkit.command.RemoteConsoleCommandSender remoteConsole;
      //public ConsoleReader reader; // Paper
 -    //public static int currentTick = 0; // Paper - Further improve tick loop // Folia - region threading
-+    public static int currentTick = 0; // Paper - Further improve tick loop // Folia - region threading // DirtyFolia - Recover API
++    public static int currentTick = 0; // Paper - Further improve tick loop // Folia - region threading
      public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
      public int autosavePeriod;
      public Commands vanillaCommandDispatcher;
-@@ -244,7 +244,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -243,7 +243,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      public final double[] recentTps = new double[ 3 ];
      // Spigot end
      public final io.papermc.paper.configuration.PaperConfigurations paperConfigurations;
@@ -43,3 +43,19 @@ index 1bfdfb1dd51517a067b068d50d8b6ab5e4da915c..635126af6eca3465c8ffc7a970ff3bac
  
      public volatile Thread shutdownThread; // Paper
      public volatile boolean abnormalExit = false; // Paper
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java.rej b/src/main/java/net/minecraft/server/MinecraftServer.java.rej
+new file mode 100644
+index 0000000000000000000000000000000000000000..d3be3a284b02c78819cc310a0c190c915d5cbecc
+--- /dev/null
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java.rej
+@@ -0,0 +1,10 @@
++diff a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java	(rejected hunks)
++@@ -231,7 +231,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
++     public org.bukkit.command.ConsoleCommandSender console;
++     public org.bukkit.command.RemoteConsoleCommandSender remoteConsole;
++     //public ConsoleReader reader; // Paper
++-    //public static int currentTick = 0; // Paper - Further improve tick loop // Folia - region threading
+++    public static int currentTick = 0; // Paper - Further improve tick loop // Folia - region threading // DirtyFolia - Recover API
++     public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
++     public int autosavePeriod;
++     public Commands vanillaCommandDispatcher;

@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: killerprojecte <admin@fastmcmirror.org>
-Date: Fri, 11 Aug 2023 08:42:04 +0800
+From: FlyTeam <81072191+killerprojecte@users.noreply.github.com>
+Date: Mon, 11 Sep 2023 10:50:08 +0000
 Subject: [PATCH] Bad idea to remove thread check and restore entityMap
 
 
@@ -253,7 +253,7 @@ index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..0b3bd5abbcd40ffc2c374cff92833a76
          (this.tickingBlockEntities ? this.pendingBlockEntityTickers : this.blockEntityTickers).add(ticker);
      }
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index f1f52f9d9f8eafd65b50e3c06c92bcd8fda64286..b485af434d376cd79edfe44740def7aed8ec5cca 100644
+index 6885961c7eaa07b8b25e48ca0e33e310379f6114..8d37807ccb2dc09a35b8e9ff8e73c493b0fd8467 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
 @@ -148,7 +148,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
@@ -274,7 +274,7 @@ index f1f52f9d9f8eafd65b50e3c06c92bcd8fda64286..b485af434d376cd79edfe44740def7ae
          this.chunkTypeCache = new Long2ByteOpenHashMap();
          this.chunkSaveCooldowns = new Long2LongOpenHashMap();
          this.unloadQueue = Queues.newConcurrentLinkedQueue();
-@@ -718,8 +718,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+@@ -716,8 +716,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
      }
  
      public void updateChunkTracking(ServerPlayer player, ChunkPos pos, MutableObject<java.util.Map<Object, ClientboundLevelChunkWithLightPacket>> packet, boolean oldWithinViewDistance, boolean newWithinViewDistance) { // Paper - public // Paper - Anti-Xray - Bypass
@@ -285,7 +285,7 @@ index f1f52f9d9f8eafd65b50e3c06c92bcd8fda64286..b485af434d376cd79edfe44740def7ae
          if (player.level() == this.level) {
              ChunkHolder playerchunk = this.getVisibleChunkIfPresent(pos.toLong()); // Paper - replace chunk loader system - move up
              if (newWithinViewDistance && !oldWithinViewDistance) {
-@@ -1076,6 +1076,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+@@ -1074,6 +1074,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                      ChunkMap.TrackedEntity playerchunkmap_entitytracker = new ChunkMap.TrackedEntity(entity, i, j, entitytypes.trackDeltas());
  
                      entity.tracker = playerchunkmap_entitytracker; // Paper - Fast access to tracker
@@ -293,7 +293,7 @@ index f1f52f9d9f8eafd65b50e3c06c92bcd8fda64286..b485af434d376cd79edfe44740def7ae
                      // Folia - region threading
                      playerchunkmap_entitytracker.updatePlayers(this.level.getLocalPlayers()); // Paper - don't search all players // Folia - region threading
                      if (entity instanceof ServerPlayer) {
-@@ -1086,6 +1087,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+@@ -1084,6 +1085,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                          for (Entity possible : this.level.getCurrentWorldData().getLocalEntities()) {
                              if (possible.tracker != null) {
                                  possible.tracker.updatePlayer(entityplayer);
@@ -301,7 +301,7 @@ index f1f52f9d9f8eafd65b50e3c06c92bcd8fda64286..b485af434d376cd79edfe44740def7ae
                              }
                          }
                          // Folia end - region threading
-@@ -1131,6 +1133,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+@@ -1129,6 +1131,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
              tracker.updatePlayers(players);
              tracker.removeNonTickThreadPlayers();
              tracker.serverEntity.sendChanges();
@@ -323,7 +323,7 @@ index 364229c0a2945cf093bc448b7c3d9fafebab418f..9159d89d14ac80dd9b08d2a63a74c09a
          io.papermc.paper.chunk.system.scheduling.NewChunkHolder chunkHolder = this.level.chunkTaskScheduler.chunkHolderManager.getChunkHolder(chunkX, chunkZ);
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index cbb6bd505b0cd87f38bd55fd933ae1ce1edea6ed..5c7e917abff8781cfa28c9474114412a6cf55ce2 100644
+index 24cbb385822eac5c8dd7959b06148ad2d96715ed..aa66467f99a626934d4fca99f11c4f570c1a1270 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -1295,7 +1295,7 @@ public class ServerPlayer extends Player {
@@ -345,10 +345,10 @@ index cbb6bd505b0cd87f38bd55fd933ae1ce1edea6ed..5c7e917abff8781cfa28c9474114412a
          if (this.level().getTypeKey() == LevelStem.END) {
              if (!this.canPortalAsync(false)) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4ae9b7cba1 100644
+index af07c9d24374b7d969f1e524ce0bbb2626a590b1..765500366e432748949bfc129f6162d6fb126a42 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -1025,7 +1025,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -1027,7 +1027,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
      public void move(MoverType movementType, Vec3 movement) {
          // Paper start - detailed watchdog information
@@ -357,7 +357,7 @@ index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4a
          synchronized (this.posLock) {
              this.moveStartX = this.getX();
              this.moveStartY = this.getY();
-@@ -3575,7 +3575,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3577,7 +3577,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected EntityTreeNode makePassengerTree() {
@@ -366,7 +366,7 @@ index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4a
  
          EntityTreeNode root = new EntityTreeNode(null, this);
          java.util.ArrayDeque<EntityTreeNode> queue = new java.util.ArrayDeque<>();
-@@ -3601,7 +3601,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3603,7 +3603,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected EntityTreeNode detachPassengers() {
@@ -375,7 +375,7 @@ index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4a
  
          EntityTreeNode root = new EntityTreeNode(null, this);
          java.util.ArrayDeque<EntityTreeNode> queue = new java.util.ArrayDeque<>();
-@@ -3783,7 +3783,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3785,7 +3785,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      public final boolean teleportAsync(ServerLevel destination, Vec3 pos, Float yaw, Float pitch, Vec3 speedDirectionUpdate,
                                         org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, long teleportFlags,
                                         java.util.function.Consumer<Entity> teleportComplete) {
@@ -384,7 +384,7 @@ index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4a
  
          if (!ServerLevel.isInSpawnableBounds(new BlockPos(io.papermc.paper.util.CoordinateUtils.getBlockX(pos), io.papermc.paper.util.CoordinateUtils.getBlockY(pos), io.papermc.paper.util.CoordinateUtils.getBlockZ(pos)))) {
              return false;
-@@ -3899,7 +3899,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3901,7 +3901,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected boolean tryEndPortal() {
@@ -393,7 +393,7 @@ index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4a
          BlockPos pos = this.portalBlock;
          ServerLevel world = this.portalWorld;
          this.portalBlock = null;
-@@ -3917,7 +3917,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3919,7 +3919,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      protected boolean tryNetherPortal() {
@@ -402,7 +402,7 @@ index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4a
  
          int portalWaitTime = this.getPortalWaitTime();
  
-@@ -3940,7 +3940,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3942,7 +3942,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      public boolean endPortalLogicAsync() {
@@ -411,7 +411,7 @@ index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4a
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.END ? Level.OVERWORLD : Level.END);
          EntityPortalReadyEvent event = new io.papermc.paper.event.entity.EntityPortalReadyEvent(this.getBukkitEntity(), destination == null ? null : destination.getWorld(), org.bukkit.PortalType.ENDER);
-@@ -3958,7 +3958,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3960,7 +3960,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      }
  
      public boolean netherPortalLogicAsync() {
@@ -420,7 +420,7 @@ index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4a
  
          ServerLevel destination = this.getServer().getLevel(this.level().getTypeKey() == LevelStem.NETHER ? Level.OVERWORLD : Level.NETHER);
          EntityPortalReadyEvent event = new io.papermc.paper.event.entity.EntityPortalReadyEvent(this.getBukkitEntity(), destination == null ? null : destination.getWorld(), org.bukkit.PortalType.NETHER);
-@@ -4185,7 +4185,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4187,7 +4187,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
      protected boolean portalToAsync(ServerLevel destination, boolean takePassengers,
                                      PortalType type, java.util.function.Consumer<Entity> teleportComplete) {
@@ -429,7 +429,7 @@ index 3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf..e82645d9148041f1c05952d134ffda4a
          if (!this.canPortalAsync(takePassengers)) {
              return false;
          }
-@@ -5434,7 +5434,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -5428,7 +5428,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      @Override
      public final void setRemoved(Entity.RemovalReason reason) {
          // Paper start - rewrite chunk system
@@ -514,7 +514,7 @@ index 3698bae85063baec031a61d24ef3286703a9d04c..bf997ee6950e8771cd73fd805275532f
          // Folia end
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index fd5887fc9f3c8fe5f21a5f7b69ed4a5e374329a1..2aebb9be55af22746ea62e0531bfbf1742064d2f 100644
+index 874422fc018076fb03b4d2bb9992c659ec3f3662..dc71085cf58682e79a7fb5a2c15d2ec883749346 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -1014,7 +1014,7 @@ public final class CraftServer implements Server {
@@ -527,7 +527,7 @@ index fd5887fc9f3c8fe5f21a5f7b69ed4a5e374329a1..2aebb9be55af22746ea62e0531bfbf17
              io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Dispatching command async");
          } else {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 677e4f83dab1a78ea4b09abf98313dbdbc456367..008536007477761fbb6ec753b763f541656f2146 100644
+index 359e63edc6b48134ad0d9e0b48cf83bec292d7d6..4804ae17f038363d968d703a5d59d6ca1e0c6d93 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -916,13 +916,13 @@ public class CraftWorld extends CraftRegionAccessor implements World {
@@ -556,7 +556,7 @@ index 677e4f83dab1a78ea4b09abf98313dbdbc456367..008536007477761fbb6ec753b763f541
          getHandle().gameEvent(sourceEntity != null ? ((CraftEntity) sourceEntity).getHandle(): null, net.minecraft.core.registries.BuiltInRegistries.GAME_EVENT.get(org.bukkit.craftbukkit.util.CraftNamespacedKey.toMinecraft(gameEvent.getKey())), org.bukkit.craftbukkit.util.CraftVector.toBlockPos(position));
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
-index 937d0e3aed6dcc40514ed9e99bb9850c02c1a5ef..6e3170c01b7038a1fd02f4cba7e0b63cfbae107d 100644
+index d1c844ae943e752157812d92b14d43a83b5322ef..a880377194e5659240c4e448d7418f1fc444d9a4 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 @@ -160,7 +160,7 @@ public class CraftBlock implements Block {
@@ -658,16 +658,7 @@ index 937d0e3aed6dcc40514ed9e99bb9850c02c1a5ef..6e3170c01b7038a1fd02f4cba7e0b63c
          }
          // Folia end - region threading
          Preconditions.checkArgument(data != null, "BlockData cannot be null");
-@@ -795,7 +795,7 @@ public class CraftBlock implements Block {
-     public float getDestroySpeed(ItemStack itemStack, boolean considerEnchants) {
-         // Folia start - region threading
-         if (world instanceof ServerLevel serverWorld) {
--            io.papermc.paper.util.TickThread.ensureTickThread(serverWorld, position, "Cannot read world asynchronously");
-+            //io.papermc.paper.util.TickThread.ensureTickThread(serverWorld, position, "Cannot read world asynchronously");
-         }
-         // Folia end - region threading
-         net.minecraft.world.item.ItemStack nmsItemStack;
-@@ -825,7 +825,7 @@ public class CraftBlock implements Block {
+@@ -799,7 +799,7 @@ public class CraftBlock implements Block {
      public void tick() {
          // Folia start - region threading
          if (world instanceof ServerLevel serverWorld) {
@@ -676,7 +667,7 @@ index 937d0e3aed6dcc40514ed9e99bb9850c02c1a5ef..6e3170c01b7038a1fd02f4cba7e0b63c
          }
          // Folia end - region threading
          net.minecraft.world.level.block.state.BlockState blockData = this.getNMS();
-@@ -838,7 +838,7 @@ public class CraftBlock implements Block {
+@@ -812,7 +812,7 @@ public class CraftBlock implements Block {
      public void randomTick() {
          // Folia start - region threading
          if (world instanceof ServerLevel serverWorld) {
@@ -685,6 +676,22 @@ index 937d0e3aed6dcc40514ed9e99bb9850c02c1a5ef..6e3170c01b7038a1fd02f4cba7e0b63c
          }
          // Folia end - region threading
          net.minecraft.world.level.block.state.BlockState blockData = this.getNMS();
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java.rej b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java.rej
+new file mode 100644
+index 0000000000000000000000000000000000000000..59dae7af74e21c8afda8795388e0e91232b646da
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java.rej
+@@ -0,0 +1,10 @@
++diff a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java	(rejected hunks)
++@@ -795,7 +795,7 @@ public class CraftBlock implements Block {
++     public float getDestroySpeed(ItemStack itemStack, boolean considerEnchants) {
++         // Folia start - region threading
++         if (world instanceof ServerLevel serverWorld) {
++-            io.papermc.paper.util.TickThread.ensureTickThread(serverWorld, position, "Cannot read world asynchronously");
+++            //io.papermc.paper.util.TickThread.ensureTickThread(serverWorld, position, "Cannot read world asynchronously");
++         }
++         // Folia end - region threading
++         net.minecraft.world.item.ItemStack nmsItemStack;
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
 index 38b4d0870d21467e415d5e84457706df80c15e23..002f5136815328d5b7f92c4ca5d6cc8ab0971acc 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java

@@ -7,10 +7,10 @@ This allows the player to be re-positioned before logging into
 the world without causing thread checks to trip on Folia.
 
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index b3f759046df3500e4b1da23c1424620bd867826a..dde8377c2e1a1c84f6c7e3cb594699ff9c8c28e4 100644
+index 1f43919266ef7b79f05ebb70e2fbdd64e1b4811b..1094efe825797e78f848d3a4dcd0c709bfae2a30 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
-@@ -498,7 +498,13 @@ public abstract class PlayerList {
+@@ -506,7 +506,13 @@ public abstract class PlayerList {
              CompoundTag nbttagcompound1 = nbttagcompound.getCompound("RootVehicle");
              // CraftBukkit start
              ServerLevel finalWorldServer = worldserver1;

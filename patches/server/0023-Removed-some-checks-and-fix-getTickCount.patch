@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: killerprojecte <admin@fastmcmirror.org>
-Date: Fri, 11 Aug 2023 08:21:51 +0800
+From: FlyTeam <81072191+killerprojecte@users.noreply.github.com>
+Date: Mon, 11 Sep 2023 10:48:17 +0000
 Subject: [PATCH] Removed some checks and fix getTickCount
 
 
@@ -18,49 +18,10 @@ index 519da6886613b8460e989767b1a21e3126cb1894..18f7d37c734957a05c5d682c9d187e3c
      }
  
 diff --git a/src/main/java/io/papermc/paper/util/MCUtil.java b/src/main/java/io/papermc/paper/util/MCUtil.java
-index ff6716210d13db4472c67a56003b24c7b0af8224..489d78c6a48e7d1cb79bef5bcfe83696557e8ca5 100644
+index cadb91c7f5ef80aac8513f246fdf481947fa0a17..ea670791ee26c01b24cddaf32c761ac827f76b89 100644
 --- a/src/main/java/io/papermc/paper/util/MCUtil.java
 +++ b/src/main/java/io/papermc/paper/util/MCUtil.java
-@@ -3,35 +3,28 @@ package io.papermc.paper.util;
- import com.destroystokyo.paper.profile.CraftPlayerProfile;
- import com.destroystokyo.paper.profile.PlayerProfile;
- import com.google.common.util.concurrent.ThreadFactoryBuilder;
--import io.papermc.paper.math.Position;
- import com.google.gson.JsonArray;
- import com.google.gson.JsonObject;
- import com.google.gson.internal.Streams;
- import com.google.gson.stream.JsonWriter;
--import com.mojang.datafixers.util.Either;
-+import com.mojang.authlib.GameProfile;
-+import io.papermc.paper.math.Position;
- import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
--import java.lang.ref.Cleaner;
- import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
- import net.minecraft.core.BlockPos;
- import net.minecraft.core.Direction;
--import net.minecraft.server.MinecraftServer;
- import net.minecraft.nbt.CompoundTag;
- import net.minecraft.network.chat.Component;
-+import net.minecraft.server.MinecraftServer;
- import net.minecraft.server.level.ChunkHolder;
--import net.minecraft.server.level.ChunkMap;
--import net.minecraft.server.level.DistanceManager;
- import net.minecraft.server.level.ServerLevel;
- import net.minecraft.server.level.ServerPlayer;
--import net.minecraft.server.level.Ticket;
- import net.minecraft.world.entity.Entity;
- import net.minecraft.world.level.ChunkPos;
--import net.minecraft.world.level.ClipContext;
- import net.minecraft.world.level.Level;
--import net.minecraft.world.level.chunk.ChunkAccess;
- import net.minecraft.world.level.chunk.ChunkStatus;
- import net.minecraft.world.phys.Vec3;
- import org.apache.commons.lang.exception.ExceptionUtils;
--import com.mojang.authlib.GameProfile;
- import org.bukkit.Location;
- import org.bukkit.block.BlockFace;
- import org.bukkit.craftbukkit.CraftWorld;
-@@ -42,16 +35,11 @@ import org.spigotmc.AsyncCatcher;
+@@ -45,16 +45,11 @@ import org.spigotmc.AsyncCatcher;
  import javax.annotation.Nonnull;
  import javax.annotation.Nullable;
  import java.io.*;
@@ -79,7 +40,7 @@ index ff6716210d13db4472c67a56003b24c7b0af8224..489d78c6a48e7d1cb79bef5bcfe83696
  import java.util.concurrent.atomic.AtomicBoolean;
  import java.util.function.BiConsumer;
  import java.util.function.Consumer;
-@@ -334,14 +322,15 @@ public final class MCUtil {
+@@ -337,14 +332,15 @@ public final class MCUtil {
       * @return
       */
      public static void ensureMain(String reason, Runnable run) {
@@ -777,8 +738,54 @@ index 0000000000000000000000000000000000000000..9f3917396cb2761e54612ef7f8f61678
 +        return net.minecraft.server.level.ChunkMap.MAX_VIEW_DISTANCE + net.minecraft.world.level.chunk.ChunkStatus.getDistance(status);
 +    }
 +}
+diff --git a/src/main/java/io/papermc/paper/util/MCUtil.java.rej b/src/main/java/io/papermc/paper/util/MCUtil.java.rej
+new file mode 100644
+index 0000000000000000000000000000000000000000..87f7f606379694d510da477e8b998e410cb008cd
+--- /dev/null
++++ b/src/main/java/io/papermc/paper/util/MCUtil.java.rej
+@@ -0,0 +1,40 @@
++diff a/src/main/java/io/papermc/paper/util/MCUtil.java b/src/main/java/io/papermc/paper/util/MCUtil.java	(rejected hunks)
++@@ -3,35 +3,28 @@ package io.papermc.paper.util;
++ import com.destroystokyo.paper.profile.CraftPlayerProfile;
++ import com.destroystokyo.paper.profile.PlayerProfile;
++ import com.google.common.util.concurrent.ThreadFactoryBuilder;
++-import io.papermc.paper.math.Position;
++ import com.google.gson.JsonArray;
++ import com.google.gson.JsonObject;
++ import com.google.gson.internal.Streams;
++ import com.google.gson.stream.JsonWriter;
++-import com.mojang.datafixers.util.Either;
+++import com.mojang.authlib.GameProfile;
+++import io.papermc.paper.math.Position;
++ import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
++-import java.lang.ref.Cleaner;
++ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
++ import net.minecraft.core.BlockPos;
++ import net.minecraft.core.Direction;
++-import net.minecraft.server.MinecraftServer;
++ import net.minecraft.nbt.CompoundTag;
++ import net.minecraft.network.chat.Component;
+++import net.minecraft.server.MinecraftServer;
++ import net.minecraft.server.level.ChunkHolder;
++-import net.minecraft.server.level.ChunkMap;
++-import net.minecraft.server.level.DistanceManager;
++ import net.minecraft.server.level.ServerLevel;
++ import net.minecraft.server.level.ServerPlayer;
++-import net.minecraft.server.level.Ticket;
++ import net.minecraft.world.entity.Entity;
++ import net.minecraft.world.level.ChunkPos;
++-import net.minecraft.world.level.ClipContext;
++ import net.minecraft.world.level.Level;
++-import net.minecraft.world.level.chunk.ChunkAccess;
++ import net.minecraft.world.level.chunk.ChunkStatus;
++ import net.minecraft.world.phys.Vec3;
++ import org.apache.commons.lang.exception.ExceptionUtils;
++-import com.mojang.authlib.GameProfile;
++ import org.bukkit.Location;
++ import org.bukkit.block.BlockFace;
++ import org.bukkit.craftbukkit.CraftWorld;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 01e00f9cf7a00660a283710d70f7f96f2c5b9bee..67223e0dd26bc64f915327832c568f96f4cb99b8 100644
+index efaa481c5d82cd475454814224da100d2e0e2382..e18204d3f351198fbc41d5de9d9da9417775ade1 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1,11 +1,9 @@
@@ -1003,7 +1010,7 @@ index 01e00f9cf7a00660a283710d70f7f96f2c5b9bee..67223e0dd26bc64f915327832c568f96
  
  public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, AutoCloseable {
  
-@@ -321,25 +253,28 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -320,25 +252,28 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @Override
      public void execute(Runnable runnable) {
@@ -1038,7 +1045,7 @@ index 01e00f9cf7a00660a283710d70f7f96f2c5b9bee..67223e0dd26bc64f915327832c568f96
          super.tell(runnable);
      }
      // Folia end - regionised ticking
-@@ -1433,7 +1368,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1432,7 +1367,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @Override
      public boolean pollTask() {
@@ -1047,7 +1054,7 @@ index 01e00f9cf7a00660a283710d70f7f96f2c5b9bee..67223e0dd26bc64f915327832c568f96
          boolean flag = this.pollTaskInternal();
  
          this.mayHaveDelayedTasks = flag;
-@@ -1441,7 +1376,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1440,7 +1375,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      }
  
      private boolean pollTaskInternal() {
@@ -1056,7 +1063,7 @@ index 01e00f9cf7a00660a283710d70f7f96f2c5b9bee..67223e0dd26bc64f915327832c568f96
          if (super.pollTask()) {
              this.executeMidTickTasks(); // Paper - execute chunk tasks mid tick
              return true;
-@@ -1464,7 +1399,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1463,7 +1398,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      }
  
      public void doRunTask(TickTask ticktask) { // CraftBukkit - decompile error
@@ -1065,7 +1072,7 @@ index 01e00f9cf7a00660a283710d70f7f96f2c5b9bee..67223e0dd26bc64f915327832c568f96
          this.getProfiler().incrementCounter("runTask");
          super.doRunTask(ticktask);
      }
-@@ -1743,7 +1678,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1742,7 +1677,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          MinecraftTimings.connectionTimer.stopTiming(); // Spigot
          this.profiler.popPush("players");
          MinecraftTimings.playerListTimer.startTiming(); // Spigot // Paper
@@ -1074,7 +1081,7 @@ index 01e00f9cf7a00660a283710d70f7f96f2c5b9bee..67223e0dd26bc64f915327832c568f96
          MinecraftTimings.playerListTimer.stopTiming(); // Spigot // Paper
          if (SharedConstants.IS_RUNNING_IN_IDE) {
              GameTestTicker.SINGLETON.tick();
-@@ -2090,7 +2025,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -2089,7 +2024,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      }
  
      public int getTickCount() {
@@ -1083,7 +1090,7 @@ index 01e00f9cf7a00660a283710d70f7f96f2c5b9bee..67223e0dd26bc64f915327832c568f96
      }
  
      public int getSpawnProtectionRadius() {
-@@ -2168,7 +2103,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -2167,7 +2102,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @Override
      public void executeIfPossible(Runnable runnable) {
@@ -1462,7 +1469,7 @@ index 311eaae2b59cee8e4a9a9ec600dee837172d5260..650478ee465df684e8ba653efaa3c8be
          ChunkPos chunkcoordintpair = new ChunkPos(x, z);
          long k = chunkcoordintpair.toLong();
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 88c57c1ef147045315e923a5ba3b6f9394900f92..816eaf7862b32e95f821a9e018ca62f6f22135de 100644
+index 678bba9d636a0eb34270a2d26b5b3d0d6d900115..c5a680622e8f4b147aaeaacd1b625c0a1ded10b3 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -4,37 +4,15 @@ import com.google.common.collect.Lists;
@@ -1727,7 +1734,7 @@ index 88c57c1ef147045315e923a5ba3b6f9394900f92..816eaf7862b32e95f821a9e018ca62f6
  // CraftBukkit end
  
  public class ServerGamePacketListenerImpl implements ServerPlayerConnection, TickablePacketListener, ServerGamePacketListener {
-@@ -2560,7 +2421,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -2572,7 +2433,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
      public void handleCommand(String s) { // Paper - private -> public
          // Paper Start
          if (!org.spigotmc.AsyncCatcher.shuttingDown && !org.bukkit.Bukkit.isPrimaryThread()) {
@@ -1736,7 +1743,7 @@ index 88c57c1ef147045315e923a5ba3b6f9394900f92..816eaf7862b32e95f821a9e018ca62f6
              LOGGER.error("Command Dispatched Async: " + s);
              LOGGER.error("Please notify author of plugin causing this execution to fix this bug! see: http://bit.ly/1oSiM6C", new Throwable());
              Waitable<Void> wait = new Waitable<>() {
-@@ -2621,7 +2482,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -2633,7 +2494,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
          if (s.isEmpty()) {
              ServerGamePacketListenerImpl.LOGGER.warn(this.player.getScoreboardName() + " tried to send an empty message");
          } else if (this.getCraftPlayer().isConversing()) {
@@ -5390,7 +5397,7 @@ index 0000000000000000000000000000000000000000..57d45f029e650676e00f01232757ebed
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index f630badc621f6df3f6f144e059921a1b21ac8a00..3ae9e49e3ca9759745203c0d2437fc7eeb11a5bf 100644
+index bc4e1db0e00e564122418f155f35298a7c18c746..af07c9d24374b7d969f1e524ce0bbb2626a590b1 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -1,35 +1,12 @@
@@ -5552,7 +5559,7 @@ index f630badc621f6df3f6f144e059921a1b21ac8a00..3ae9e49e3ca9759745203c0d2437fc7e
  // CraftBukkit end
  
  public abstract class Entity implements Nameable, EntityAccess, CommandSource {
-@@ -4314,9 +4267,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4316,9 +4269,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
      @Nullable
      public Entity teleportTo(ServerLevel worldserver, PositionImpl location) {
          // Folia start - region threading
@@ -5789,7 +5796,7 @@ index f3df9c9b6cff85565514f990597f3fe53652812c..b09b32d56bed38f3bb4c552331f02965
          LevelChunkTicks<T> levelChunkTicks = this.allContainers.get(l);
          if (levelChunkTicks == null) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 723ae4b75c84fe952377c02d42cf7a710f7047ea..677e4f83dab1a78ea4b09abf98313dbdbc456367 100644
+index 2c19648e68c8d25bd295e2a37ce701bb3cf61e29..359e63edc6b48134ad0d9e0b48cf83bec292d7d6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -327,7 +327,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
@@ -5865,7 +5872,7 @@ index 723ae4b75c84fe952377c02d42cf7a710f7047ea..677e4f83dab1a78ea4b09abf98313dbd
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 36fc7444514a82532731026a0c4402d2ec04e9d2..0edde7c9633bbed916600161889a4a1435dbacf7 100644
+index 8d63d9c4b2665fffcf019e69e837ba461ab017f6..a01fda754dae624c001901ab1f834e5cc416f4ce 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -31,6 +31,7 @@ import java.util.UUID;
@@ -5884,7 +5891,7 @@ index 36fc7444514a82532731026a0c4402d2ec04e9d2..0edde7c9633bbed916600161889a4a14
  import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
  import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
  import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
-@@ -1300,9 +1300,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1307,9 +1307,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
      @Override
      public boolean teleport(Location location, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
          // Folia start - region threading

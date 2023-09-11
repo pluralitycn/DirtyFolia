@@ -18,7 +18,7 @@ index 5835a1ba3e2927c6b5d143506b440ac5a43aaaa4..eaf859c26b083ee4af9894f136d5f41f
              this.refreshProjectileSource(false); // Paper
              return this.cachedOwner;
 diff --git a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
-index 2b862066388cfede202a0c709f93ae89e2d17b30..bb28fb2f613d24db0c5ad9d97b9c9c8008a7c587 100644
+index cb5eaaa04fe9cc820b9f4f893e81ef0a73be3fe8..144af2f09d1d371ca41f0de06ebb39bfef833851 100644
 --- a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
 +++ b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
 @@ -258,7 +258,7 @@ public class MapItemSavedData extends SavedData {
@@ -31,7 +31,7 @@ index 2b862066388cfede202a0c709f93ae89e2d17b30..bb28fb2f613d24db0c5ad9d97b9c9c80
              MapItemSavedData.HoldingPlayer worldmap_worldmaphumantracker = new MapItemSavedData.HoldingPlayer(player);
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 2aebb9be55af22746ea62e0531bfbf1742064d2f..8be37a76f075e0201cf13e2f124721fbbc6f8e76 100644
+index dc71085cf58682e79a7fb5a2c15d2ec883749346..34fcaa07f84b400f0b816e359a4e02279766adcf 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -1288,7 +1288,7 @@ public final class CraftServer implements Server {

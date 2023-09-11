@@ -1,0 +1,530 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: FlyTeam <81072191+killerprojecte@users.noreply.github.com>
+Date: Mon, 11 Sep 2023 11:09:05 +0000
+Subject: [PATCH] Fix configuration
+
+
+diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+index dcc25a312b10e291edfa46033976726c25bbe354..00f4d86f28c7bce36989e34f65859b5ee04d7da0 100644
+--- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
++++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+@@ -323,6 +323,7 @@ public class GlobalConfiguration extends ConfigurationPart {
+         public boolean useAlternativeLuckFormula = false;
+         public boolean useDimensionTypeForCustomSpawners = false;
+         public boolean strictAdvancementDimensionCheck = false;
++        public String serverModName = "DirtyFolia";
+     }
+ 
+     public BlockUpdates blockUpdates;
+diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java.orig b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java.orig
+deleted file mode 100644
+index e3bc84e9ab615c381da25448332e3cd1b8e354ed..0000000000000000000000000000000000000000
+--- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java.orig
++++ /dev/null
+@@ -1,371 +0,0 @@
+-package io.papermc.paper.configuration;
+-
+-import co.aikar.timings.MinecraftTimings;
+-import io.papermc.paper.configuration.constraint.Constraint;
+-import io.papermc.paper.configuration.constraint.Constraints;
+-import net.kyori.adventure.text.Component;
+-import net.kyori.adventure.text.format.NamedTextColor;
+-import net.minecraft.network.protocol.Packet;
+-import net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket;
+-import org.bukkit.Bukkit;
+-import org.checkerframework.checker.nullness.qual.Nullable;
+-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+-import org.spongepowered.configurate.objectmapping.meta.Comment;
+-import org.spongepowered.configurate.objectmapping.meta.Required;
+-import org.spongepowered.configurate.objectmapping.meta.Setting;
+-
+-import java.util.List;
+-import java.util.Map;
+-import java.util.Objects;
+-
+-@SuppressWarnings({"CanBeFinal", "FieldCanBeLocal", "FieldMayBeFinal", "NotNullFieldNotInitialized", "InnerClassMayBeStatic"})
+-public class GlobalConfiguration extends ConfigurationPart {
+-    static final int CURRENT_VERSION = 28;
+-    private static GlobalConfiguration instance;
+-    public static GlobalConfiguration get() {
+-        return instance;
+-    }
+-    public static String serverModName = "DirtyFolia";
+-    public static boolean enderChestSixRows = false;
+-    public static int barrelRows = 3;
+-    static void set(GlobalConfiguration instance) {
+-        GlobalConfiguration.instance = instance;
+-        serverModName = instance.misc.serverModName;
+-        enderChestSixRows = instance.unsupportedSettings.enderChestSixRows;
+-        barrelRows = instance.unsupportedSettings.barrelRows;
+-        if (barrelRows < 1 || barrelRows > 6) {
+-            Bukkit.getLogger().severe("unsupportedSettings.barrelRows must be 1-6, resetting to default");
+-            barrelRows = 3;
+-        }
+-        org.bukkit.event.inventory.InventoryType.BARREL.setDefaultSize(switch (barrelRows) {
+-            case 6 -> 54;
+-            case 5 -> 45;
+-            case 4 -> 36;
+-            case 2 -> 18;
+-            case 1 -> 9;
+-            default -> 27;
+-        });
+-        org.bukkit.event.inventory.InventoryType.ENDER_CHEST.setDefaultSize(enderChestSixRows ? 54 : 27);
+-    }
+-
+-    @Setting(Configuration.VERSION_FIELD)
+-    public int version = CURRENT_VERSION;
+-
+-    public Messages messages;
+-
+-    public class Messages extends ConfigurationPart {
+-        public Kick kick;
+-
+-        public class Kick extends ConfigurationPart {
+-            public Component authenticationServersDown = Component.translatable("multiplayer.disconnect.authservers_down");
+-            public Component connectionThrottle = Component.text("Connection throttled! Please wait before reconnecting.");
+-            public Component flyingPlayer = Component.translatable("multiplayer.disconnect.flying");
+-            public Component flyingVehicle = Component.translatable("multiplayer.disconnect.flying");
+-        }
+-
+-        public Component noPermission = Component.text("I'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.", NamedTextColor.RED);
+-        public boolean useDisplayNameInQuitMessage = false;
+-    }
+-
+-    public Timings timings;
+-
+-    public class Timings extends ConfigurationPart.Post {
+-        public boolean enabled = true;
+-        public boolean verbose = true;
+-        public String url = "https://timings.aikar.co/";
+-        public boolean serverNamePrivacy = false;
+-        public List<String> hiddenConfigEntries = List.of(
+-            "database",
+-            "proxies.velocity.secret"
+-        );
+-        public int historyInterval = 300;
+-        public int historyLength = 3600;
+-        public String serverName = "Unknown Server";
+-
+-        @Override
+-        public void postProcess() {
+-            MinecraftTimings.processConfig(this);
+-        }
+-    }
+-
+-    public Proxies proxies;
+-
+-    public class Proxies extends ConfigurationPart {
+-        public BungeeCord bungeeCord;
+-
+-        public class BungeeCord extends ConfigurationPart {
+-            public boolean onlineMode = true;
+-        }
+-
+-        @Constraint(Constraints.Velocity.class)
+-        public Velocity velocity;
+-
+-        public class Velocity extends ConfigurationPart {
+-            public boolean enabled = false;
+-            public boolean onlineMode = false;
+-            public String secret = "";
+-        }
+-        public boolean proxyProtocol = false;
+-        public boolean isProxyOnlineMode() {
+-            return org.bukkit.Bukkit.getOnlineMode() || (org.spigotmc.SpigotConfig.bungee && this.bungeeCord.onlineMode) || (this.velocity.enabled && this.velocity.onlineMode);
+-        }
+-    }
+-
+-    public Console console;
+-
+-    public class Console extends ConfigurationPart {
+-        public boolean enableBrigadierHighlighting = true;
+-        public boolean enableBrigadierCompletions = true;
+-        public boolean hasAllPermissions = false;
+-    }
+-
+-    public Watchdog watchdog;
+-
+-    public class Watchdog extends ConfigurationPart {
+-        public int earlyWarningEvery = 5000;
+-        public int earlyWarningDelay = 10000;
+-    }
+-
+-    public SpamLimiter spamLimiter;
+-
+-    public class SpamLimiter extends ConfigurationPart {
+-        public int tabSpamIncrement = 1;
+-        public int tabSpamLimit = 500;
+-        public int recipeSpamIncrement = 1;
+-        public int recipeSpamLimit = 20;
+-        public int incomingPacketThreshold = 300;
+-    }
+-
+-    public UnsupportedSettings unsupportedSettings;
+-
+-    public class UnsupportedSettings extends ConfigurationPart {
+-        @Comment("This setting controls if players should be able to break bedrock, end portals and other intended to be permanent blocks.")
+-        public boolean allowPermanentBlockBreakExploits = false;
+-        @Comment("This setting controls if player should be able to use TNT duplication, but this also allows duplicating carpet, rails and potentially other items")
+-        public boolean allowPistonDuplication = false;
+-        public boolean performUsernameValidation = true;
+-        @Comment("This setting controls if players should be able to create headless pistons.")
+-        public boolean allowHeadlessPistons = false;
+-        @Comment("This setting controls if grindstones should be able to output overstacked items (such as cursed books).")
+-        public boolean allowGrindstoneOverstacking = false;
+-<<<<<<< HEAD
+-        @Comment("This setting controls what compression format is used for region files.")
+-        public CompressionFormat compressionFormat = CompressionFormat.ZLIB;
+-
+-        public enum CompressionFormat {
+-            GZIP,
+-            ZLIB,
+-            NONE
+-        }
+-=======
+-
+-        @Comment("Enable Purpur six rows enderChest feature")
+-        public boolean enderChestSixRows = false;
+-
+-        @Comment("Enable Purpur custom rows barrel feature")
+-        public int barrelRows = 3;
+->>>>>>> Support six rows enderChests and barrels
+-    }
+-
+-    public Commands commands;
+-
+-    public class Commands extends ConfigurationPart {
+-        public boolean suggestPlayerNamesWhenNullTabCompletions = true;
+-        public boolean fixTargetSelectorTagCompletion = true;
+-        public boolean timeCommandAffectsAllWorlds = false;
+-    }
+-
+-    public Logging logging;
+-
+-    public class Logging extends ConfigurationPart {
+-        public boolean logPlayerIpAddresses = true;
+-        public boolean deobfuscateStacktraces = true;
+-    }
+-
+-    public Scoreboards scoreboards;
+-
+-    public class Scoreboards extends ConfigurationPart {
+-        public boolean trackPluginScoreboards = false;
+-        public boolean saveEmptyScoreboardTeams = false;
+-    }
+-
+-    public ChunkSystem chunkSystem;
+-
+-    public class ChunkSystem extends ConfigurationPart.Post {
+-
+-        public int ioThreads = -1;
+-        public int workerThreads = -1;
+-        public String genParallelism = "default";
+-
+-        @Override
+-        public void postProcess() {
+-            io.papermc.paper.chunk.system.scheduling.ChunkTaskScheduler.init(this);
+-        }
+-    }
+-
+-    public ItemValidation itemValidation;
+-
+-    public class ItemValidation extends ConfigurationPart {
+-        public int displayName = 8192;
+-        public int loreLine = 8192;
+-        public Book book;
+-
+-        public class Book extends ConfigurationPart {
+-            public int title = 8192;
+-            public int author = 8192;
+-            public int page = 16384;
+-        }
+-
+-        public BookSize bookSize;
+-
+-        public class BookSize extends ConfigurationPart {
+-            public int pageMax = 2560; // TODO this appears to be a duplicate setting with one above
+-            public double totalMultiplier = 0.98D; // TODO this should probably be merged into the above inner class
+-        }
+-        public boolean resolveSelectorsInBooks = false;
+-    }
+-
+-    public PacketLimiter packetLimiter;
+-
+-    public class PacketLimiter extends ConfigurationPart {
+-        public Component kickMessage = Component.translatable("disconnect.exceeded_packet_rate", NamedTextColor.RED);
+-        public PacketLimit allPackets = new PacketLimit(7.0, 500.0, PacketLimit.ViolateAction.KICK);
+-        public Map<Class<? extends Packet<?>>, PacketLimit> overrides = Map.of(ServerboundPlaceRecipePacket.class, new PacketLimit(4.0, 5.0, PacketLimit.ViolateAction.DROP));
+-
+-        @ConfigSerializable
+-        public record PacketLimit(@Required double interval, @Required double maxPacketRate, ViolateAction action) {
+-            public PacketLimit(final double interval, final double maxPacketRate, final @Nullable ViolateAction action) {
+-                this.interval = interval;
+-                this.maxPacketRate = maxPacketRate;
+-                this.action = Objects.requireNonNullElse(action, ViolateAction.KICK);
+-            }
+-
+-            public boolean isEnabled() {
+-                return this.interval > 0.0 && this.maxPacketRate > 0.0;
+-            }
+-
+-            public enum ViolateAction {
+-                KICK,
+-                DROP;
+-            }
+-        }
+-    }
+-
+-    public Collisions collisions;
+-
+-    public class Collisions extends ConfigurationPart {
+-        public boolean enablePlayerCollisions = true;
+-        public boolean sendFullPosForHardCollidingEntities = true;
+-    }
+-
+-    public PlayerAutoSave playerAutoSave;
+-
+-
+-    public class PlayerAutoSave extends ConfigurationPart {
+-        public int rate = -1;
+-        private int maxPerTick = -1;
+-        public int maxPerTick() {
+-            if (this.maxPerTick < 0) {
+-                return (this.rate == 1 || this.rate > 100) ? 10 : 20;
+-            }
+-            return this.maxPerTick;
+-        }
+-    }
+-
+-    public Misc misc;
+-
+-    public class Misc extends ConfigurationPart {
+-
+-        public ChatThreads chatThreads;
+-        public class ChatThreads extends ConfigurationPart.Post {
+-            private int chatExecutorCoreSize = -1;
+-            private int chatExecutorMaxSize = -1;
+-
+-            @Override
+-            public void postProcess() {
+-                //noinspection ConstantConditions
+-                if (net.minecraft.server.MinecraftServer.getServer() == null) return; // In testing env, this will be null here
+-                int _chatExecutorMaxSize = (chatExecutorMaxSize <= 0) ? Integer.MAX_VALUE : chatExecutorMaxSize; // This is somewhat dumb, but, this is the default, do we cap this?;
+-                int _chatExecutorCoreSize = Math.max(chatExecutorCoreSize, 0);
+-
+-                if (_chatExecutorMaxSize < _chatExecutorCoreSize) {
+-                    _chatExecutorMaxSize = _chatExecutorCoreSize;
+-                }
+-
+-                java.util.concurrent.ThreadPoolExecutor executor = (java.util.concurrent.ThreadPoolExecutor) net.minecraft.server.MinecraftServer.getServer().chatExecutor;
+-                executor.setCorePoolSize(_chatExecutorCoreSize);
+-                executor.setMaximumPoolSize(_chatExecutorMaxSize);
+-            }
+-        }
+-        public int maxJoinsPerTick = 5;
+-        public boolean fixEntityPositionDesync = true;
+-        public boolean loadPermissionsYmlBeforePlugins = true;
+-        @Constraints.Min(4)
+-        public int regionFileCacheSize = 256;
+-        @Comment("See https://luckformula.emc.gs")
+-        public boolean useAlternativeLuckFormula = false;
+-        public boolean lagCompensateBlockBreaking = true;
+-        public boolean useDimensionTypeForCustomSpawners = false;
+-        public boolean strictAdvancementDimensionCheck = false;
+-        public String serverModName = "DirtyFolia";
+-    }
+-
+-    public BlockUpdates blockUpdates;
+-
+-    public class BlockUpdates extends ConfigurationPart {
+-        public boolean disableNoteblockUpdates = false;
+-        public boolean disableTripwireUpdates = false;
+-    }
+-
+-    // Folia start - threaded regions
+-    public ThreadedRegions threadedRegions;
+-    public class ThreadedRegions extends Post {
+-
+-        public int threads = -1;
+-
+-        @Override
+-        public void postProcess() {
+-            io.papermc.paper.threadedregions.TickRegions.init(this);
+-        }
+-    }
+-    // Folia end - threaded regions
+-
+-    public ChunkLoadingBasic chunkLoadingBasic;
+-
+-    public class ChunkLoadingBasic extends ConfigurationPart {
+-        @Comment("The maximum rate in chunks per second that the server will send to any individual player. Set to -1 to disable this limit.")
+-        public double playerMaxChunkSendRate = 75.0;
+-
+-        @Comment(
+-            "The maximum rate at which chunks will load for any individual player. " +
+-            "Note that this setting also affects chunk generations, since a chunk load is always first issued to test if a" +
+-            "chunk is already generated. Set to -1 to disable this limit."
+-        )
+-        public double playerMaxChunkLoadRate = 100.0;
+-
+-        @Comment("The maximum rate at which chunks will generate for any individual player. Set to -1 to disable this limit.")
+-        public double playerMaxChunkGenerateRate = -1.0;
+-    }
+-
+-    public ChunkLoadingAdvanced chunkLoadingAdvanced;
+-
+-    public class ChunkLoadingAdvanced extends ConfigurationPart {
+-        @Comment(
+-            "Set to true if the server will match the chunk send radius that clients have configured" +
+-            "in their view distance settings if the client is less-than the server's send distance."
+-        )
+-        public boolean autoConfigSendDistance = true;
+-
+-        @Comment(
+-            "Specifies the maximum amount of concurrent chunk loads that an individual player can have." +
+-            "Set to 0 to let the server configure it automatically per player, or set it to -1 to disable the limit."
+-        )
+-        public int playerMaxConcurrentChunkLoads = 0;
+-
+-        @Comment(
+-            "Specifies the maximum amount of concurrent chunk generations that an individual player can have." +
+-            "Set to 0 to let the server configure it automatically per player, or set it to -1 to disable the limit."
+-        )
+-        public int playerMaxConcurrentChunkGenerates = 0;
+-    }
+-}
+diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java.rej b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java.rej
+deleted file mode 100644
+index fbe2a274fa650c35f3fbd4341a1c514993b4ee52..0000000000000000000000000000000000000000
+--- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java.rej
++++ /dev/null
+@@ -1,28 +0,0 @@
+-diff a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java	(rejected hunks)
+-@@ -25,9 +26,26 @@ public class GlobalConfiguration extends ConfigurationPart {
+-         return instance;
+-     }
+-     public static String serverModName = "DirtyFolia";
+-+    public static boolean enderChestSixRows = false;
+-+    public static int barrelRows = 3;
+-     static void set(GlobalConfiguration instance) {
+-         GlobalConfiguration.instance = instance;
+-         serverModName = instance.misc.serverModName;
+-+        enderChestSixRows = instance.unsupportedSettings.enderChestSixRows;
+-+        barrelRows = instance.unsupportedSettings.barrelRows;
+-+        if (barrelRows < 1 || barrelRows > 6) {
+-+            Bukkit.getLogger().severe("unsupportedSettings.barrelRows must be 1-6, resetting to default");
+-+            barrelRows = 3;
+-+        }
+-+        org.bukkit.event.inventory.InventoryType.BARREL.setDefaultSize(switch (barrelRows) {
+-+            case 6 -> 54;
+-+            case 5 -> 45;
+-+            case 4 -> 36;
+-+            case 2 -> 18;
+-+            case 1 -> 9;
+-+            default -> 27;
+-+        });
+-+        org.bukkit.event.inventory.InventoryType.ENDER_CHEST.setDefaultSize(enderChestSixRows ? 54 : 27);
+-     }
+- 
+-     @Setting(Configuration.VERSION_FIELD)
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 77ea6cf7b702675e89aab67d4d9994c94f36d3dc..0829ed685ba3bccc844edc57f306b3e8835d7e21 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1788,7 +1788,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+     @DontObfuscate
+     public String getServerModName() {
+-        return GlobalConfiguration.serverModName; // DirtyFolia - Read from configuration > // Folia - Folia > // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
++        return GlobalConfiguration.get().misc.serverModName; // DirtyFolia - Read from configuration > // Folia - Folia > // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
+     }
+ 
+     public SystemReport fillSystemReport(SystemReport details) {
+diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
+index aff2cc5373f6cb1e04072e036d5022b8c5c1ec5a..e3f7cc73c20d6f6e2246b5318e4cfd700bf05d1e 100644
+--- a/src/main/java/net/minecraft/server/players/PlayerList.java
++++ b/src/main/java/net/minecraft/server/players/PlayerList.java
+@@ -1249,7 +1249,7 @@ public abstract class PlayerList {
+         } // Paper
+ 
+         // DirtyFolia (Purpur) - Start
+-        if (GlobalConfiguration.enderChestSixRows) {
++        if (GlobalConfiguration.get().unsupportedSettings.enderChestSixRows) {
+             org.bukkit.craftbukkit.entity.CraftHumanEntity bukkit = player.getBukkitEntity();
+             player.sixRowEnderchestSlotCount = 54;
+         } else {
+diff --git a/src/main/java/net/minecraft/world/inventory/PlayerEnderChestContainer.java b/src/main/java/net/minecraft/world/inventory/PlayerEnderChestContainer.java
+index df9722620833e0e80432b557749f6445e293743a..197fed086ae27529860f37dff4ebae55501fe061 100644
+--- a/src/main/java/net/minecraft/world/inventory/PlayerEnderChestContainer.java
++++ b/src/main/java/net/minecraft/world/inventory/PlayerEnderChestContainer.java
+@@ -33,7 +33,7 @@ public class PlayerEnderChestContainer extends SimpleContainer {
+ 
+     public PlayerEnderChestContainer(Player owner) {
+         //super(27);
+-        super(GlobalConfiguration.enderChestSixRows ? 54 : 27); // DirtyFolia (Purpur)
++        super(GlobalConfiguration.get().unsupportedSettings.enderChestSixRows ? 54 : 27); // DirtyFolia (Purpur)
+         this.owner = owner;
+         // CraftBukkit end
+     }
+diff --git a/src/main/java/net/minecraft/world/level/block/EnderChestBlock.java b/src/main/java/net/minecraft/world/level/block/EnderChestBlock.java
+index 8c2e66b277ec5d9c6ddebeb0ea9876d87cb3c878..fd3ab29b2ead326ee1e1de8a8d00cfb92d035096 100644
+--- a/src/main/java/net/minecraft/world/level/block/EnderChestBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/EnderChestBlock.java
+@@ -88,7 +88,7 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestBlockEntity> i
+                 playerEnderChestContainer.setActiveChest(enderChestBlockEntity);
+                 player.openMenu(new SimpleMenuProvider((syncId, inventory, playerx) -> {
+                     // DirtyFolia (Purpur) - Start
+-                    if (GlobalConfiguration.enderChestSixRows) {
++                    if (GlobalConfiguration.get().unsupportedSettings.enderChestSixRows) {
+                         return ChestMenu.sixRows(syncId, inventory, playerEnderChestContainer);
+                     }
+                     // DirtyFolia (Purpur) - End
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
+index 4d3cb2d027af0681c5add79518aab6930fb6bad2..9d8f567a2aed70a57236a571f00b74f8f4f5f608 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
+@@ -70,7 +70,7 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
+         super(BlockEntityType.BARREL, pos, state);
+         //this.items = NonNullList.withSize(27, ItemStack.EMPTY);
+         // DirtyFolia (Purpur) - Start
+-        this.items = NonNullList.withSize(switch (GlobalConfiguration.barrelRows) {
++        this.items = NonNullList.withSize(switch (GlobalConfiguration.get().unsupportedSettings.barrelRows) {
+             case 6 -> 54;
+             case 5 -> 45;
+             case 4 -> 36;
+@@ -131,7 +131,7 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
+     public int getContainerSize() {
+         //return 27;
+         // DirtyFolia (Purpur) - Start
+-        return switch (GlobalConfiguration.barrelRows) {
++        return switch (GlobalConfiguration.get().unsupportedSettings.barrelRows) {
+             case 6 -> 54;
+             case 5 -> 45;
+             case 4 -> 36;
+@@ -161,7 +161,7 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
+     protected AbstractContainerMenu createMenu(int syncId, Inventory playerInventory) {
+         //return ChestMenu.threeRows(syncId, playerInventory, this);
+         // DirtyFolia (Purpur) - Start
+-        return switch (GlobalConfiguration.barrelRows) {
++        return switch (GlobalConfiguration.get().unsupportedSettings.barrelRows) {
+             case 6 -> ChestMenu.sixRows(syncId, playerInventory, this);
+             case 5 -> ChestMenu.fiveRows(syncId, playerInventory, this);
+             case 4 -> ChestMenu.fourRows(syncId, playerInventory, this);
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
+index e6985c38e9876c50534eb0cfcd4383528d09ed92..65aeb5a1e66d92fea91a2cad4053bb9b72a67397 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
+@@ -183,11 +183,11 @@ public class CraftContainer extends AbstractContainerMenu {
+             case CHEST:
+             case ENDER_CHEST:
+                 // Purpur start
+-                this.delegate = new ChestMenu(GlobalConfiguration.enderChestSixRows ? MenuType.GENERIC_9x6 : MenuType.GENERIC_9x3, windowId, bottom, top, top.getContainerSize() / 9);
++                this.delegate = new ChestMenu(GlobalConfiguration.get().unsupportedSettings.enderChestSixRows ? MenuType.GENERIC_9x6 : MenuType.GENERIC_9x3, windowId, bottom, top, top.getContainerSize() / 9);
+                 break;
+             case BARREL:
+                 //this.delegate = new ChestMenu(MenuType.GENERIC_9x3, windowId, bottom, top, top.getContainerSize() / 9);
+-                this.delegate = new ChestMenu(switch (GlobalConfiguration.barrelRows) {
++                this.delegate = new ChestMenu(switch (GlobalConfiguration.get().unsupportedSettings.barrelRows) {
+                     case 6 -> MenuType.GENERIC_9x6;
+                     case 5 -> MenuType.GENERIC_9x5;
+                     case 4 -> MenuType.GENERIC_9x4;
