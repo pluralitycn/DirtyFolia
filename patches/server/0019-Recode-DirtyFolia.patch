@@ -1148,7 +1148,7 @@ index fa35d2c1c8de225acd68e08f15976c92f7ab82aa..bc4e1db0e00e564122418f155f35298a
          }
  
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index f636bdf1075fa784ce7ee25478d4d94bacb05677..125526a6ba4230c7b252c5a7df83ce4c7d9d5371 100644
+index 17d6349ccdbb6ac91b2705be0b855e768423c50a..98670b79944a6c7e4fc62783511945e26f44391c 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -864,7 +864,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
@@ -1161,7 +1161,7 @@ index f636bdf1075fa784ce7ee25478d4d94bacb05677..125526a6ba4230c7b252c5a7df83ce4c
              PlayerTeam scoreboardteam = this.level().getScoreboard().getPlayerTeam(s);
              if (!this.level().paperConfig().scoreboards.allowNonPlayerEntitiesOnScoreboards && !(this instanceof net.minecraft.world.entity.player.Player)) { scoreboardteam = null; } // Paper
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 4338b948a53d32cac5c780cbd43c6ca1cc5d11e5..449ee90a97f01e7794c96d989b84ff91268a7d84 100644
+index 916df0c8d263f90e04564c5f512fd5ed5eaaa6d5..d3641216339a94f28aa5e2ec576971134949b311 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -15,6 +15,8 @@ import java.util.function.Consumer;
@@ -2282,7 +2282,7 @@ index 61f7630d2160411f35cc3ca33def30b9cea65408..be0d22f81e3267747926ddeca0f0dfd1
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-index ab53eab269b204a59b2c9a9bef4f6cf4098e0dfd..0a477d8e90a3804800083ae9ba927a4304b67cbc 100644
+index d2ab898c0f3902f5f0f9847232dac244b4095854..aa3d17b4cc2fa2f13d0dad5b3b544370b67d7394 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 @@ -437,7 +437,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {

@@ -5573,7 +5573,7 @@ index bc4e1db0e00e564122418f155f35298a7c18c746..af07c9d24374b7d969f1e524ce0bbb26
          // CraftBukkit end
          // Paper start - fix bad state entities causing dupes
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 125526a6ba4230c7b252c5a7df83ce4c7d9d5371..ec9589650527d4ffd3cef4613ab3bb0898bda1fd 100644
+index 98670b79944a6c7e4fc62783511945e26f44391c..0215dd0e802708d9818d3946e3e7abe5c3b0bf1c 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -1144,7 +1144,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
@@ -5619,7 +5619,7 @@ index 19cb22df8eb29d1708e3da2124de3b43378b575a..c75640198642b594be7779d8edff62b1
              if ("Searge".equalsIgnoreCase(this.command)) {
                  this.lastOutput = Component.literal("#itzlipofutzli");
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 449ee90a97f01e7794c96d989b84ff91268a7d84..9e0d086c5fd8094b0c5cb377c5521711881f09b2 100644
+index d3641216339a94f28aa5e2ec576971134949b311..c12d57b2956efa15c22e7d1cdbd74a1c518c169c 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -1,44 +1,27 @@
@@ -5725,7 +5725,7 @@ index 449ee90a97f01e7794c96d989b84ff91268a7d84..9e0d086c5fd8094b0c5cb377c5521711
  // CraftBukkit end
  
  public abstract class Level implements LevelAccessor, AutoCloseable {
-@@ -1152,7 +1127,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -1236,7 +1211,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
  
      @Override
      public List<Entity> getEntities(@Nullable Entity except, AABB box, Predicate<? super Entity> predicate) {
@@ -5734,7 +5734,7 @@ index 449ee90a97f01e7794c96d989b84ff91268a7d84..9e0d086c5fd8094b0c5cb377c5521711
          this.getProfiler().incrementCounter("getEntities");
          List<Entity> list = Lists.newArrayList();
          ((ServerLevel)this).getEntityLookup().getEntities(except, box, list, predicate); // Paper - optimise this call
-@@ -1172,7 +1147,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -1256,7 +1231,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
      }
  
      public <T extends Entity> void getEntities(EntityTypeTest<Entity, T> filter, AABB box, Predicate<? super T> predicate, List<? super T> result, int limit) {

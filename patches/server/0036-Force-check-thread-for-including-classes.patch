@@ -108,7 +108,7 @@ index f0b7d802951d901c23d221a7787bfddfd28f3a56..53ea21e04529a6f2cabfaa5c46b1d39d
                  // Paper end
                  worldserver.timings.doTick.stopTiming(); // Spigot
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index bb0e11bd907a062dbfd977fe3c792c2e8299586a..486b580746ca086430548f4f2c44af00e373bd94 100644
+index acf4994aec33fe25e67a5d620154d1f2f097a0d1..739a849b1ec94a9b1541a887c99cde6961d2e4d5 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -250,12 +250,21 @@ public abstract class Level implements LevelAccessor, AutoCloseable {

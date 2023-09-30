@@ -1,0 +1,172 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: killerprojecte <admin@fastmcmirror.org>
+Date: Sat, 30 Sep 2023 21:14:22 +0800
+Subject: [PATCH] Remove wrong code & optimize performance
+
+
+diff --git a/src/main/java/dev/rgbmc/folia/CachedRegionData.java b/src/main/java/dev/rgbmc/folia/CachedRegionData.java
+index 3d8431243d64e490d5c7c54a4a98a3e94fea58b3..a452393f824261973e2fa9be322d1587c1e2455a 100644
+--- a/src/main/java/dev/rgbmc/folia/CachedRegionData.java
++++ b/src/main/java/dev/rgbmc/folia/CachedRegionData.java
+@@ -1,39 +1,15 @@
+ package dev.rgbmc.folia;
+ 
+-import io.papermc.paper.threadedregions.RegionizedWorldData;
+ import io.papermc.paper.threadedregions.ThreadedRegionizer;
+ import io.papermc.paper.threadedregions.TickRegions;
++import net.minecraft.server.level.ChunkLevel;
++import net.minecraft.world.level.chunk.LevelChunk;
+ 
+ import java.util.HashMap;
+ import java.util.Map;
+ 
+ public class CachedRegionData {
+-    private static final Map<Long, ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData>> cachedData = new HashMap<>();
+-    private static final Map<String, ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData>> worldCachedData = new HashMap<>();
+-
+-    public static void update(long id, ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> data) {
+-        cachedData.put(id, data);
+-    }
+-
+-    public static void updateWorld(String world, ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> data) {
+-        worldCachedData.put(world, data);
+-    }
+-
+-    public static boolean isCached(long id) {
+-        return cachedData.containsKey(id);
+-    }
+-
+-    public static boolean isCachedWorld(String world) {
+-        return worldCachedData.containsKey(world);
++    public static ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> get(LevelChunk chunk) {
++        return chunk.level.regioniser.getRegionAtUnsynchronised(chunk.locX << 4, chunk.locZ << 4);
+     }
+-
+-    public static ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> get(long id) {
+-        return cachedData.get(id);
+-    }
+-
+-    public static ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> getWorld(String world) {
+-        return worldCachedData.get(world);
+-    }
+-
+-
+ }
+diff --git a/src/main/java/dev/rgbmc/folia/CachedWorldData.java b/src/main/java/dev/rgbmc/folia/CachedWorldData.java
+index 85515235d59669db0dc189438af85759c3f3b81e..0b1d17a57e097563325242ec6a7b96cdc126182c 100644
+--- a/src/main/java/dev/rgbmc/folia/CachedWorldData.java
++++ b/src/main/java/dev/rgbmc/folia/CachedWorldData.java
+@@ -1,19 +1,20 @@
+ package dev.rgbmc.folia;
+ 
+ import io.papermc.paper.threadedregions.RegionizedWorldData;
++import net.minecraft.server.level.ServerLevel;
++import net.minecraft.world.level.Level;
+ 
+ import java.util.HashMap;
+ import java.util.Map;
+ import java.util.concurrent.CompletableFuture;
+ 
+ public class CachedWorldData {
+-    private static final Map<String, RegionizedWorldData> cachedData = new HashMap<>();
+-
+-    public static void update(String world, RegionizedWorldData data) {
+-        cachedData.put(world, data);
++    private static final Map<String, RegionizedWorldData> dataMap = new HashMap<>();
++    public static RegionizedWorldData get(String world) {
++        return dataMap.get(world);
+     }
+ 
+-    public static RegionizedWorldData get(String world) {
+-        return cachedData.get(world);
++    public static void set(ServerLevel level, RegionizedWorldData data) {
++        dataMap.put(level.serverLevelData.getLevelName(), data);
+     }
+ }
+diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedData.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedData.java
+index 1f48ada99d6d24880f9bda1cd05d41a4562e42f5..2e2a938b13e418d5c71d2fd8d2a68e26f53f1b1b 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/RegionizedData.java
++++ b/src/main/java/io/papermc/paper/threadedregions/RegionizedData.java
+@@ -126,7 +126,13 @@ public final class RegionizedData<T> {
+     }
+ 
+     T createNewValue() {
+-        return Validate.notNull(this.initialValueSupplier.get(), "Initial value supplier may not return null");
++        // DirtyFolia - Start
++        T value = this.initialValueSupplier.get();
++        if (value != null) {
++            if (value instanceof io.papermc.paper.threadedregions.RegionizedWorldData data) dev.rgbmc.folia.CachedWorldData.set(world, data);
++        }
++        // DirtyFolia - End
++        return Validate.notNull(value, "Initial value supplier may not return null");
+     }
+ 
+     RegioniserCallback<T> getCallback() {
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 0829ed685ba3bccc844edc57f306b3e8835d7e21..c10ffd23653bc93e91db3d42e836492c16e04421 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1454,10 +1454,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                         LOGGER.info("Initialising world '" + region.world.getWorld().getName() + "' before it can be ticked...");
+                         this.initWorld(region.world, region.world.serverLevelData, worldData, region.world.serverLevelData.worldGenOptions()); // Folia - delayed until first tick of world
+                         region.world.checkInitialised.set(ServerLevel.WORLD_INIT_CHECKED);
+-                        // DirtyFolia - Start
+-                        CachedWorldData.update(region.world.serverLevelData.getLevelName(), region.world.getCurrentWorldData());
+-                        MinecraftServer.LOGGER.info("World " + region.world.getWorld().getName() + " data status: " + (CachedWorldData.get(region.world.getWorld().getName()) == null ? "(Unavailable)" : "(Cached)"));
+-                        // DirtyFolia - End
+                         LOGGER.info("Initialised world '" + region.world.getWorld().getName() + "'");
+                     } // else: must be checked
+                 }
+@@ -1651,9 +1647,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                 for (final io.papermc.paper.chunk.SingleThreadChunkRegionManager regionManager : worldserver.getChunkSource().chunkMap.regionManagers) {
+                     regionManager.recalculateRegions();
+                 }
+-                Bukkit.getRegionScheduler().run(new FakePlugin(), worldserver.getWorld(), 0, 0, scheduledTask -> { // Folia (Third Party)
+-                    CachedWorldData.update(region.world.serverLevelData.getLevelName(), worldserver.getCurrentWorldData());
+-                });
+                 // Paper end
+                 worldserver.timings.doTick.stopTiming(); // Spigot
+             } catch (Throwable throwable) {
+diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+index 1dee8d897981b56d243f74caba3c82873f204672..c36c65a7def8b067badbe71a4308d8c44c079ef0 100644
+--- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
++++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
+ import com.google.common.collect.Lists;
+ import com.mojang.datafixers.DataFixer;
+ import com.mojang.datafixers.util.Either;
+-import dev.rgbmc.folia.CachedRegionData;
+ import io.papermc.paper.threadedregions.*;
+ import net.minecraft.Util;
+ import net.minecraft.core.BlockPos;
+@@ -840,14 +839,9 @@ public class ServerChunkCache extends ChunkSource {
+             }
+             // DirtyFolia
+             ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> data = TickRegionScheduler.getCurrentRegion();
+-            if (data != null && CachedRegionData.isCached(data.id)) {
+-                CachedRegionData.update(data.id, data);
+-                if (!CachedRegionData.isCachedWorld(ServerChunkCache.this.level.serverLevelData.getLevelName())) {
+-                    CachedRegionData.updateWorld(ServerChunkCache.this.level.serverLevelData.getLevelName(), data);
+-                }
+-            } else if (data == null) {
+-                return CachedRegionData.getWorld(ServerChunkCache.this.level.serverLevelData.getLevelName()).getData().getTaskQueueData().executeChunkTask();
+-            }
++            //if (data == null) {
++            //    return data.getData().getTaskQueueData().executeChunkTask();
++            //}
+             return data.getData().getTaskQueueData().executeChunkTask(); // Paper - rewrite chunk system // Folia - region threading
+         }
+     }
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index db03ecdd5ba2a9ec256247bc4a3915e2f0678557..b3797c444aa649b2774e439af7f1bde1f860abf1 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -255,7 +255,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+             if (this instanceof ServerLevel serverLevel) {
+                 return CachedWorldData.get(serverLevel.serverLevelData.getLevelName());
+             }
+-            return ret; // DirtyFolia - cache world data
++            return null; // DirtyFolia - cache world data
+         }
+         Level world = ret.world;
+         if (world != this) {
