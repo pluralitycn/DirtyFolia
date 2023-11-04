@@ -5,6 +5,11 @@
     <p>Fork of <a href="https://github.com/PaperMC/Folia">Folia</a> working to support more bukkit plugins.</p>
 </div>
 
+**This project will be changed to a paid model in the future. 
+I have invested too much energy and time in this project. 
+If I cannot get encouragement and benefits from it, I may stop development.
+Even a cup of coffee is the greatest support for me.**
+
 - **DirtyFolia** is a project to make **Original Folia** support more **Only Bukkit-API** plugins
 - We will never support plugins that work based on NMS (Unsafe)
 - All plugin compatible work needs to be based on whether the original Folia related API is available

@@ -5,7 +5,7 @@ Subject: [PATCH] Force kick when safety kicking failed
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 24583488ee0e15c9017549a13d190e9f3f1b8686..d698da63f7b5ef927da0e6c530bcbbee2efa1a8a 100644
+index a01fda754dae624c001901ab1f834e5cc416f4ce..2ee54c4a41032f55d5c7b1ab6a5d67a99577d2e7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -7,6 +7,8 @@ import com.google.common.io.BaseEncoding;
@@ -17,7 +17,7 @@ index 24583488ee0e15c9017549a13d190e9f3f1b8686..d698da63f7b5ef927da0e6c530bcbbee
  import it.unimi.dsi.fastutil.shorts.ShortArraySet;
  import it.unimi.dsi.fastutil.shorts.ShortSet;
  import java.io.ByteArrayOutputStream;
-@@ -30,6 +32,7 @@ import java.util.WeakHashMap;
+@@ -32,6 +34,7 @@ import java.util.WeakHashMap;
  import java.util.logging.Level;
  import java.util.logging.Logger;
  import java.util.concurrent.ExecutionException;
@@ -25,7 +25,7 @@ index 24583488ee0e15c9017549a13d190e9f3f1b8686..d698da63f7b5ef927da0e6c530bcbbee
  import javax.annotation.Nullable;
  import net.minecraft.advancements.AdvancementProgress;
  import net.minecraft.core.BlockPos;
-@@ -37,6 +40,7 @@ import net.minecraft.core.Holder;
+@@ -39,6 +42,7 @@ import net.minecraft.core.Holder;
  import net.minecraft.core.SectionPos;
  import net.minecraft.core.registries.BuiltInRegistries;
  import net.minecraft.nbt.CompoundTag;
@@ -33,7 +33,7 @@ index 24583488ee0e15c9017549a13d190e9f3f1b8686..d698da63f7b5ef927da0e6c530bcbbee
  import net.minecraft.network.FriendlyByteBuf;
  import net.minecraft.network.chat.Component;
  import net.minecraft.network.chat.PlayerChatMessage;
-@@ -71,6 +75,7 @@ import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
+@@ -73,6 +77,7 @@ import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
  import net.minecraft.network.protocol.game.ClientboundTabListPacket;
  import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
  import net.minecraft.resources.ResourceLocation;
@@ -41,7 +41,7 @@ index 24583488ee0e15c9017549a13d190e9f3f1b8686..d698da63f7b5ef927da0e6c530bcbbee
  import net.minecraft.server.PlayerAdvancements;
  import net.minecraft.server.level.ChunkMap;
  import net.minecraft.server.level.ServerLevel;
-@@ -603,7 +608,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -612,7 +617,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          //org.spigotmc.AsyncCatcher.catchOp("player kick"); // Folia - region threading - no longer needed
          final ServerGamePacketListenerImpl connection = this.getHandle().connection;
          if (connection != null) {

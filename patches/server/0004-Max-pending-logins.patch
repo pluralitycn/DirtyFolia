@@ -19,7 +19,7 @@ index 2e96377d628b3a07fb565020074d665f594f32e8..75b1877f8c3e4da3183437f327ef3376
          } // Folia - region threading - remove delayed accept
  
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 9aa12c2ae7d86604583e98ba9872ad613882c867..39d404c278bdc1227cb806bb257492493d05a439 100644
+index 82c7235ad9f4bc4a9f6e018c9905d49790396918..1f70b0810ab992851662fe27c7522bc9eabf5f5f 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -180,6 +180,17 @@ public abstract class PlayerList {

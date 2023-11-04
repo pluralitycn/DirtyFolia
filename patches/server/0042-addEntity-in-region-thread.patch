@@ -5,7 +5,7 @@ Subject: [PATCH] addEntity in region thread
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-index 0493629eecac1a9540707f322f5b82cb47356f5c..01d7a231d346dc12cccd349f67868bb9a45d5dcc 100644
+index d232093e26259157066e56f384dfa471896822a1..eb246bdfce9f723e630f8d74e5fec324407b5112 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 @@ -2,6 +2,7 @@ package io.papermc.paper.chunk.system.entity;

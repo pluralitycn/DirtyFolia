@@ -20,10 +20,10 @@ index 7d620ac3b071415d55518fcea3fa634eb8e07967..d76e391f80d3aa2227c39d099316936e
          return this.connections.remove(conn);
      }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index e27e347b08cc62e11981686d3eb37a1766f322a2..1bfdfb1dd51517a067b068d50d8b6ab5e4da915c 100644
+index 7115d199d6b2effef9a50900767d4cf920d4f0bc..f0b7d802951d901c23d221a7787bfddfd28f3a56 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1500,6 +1500,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1499,6 +1499,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              }
              // now tick connections
              region.world.getCurrentWorldData().tickConnections(); // Folia - region threading

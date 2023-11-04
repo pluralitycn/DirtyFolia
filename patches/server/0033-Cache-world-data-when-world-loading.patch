@@ -26,7 +26,7 @@ index ee9f5e1f3387998cddbeb1dc6dc6e2b1ea7cd670..70cc11031e5ed5d9c4c5e68aca9a1b79
              tickThreadRunner.currentTickingWorldRegionizedData = null;
          }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 67223e0dd26bc64f915327832c568f96f4cb99b8..e27e347b08cc62e11981686d3eb37a1766f322a2 100644
+index e18204d3f351198fbc41d5de9d9da9417775ade1..7115d199d6b2effef9a50900767d4cf920d4f0bc 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1,5 +1,6 @@
@@ -44,7 +44,7 @@ index 67223e0dd26bc64f915327832c568f96f4cb99b8..e27e347b08cc62e11981686d3eb37a17
  import org.bukkit.command.ConsoleCommandSender;
  import org.bukkit.event.server.ServerLoadEvent;
  import org.slf4j.Logger;
-@@ -1453,6 +1455,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1452,6 +1454,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                          LOGGER.info("Initialising world '" + region.world.getWorld().getName() + "' before it can be ticked...");
                          this.initWorld(region.world, region.world.serverLevelData, worldData, region.world.serverLevelData.worldGenOptions()); // Folia - delayed until first tick of world
                          region.world.checkInitialised.set(ServerLevel.WORLD_INIT_CHECKED);

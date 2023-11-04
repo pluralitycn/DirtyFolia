@@ -39,10 +39,10 @@ index c3a2f62cbb87d23f9ed21eabd9eb43973c85cb7f..4042062f6303a02448e6548bc61ba11b
          } else {
              tickThreadRunner.currentTickingWorldRegionizedData = null;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 19bbd89d168ca6b1d50d58c828f20b03a09e6c17..4f2043e24c7947be0f010ec13d789dfe07d2cc2a 100644
+index 0358f7d026c3fd519b9871515f55b1965f43fd93..77ea6cf7b702675e89aab67d4d9994c94f36d3dc 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1500,8 +1500,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1499,8 +1499,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              }
              // now tick connections
              region.world.getCurrentWorldData().tickConnections(); // Folia - region threading
@@ -52,7 +52,7 @@ index 19bbd89d168ca6b1d50d58c828f20b03a09e6c17..4f2043e24c7947be0f010ec13d789dfe
          // Folia end - region threading
  
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 2b07f9ad69f07f3c8a0bb10d577d7b80f3e92507..e999c76d5cd2743bfbadc8a40c28b652f00af7b6 100644
+index 739a849b1ec94a9b1541a887c99cde6961d2e4d5..db03ecdd5ba2a9ec256247bc4a3915e2f0678557 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -262,8 +262,6 @@ public abstract class Level implements LevelAccessor, AutoCloseable {

@@ -5,7 +5,7 @@ Subject: [PATCH] fixup! Rewrite chunk system
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-index fe461cc6aed9507b23f72ef1ebc856869888cfe6..c07cf8cdee4ec270a97535ee8626081d66226d3f 100644
+index ea8858288102b0a0aafea7a6f57e2ca08c8c9777..90ff9a00dc287bfb60d16100c2cca32d60ac7534 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 @@ -17,6 +17,7 @@ import net.minecraft.util.AbortableIterationConsumer;
@@ -117,10 +117,10 @@ index a68d3ab3aa5c02d23545db4c9388e361835e3099..c88e0fb3efc500f53bf224c84760893e
          }
  
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index 916bfdfb13d8f8093e1908a7c35344b83d0ee0ac..25fe439c8d1e88a86e85ac9a4761425d98ee6c4f 100644
+index 475edb726964f3757957474856c61ac89812c15e..6885961c7eaa07b8b25e48ca0e33e310379f6114 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
-@@ -597,7 +597,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+@@ -595,7 +595,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
          return chunkstatus1;
      }
  
@@ -129,7 +129,7 @@ index 916bfdfb13d8f8093e1908a7c35344b83d0ee0ac..25fe439c8d1e88a86e85ac9a4761425d
          if (!nbt.isEmpty()) {
              // CraftBukkit start - these are spawned serialized (DefinedStructure) and we don't call an add event below at the moment due to ordering complexities
              world.addWorldGenChunkEntities(EntityType.loadEntitiesRecursive(nbt, world).filter((entity) -> {
-@@ -613,7 +613,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+@@ -611,7 +611,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                  }
                  checkDupeUUID(world, entity); // Paper
                  return !needsRemoval;

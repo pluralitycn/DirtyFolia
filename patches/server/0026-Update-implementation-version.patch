@@ -5,7 +5,7 @@ Subject: [PATCH] Update implementation version
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 93f9abd2169a48a4fd32f712c68be7b49b034e83..aa52b33bef4ae5c3f471c9da0138bf7e2650f3ec 100644
+index 9ee90bc753e65f9dd532f28ec75cc16bf16486c8..00a6c57714e23ac00a66fdba5cca2b49c6ff4775 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -76,7 +76,7 @@ tasks.jar {
